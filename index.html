@@ -985,7 +985,7 @@ function calculate(){
   }
   daiin.rounds.forEach(r=>allRounds.push(r));
 
-  const daiinRows=allRounds.map(r=>{
+  const daiinRows=allRounds.filter(r=>!r.pre).map(r=>{
     const nowYear=new Date().getFullYear();
     const nowMonth=new Date().getMonth()+1;
     const rStartMonth=r.startMonth||1;
@@ -1047,17 +1047,44 @@ function calculate(){
     const adjTsuuhen_d=new Set([...adjDaiin].map(g=>toTsuuhen_d(g)));
     const kanTsuuhen_d=toTsuuhen_d(kanGogyo);
     const shiTsuuhen_d=toTsuuhen_d(shiGogyo);
-    const jibunAxis_d=(adjTsuuhen_d.has('insho')||adjTsuuhen_d.has('shokusho'));
-    const tanninAxis_d=(adjTsuuhen_d.has('zai')||adjTsuuhen_d.has('kansat'));
-    const kanMark=jibunAxis_d&&['insho','shokusho'].includes(kanTsuuhen_d)?'〇':tanninAxis_d&&['zai','kansat'].includes(kanTsuuhen_d)?'●':'';
-    const shiMark=jibunAxis_d&&['insho','shokusho'].includes(shiTsuuhen_d)?'〇':tanninAxis_d&&['zai','kansat'].includes(shiTsuuhen_d)?'●':'';
+    // 通変の調和判定
+    const has1=adjTsuuhen_d.has('shokusho');
+    const has2=adjTsuuhen_d.has('zai');
+    const has3=adjTsuuhen_d.has('kansat');
+    const has4=adjTsuuhen_d.has('insho');
+    const markOf=(t, isKan)=>{
+      if(t==='shokusho') return has4?'〇':'✖';
+      if(t==='insho')    return has1?'〇':'✖';
+      if(t==='kansat')   return has2?'●':'✖';
+      if(t==='zai')      return has3?'●':'✖';
+      if(t==='hikyu'){
+        // 比劫が来たら年柱で判定
+        if(isKan){
+          // 干に比劫→年干の通変で〇✖
+          const yKanT=toTsuuhen_d(KAN_GOGYO[yP.kan]);
+          if(yKanT==='shokusho') return has4?'〇':'✖';
+          if(yKanT==='insho')    return has1?'〇':'✖';
+          return '✖';
+        } else {
+          // 支に比劫→年支の通変で●✖
+          const yShiT=toTsuuhen_d(SHI_GOGYO[yP.shi]);
+          if(yShiT==='kansat') return has2?'●':'✖';
+          if(yShiT==='zai')    return has3?'●':'✖';
+          return '✖';
+        }
+      }
+      return '';
+    };
+    const kanMark=markOf(kanTsuuhen_d, true);
+    const shiMark=markOf(shiTsuuhen_d, false);
+    const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
       '<td style="'+tdSty+'font-size:17px;'+nowSty+ageSty+'">'+r.age+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
       '<td style="'+tdSty+'font-size:17px;'+nowSty+'">'+r.startYear+'年〜</td>'+
       '<td style="'+tdSty+'font-size:22px;'+nowSty+'">'+
-        '<span style="color:#e0c478;font-size:16px;display:inline-block;width:1em;text-align:center;">'+kanMark+'</span>'+
+        '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+kanMark+'</span>'+
         r.kan+
-        '<span style="color:#e0c478;font-size:16px;display:inline-block;width:1em;text-align:center;">'+shiMark+'</span>'+
+        '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
         r.shi+
         tags+
       '</td>'+

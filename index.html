@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>八字鑑定シート</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+:root{--sumi:#14110f;--sumi2:#1d1916;--washi:#ece3d0;--washi2:#ded2b8;--shu:#c0392b;--shu2:#9b2418;--kin:#c9a44c;--kin2:#e0c478;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--sumi);color:var(--washi);min-height:100vh;padding:0 0 60px;
+  background-image:radial-gradient(circle at 20% 10%,rgba(192,57,43,.10),transparent 45%),radial-gradient(circle at 80% 90%,rgba(201,164,76,.10),transparent 45%);}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px;}
+header{text-align:center;padding:46px 0 24px;}
+h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:clamp(36px,8vw,68px);letter-spacing:.16em;color:var(--washi);text-shadow:0 2px 0 var(--shu2),0 0 30px rgba(192,57,43,.3);}
+h1 .k{color:var(--kin2);}
+.sub{margin-top:13px;letter-spacing:.22em;font-size:15px;color:var(--kin);opacity:.9;}
+.rule{height:1px;background:linear-gradient(90deg,transparent,var(--kin),transparent);margin:22px auto 0;max-width:480px;}
+.card{background:linear-gradient(160deg,var(--sumi2),#191512);border:1px solid rgba(201,164,76,.22);border-radius:14px;padding:30px 28px;margin-top:26px;box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04);}
+.form-title{font-family:'Shippori Mincho',serif;font-size:20px;letter-spacing:.2em;color:var(--kin2);margin-bottom:22px;display:flex;align-items:center;gap:10px;}
+.form-title::before{content:'';width:18px;height:2px;background:var(--shu);}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px;}
+@media(max-width:560px){.fields{grid-template-columns:1fr;}}
+.field label{display:block;font-size:14px;letter-spacing:.15em;color:var(--washi2);margin-bottom:7px;opacity:.8;}
+.field-full{grid-column:1/-1;}
+input,select{width:100%;padding:14px;font-weight:500;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:17px;font-family:inherit;transition:border-color .2s,box-shadow .2s;}
+input:focus,select:focus{outline:none;border-color:var(--kin);box-shadow:0 0 0 3px rgba(201,164,76,.14);}
+input[type=number]{-moz-appearance:textfield;}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+.note-small{font-size:13px;color:var(--washi2);opacity:.65;margin-top:6px;letter-spacing:.05em;}
+.divine-btn{grid-column:1/-1;margin-top:8px;padding:17px;cursor:pointer;width:100%;background:linear-gradient(180deg,var(--shu),var(--shu2));border:1px solid var(--kin);border-radius:10px;color:#fff;font-family:'Shippori Mincho',serif;font-weight:700;font-size:19px;letter-spacing:.4em;text-indent:.4em;box-shadow:0 8px 24px rgba(192,57,43,.35);transition:transform .15s,box-shadow .2s;}
+.divine-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(192,57,43,.5);}
+.divine-btn:active{transform:translateY(0);}
+.shichuu-disp{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:22px;direction:rtl;}
+.shichuu-disp .pillar{direction:ltr;min-width:0;}
+.p-kan-row{display:flex;align-items:center;justify-content:center;gap:2px;height:36px;}
+.p-shi-row{margin-top:6px;height:36px;display:flex;align-items:center;justify-content:center;gap:2px;}
+@media(max-width:480px){
+  .shichuu-disp{gap:4px;}
+  .shichuu-disp .pillar{padding:8px 4px;}
+  .p-kan{font-size:18px !important;}
+  .p-shi{font-size:18px !important;}
+  .p-ts{font-size:8px !important;min-width:20px !important;}
+  .p-juni{font-size:8px !important;min-width:20px !important;}
+  .p-gogyo{font-size:9px !important;}
+  .p-label{font-size:9px !important;}
+  .p-kan-row{height:28px;}
+  .p-shi-row{height:28px;}
+}
+.pillar{background:#0f0c0a;border:1px solid rgba(201,164,76,.18);border-radius:10px;padding:22px 18px;text-align:center;}
+.p-label{font-size:11px;letter-spacing:.2em;color:var(--kin);opacity:.8;margin-bottom:8px;font-weight:700;height:16px;}
+.p-kan-row{display:flex;align-items:center;justify-content:center;gap:4px;height:42px;}
+.p-kan{font-family:'Shippori Mincho',serif;font-size:34px;font-weight:700;color:var(--washi);line-height:1;}
+.pillar.day .p-kan{color:var(--kin2);}
+.p-ts{font-size:10px;color:var(--kin);white-space:nowrap;min-width:28px;text-align:left;vertical-align:top;position:relative;top:-8px;}
+.p-shi-row{margin-top:6px;height:42px;display:flex;align-items:center;justify-content:center;gap:4px;}
+.p-shi{font-family:'Shippori Mincho',serif;font-size:34px;font-weight:700;color:var(--washi2);line-height:1;}
+.p-juni{font-size:10px;color:var(--washi2);opacity:.75;white-space:nowrap;min-width:28px;text-align:left;vertical-align:top;position:relative;top:-8px;}
+.p-gogyo{font-size:12px;color:var(--kin);opacity:.7;margin-top:6px;letter-spacing:.1em;height:18px;}
+@media(max-width:480px){
+  .p-kan-row{height:28px;}
+  .p-kan{font-size:20px;}
+  .p-shi-row{height:28px;}
+  .p-shi{font-size:20px;}
+  .p-ts{font-size:9px;min-width:22px;}
+  .p-juni{font-size:9px;min-width:22px;}
+  .p-gogyo{font-size:10px;}
+  .p-label{font-size:10px;}
+  .pillar{padding:10px 6px;}
+}
+.pillar.day{border-color:rgba(201,164,76,.45);}
+.p-label{font-size:11px;letter-spacing:.2em;color:var(--kin);opacity:.8;margin-bottom:8px;font-weight:700;}
+.p-kan{font-family:'Shippori Mincho',serif;font-size:54px;font-weight:700;color:var(--washi);line-height:1;}
+.pillar.day .p-kan{color:var(--kin2);}
+.p-shi{font-family:'Shippori Mincho',serif;font-size:48px;font-weight:700;color:var(--washi2);margin-top:4px;line-height:1;}
+.p-gogyo{font-size:12px;color:var(--kin);opacity:.7;margin-top:6px;letter-spacing:.1em;}
+#result{margin-top:28px;display:none;}
+.gogyo-chart{margin-top:22px;display:flex;justify-content:center;}
+.gogyo-chart svg{max-width:280px;width:100%;}
+#result.show{display:block;animation:rise .6s ease both;}
+@keyframes rise{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
+.signal-banner{text-align:center;padding:34px 20px;border-radius:14px;border:1px solid rgba(255,255,255,.1);}
+.lamp{font-size:13px;letter-spacing:.5em;opacity:.85;margin-bottom:10px;text-indent:.5em;}
+.score-num{font-family:'Shippori Mincho',serif;font-weight:800;font-size:clamp(48px,10vw,80px);letter-spacing:.05em;line-height:1;}
+.verdict{font-family:'Shippori Mincho',serif;font-weight:800;font-size:clamp(28px,6vw,44px);letter-spacing:.15em;margin-top:8px;}
+.punch{margin-top:14px;font-family:'Shippori Mincho',serif;font-weight:700;font-size:clamp(15px,3.2vw,18px);letter-spacing:.06em;line-height:1.6;color:var(--washi);border-top:1px solid rgba(255,255,255,.14);border-bottom:1px solid rgba(255,255,255,.14);padding:12px 0;display:inline-block;}
+.sig-strong{background:radial-gradient(circle at 50% 0,rgba(91,122,79,.5),var(--sumi2));}
+.sig-strong .score-num,.sig-strong .verdict{color:#9ed687;text-shadow:0 0 24px rgba(120,200,90,.5);}
+.sig-mid{background:radial-gradient(circle at 50% 0,rgba(201,164,76,.35),var(--sumi2));}
+.sig-mid .score-num,.sig-mid .verdict{color:var(--kin2);text-shadow:0 0 24px rgba(224,196,120,.5);}
+.sig-weak{background:radial-gradient(circle at 50% 0,rgba(42,77,110,.5),var(--sumi2));}
+.sig-weak .score-num,.sig-weak .verdict{color:#7ab4d8;text-shadow:0 0 24px rgba(100,160,210,.5);}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+@media(max-width:560px){.score-grid{grid-template-columns:1fr;}}
+.score-card{background:#0f0c0a;border:1px solid rgba(201,164,76,.18);border-radius:10px;padding:18px 16px;text-align:center;}
+.sc-lab{font-size:12px;letter-spacing:.18em;color:var(--kin2);opacity:.85;margin-bottom:6px;font-weight:700;}
+.sc-val{font-family:'Shippori Mincho',serif;font-size:32px;font-weight:700;}
+.sc-note{font-size:13px;color:var(--washi2);opacity:.8;margin-top:6px;line-height:1.5;}
+.flow{margin-top:18px;background:#0f0c0a;border:1px solid rgba(201,164,76,.14);border-radius:10px;padding:16px 20px;font-size:15px;line-height:2.0;color:var(--washi2);}
+.flow b{color:var(--kin2);font-weight:700;}
+.arr{color:var(--shu);margin:0 6px;}
+.flow table{width:100%;border-collapse:collapse;margin-top:10px;}
+.flow td,.flow th{padding:7px 10px;font-size:14px;border-bottom:1px solid rgba(201,164,76,.1);}
+.flow th{color:var(--kin);letter-spacing:.1em;font-weight:700;font-size:12px;}
+.pos{color:#9ed687;}.neg{color:#f0857a;}.zer{color:var(--washi2);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>八字<span class="k">鑑定</span>シート</h1>
+    <div class="sub">四柱推命 · 身強身弱判断</div>
+    <div class="rule"></div>
+  </header>
+  <div class="card">
+    <div class="form-title">生年月日時を入力</div>
+    <div class="fields">
+      <div class="field">
+        <label>生年（西暦）</label>
+        <input type="number" id="inp-y" value="1959" min="1930" max="2030" onfocus="this.select()">
+      </div>
+      <div class="field">
+        <label>月</label>
+        <select id="inp-m">
+          <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+          <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+          <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+          <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>日</label>
+        <input type="number" id="inp-d" value="4" min="1" max="31" onfocus="this.select()">
+      </div>
+      <div class="field">
+        <label>時刻（生まれた時間帯）</label>
+        <select id="inp-h">
+          <option value="unknown">不明</option>
+          <option value="23">子（23〜1時）</option>
+          <option value="1">丑（1〜3時）</option>
+          <option value="3">寅（3〜5時）</option>
+          <option value="5">卯（5〜7時）</option>
+          <option value="7">辰（7〜9時）</option>
+          <option value="9">巳（9〜11時）</option>
+          <option value="11">午（11〜13時）</option>
+          <option value="13">未（13〜15時）</option>
+          <option value="15">申（15〜17時）</option>
+          <option value="17">酉（17〜19時）</option>
+          <option value="19">戌（19〜21時）</option>
+          <option value="21">亥（21〜23時）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>性別</label>
+        <div style="display:flex;gap:10px;">
+          <button type="button" id="btn-male" onclick="setSex('male')" style="flex:1;padding:14px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:16px;cursor:pointer;transition:border-color .2s;">男</button>
+          <button type="button" id="btn-female" onclick="setSex('female')" style="flex:1;padding:14px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:16px;cursor:pointer;transition:border-color .2s;">女</button>
+        </div>
+      </div>
+      <div class="field field-full">
+        <button class="divine-btn" onclick="calculate()">判　断</button>
+      </div>
+    </div>
+  </div>
+  <div id="result"></div>
+</div>
+<script>
+// ===== 節入りデータ（三命クロス法より流用） =====
+const DATA={"lichun":{"1930":[2,4],"1931":[2,5],"1932":[2,5],"1933":[2,4],"1934":[2,4],"1935":[2,5],"1936":[2,5],"1937":[2,4],"1938":[2,4],"1939":[2,5],"1940":[2,5],"1941":[2,4],"1942":[2,4],"1943":[2,5],"1944":[2,5],"1945":[2,4],"1946":[2,4],"1947":[2,4],"1948":[2,5],"1949":[2,4],"1950":[2,4],"1951":[2,4],"1952":[2,5],"1953":[2,4],"1954":[2,4],"1955":[2,4],"1956":[2,5],"1957":[2,4],"1958":[2,4],"1959":[2,4],"1960":[2,5],"1961":[2,4],"1962":[2,4],"1963":[2,4],"1964":[2,5],"1965":[2,4],"1966":[2,4],"1967":[2,4],"1968":[2,5],"1969":[2,4],"1970":[2,4],"1971":[2,4],"1972":[2,5],"1973":[2,4],"1974":[2,4],"1975":[2,4],"1976":[2,5],"1977":[2,4],"1978":[2,4],"1979":[2,4],"1980":[2,5],"1981":[2,4],"1982":[2,4],"1983":[2,4],"1984":[2,4],"1985":[2,4],"1986":[2,4],"1987":[2,4],"1988":[2,4],"1989":[2,4],"1990":[2,4],"1991":[2,4],"1992":[2,4],"1993":[2,4],"1994":[2,4],"1995":[2,4],"1996":[2,4],"1997":[2,4],"1998":[2,4],"1999":[2,4],"2000":[2,4],"2001":[2,4],"2002":[2,4],"2003":[2,4],"2004":[2,4],"2005":[2,4],"2006":[2,4],"2007":[2,4],"2008":[2,4],"2009":[2,4],"2010":[2,4],"2011":[2,4],"2012":[2,4],"2013":[2,4],"2014":[2,4],"2015":[2,4],"2016":[2,4],"2017":[2,3],"2018":[2,4],"2019":[2,4],"2020":[2,4],"2021":[2,3],"2022":[2,4],"2023":[2,4],"2024":[2,4],"2025":[2,3],"2026":[2,4],"2027":[2,4],"2028":[2,4],"2029":[2,3],"2030":[2,4]},
+"setsu":{"1929":[[1929,1,6],[1929,2,4],[1929,3,6],[1929,4,5],[1929,5,6],[1929,6,6],[1929,7,7],[1929,8,8],[1929,9,8],[1929,10,9],[1929,11,8],[1929,12,7]],"1930":[[1930,1,6],[1930,2,4],[1930,3,6],[1930,4,5],[1930,5,6],[1930,6,6],[1930,7,8],[1930,8,8],[1930,9,8],[1930,10,9],[1930,11,8],[1930,12,8]],"1931":[[1931,1,6],[1931,2,5],[1931,3,6],[1931,4,6],[1931,5,6],[1931,6,7],[1931,7,8],[1931,8,8],[1931,9,8],[1931,10,9],[1931,11,8],[1931,12,8]],"1932":[[1932,1,6],[1932,2,5],[1932,3,6],[1932,4,5],[1932,5,6],[1932,6,6],[1932,7,7],[1932,8,8],[1932,9,8],[1932,10,8],[1932,11,7],[1932,12,7]],"1933":[[1933,1,6],[1933,2,4],[1933,3,6],[1933,4,5],[1933,5,6],[1933,6,6],[1933,7,7],[1933,8,8],[1933,9,8],[1933,10,9],[1933,11,8],[1933,12,7]],"1934":[[1934,1,6],[1934,2,4],[1934,3,6],[1934,4,5],[1934,5,6],[1934,6,6],[1934,7,8],[1934,8,8],[1934,9,8],[1934,10,9],[1934,11,8],[1934,12,8]],"1935":[[1935,1,6],[1935,2,5],[1935,3,6],[1935,4,6],[1935,5,6],[1935,6,6],[1935,7,8],[1935,8,8],[1935,9,8],[1935,10,9],[1935,11,8],[1935,12,8]],"1936":[[1936,1,6],[1936,2,5],[1936,3,6],[1936,4,5],[1936,5,6],[1936,6,6],[1936,7,7],[1936,8,8],[1936,9,8],[1936,10,8],[1936,11,7],[1936,12,7]],"1937":[[1937,1,6],[1937,2,4],[1937,3,6],[1937,4,5],[1937,5,6],[1937,6,6],[1937,7,7],[1937,8,8],[1937,9,8],[1937,10,9],[1937,11,8],[1937,12,7]],"1938":[[1938,1,6],[1938,2,4],[1938,3,6],[1938,4,5],[1938,5,6],[1938,6,6],[1938,7,8],[1938,8,8],[1938,9,8],[1938,10,9],[1938,11,8],[1938,12,8]],"1939":[[1939,1,6],[1939,2,5],[1939,3,6],[1939,4,6],[1939,5,6],[1939,6,6],[1939,7,8],[1939,8,8],[1939,9,8],[1939,10,9],[1939,11,8],[1939,12,8]],"1940":[[1940,1,6],[1940,2,5],[1940,3,6],[1940,4,5],[1940,5,6],[1940,6,6],[1940,7,7],[1940,8,8],[1940,9,8],[1940,10,8],[1940,11,7],[1940,12,7]],"1941":[[1941,1,6],[1941,2,4],[1941,3,6],[1941,4,5],[1941,5,6],[1941,6,6],[1941,7,7],[1941,8,8],[1941,9,8],[1941,10,9],[1941,11,8],[1941,12,7]],"1942":[[1942,1,6],[1942,2,4],[1942,3,6],[1942,4,5],[1942,5,6],[1942,6,6],[1942,7,8],[1942,8,8],[1942,9,8],[1942,10,9],[1942,11,8],[1942,12,8]],"1943":[[1943,1,6],[1943,2,5],[1943,3,6],[1943,4,6],[1943,5,6],[1943,6,6],[1943,7,8],[1943,8,8],[1943,9,8],[1943,10,9],[1943,11,8],[1943,12,8]],"1944":[[1944,1,6],[1944,2,5],[1944,3,6],[1944,4,5],[1944,5,5],[1944,6,6],[1944,7,7],[1944,8,8],[1944,9,8],[1944,10,8],[1944,11,7],[1944,12,7]],"1945":[[1945,1,6],[1945,2,4],[1945,3,6],[1945,4,5],[1945,5,6],[1945,6,6],[1945,7,7],[1945,8,8],[1945,9,8],[1945,10,8],[1945,11,8],[1945,12,7]],"1946":[[1946,1,6],[1946,2,4],[1946,3,6],[1946,4,5],[1946,5,6],[1946,6,6],[1946,7,8],[1946,8,8],[1946,9,8],[1946,10,9],[1946,11,8],[1946,12,8]],"1947":[[1947,1,6],[1947,2,4],[1947,3,6],[1947,4,5],[1947,5,6],[1947,6,6],[1947,7,8],[1947,8,8],[1947,9,8],[1947,10,9],[1947,11,8],[1947,12,8]],"1948":[[1948,1,6],[1948,2,5],[1948,3,5],[1948,4,5],[1948,5,5],[1948,6,6],[1948,7,7],[1948,8,7],[1948,9,8],[1948,10,8],[1948,11,7],[1948,12,7]],"1949":[[1949,1,5],[1949,2,4],[1949,3,6],[1949,4,5],[1949,5,6],[1949,6,6],[1949,7,7],[1949,8,8],[1949,9,8],[1949,10,8],[1949,11,8],[1949,12,7]],"1950":[[1950,1,6],[1950,2,4],[1950,3,6],[1950,4,5],[1950,5,6],[1950,6,6],[1950,7,8],[1950,8,8],[1950,9,8],[1950,10,9],[1950,11,8],[1950,12,8]],"1951":[[1951,1,6],[1951,2,4],[1951,3,6],[1951,4,5],[1951,5,6],[1951,6,6],[1951,7,8],[1951,8,8],[1951,9,8],[1951,10,9],[1951,11,8],[1951,12,8]],"1952":[[1952,1,6],[1952,2,5],[1952,3,5],[1952,4,5],[1952,5,5],[1952,6,6],[1952,7,7],[1952,8,7],[1952,9,8],[1952,10,8],[1952,11,7],[1952,12,7]],"1953":[[1953,1,5],[1953,2,4],[1953,3,6],[1953,4,5],[1953,5,6],[1953,6,6],[1953,7,7],[1953,8,8],[1953,9,8],[1953,10,8],[1953,11,8],[1953,12,7]],"1954":[[1954,1,6],[1954,2,4],[1954,3,6],[1954,4,5],[1954,5,6],[1954,6,6],[1954,7,8],[1954,8,8],[1954,9,8],[1954,10,9],[1954,11,8],[1954,12,7]],"1955":[[1955,1,6],[1955,2,4],[1955,3,6],[1955,4,5],[1955,5,6],[1955,6,6],[1955,7,8],[1955,8,8],[1955,9,8],[1955,10,9],[1955,11,8],[1955,12,8]],"1956":[[1956,1,6],[1956,2,5],[1956,3,5],[1956,4,5],[1956,5,5],[1956,6,6],[1956,7,7],[1956,8,7],[1956,9,8],[1956,10,8],[1956,11,7],[1956,12,7]],"1957":[[1957,1,5],[1957,2,4],[1957,3,6],[1957,4,5],[1957,5,6],[1957,6,6],[1957,7,7],[1957,8,8],[1957,9,8],[1957,10,8],[1957,11,8],[1957,12,7]],"1958":[[1958,1,6],[1958,2,4],[1958,3,6],[1958,4,5],[1958,5,6],[1958,6,6],[1958,7,7],[1958,8,8],[1958,9,8],[1958,10,9],[1958,11,8],[1958,12,7]],"1959":[[1959,1,6],[1959,2,4],[1959,3,6],[1959,4,5],[1959,5,6],[1959,6,6],[1959,7,8],[1959,8,8],[1959,9,8],[1959,10,9],[1959,11,8],[1959,12,8]],"1960":[[1960,1,6],[1960,2,5],[1960,3,5],[1960,4,5],[1960,5,5],[1960,6,6],[1960,7,7],[1960,8,7],[1960,9,7],[1960,10,8],[1960,11,7],[1960,12,7]],"1961":[[1961,1,5],[1961,2,4],[1961,3,6],[1961,4,5],[1961,5,6],[1961,6,6],[1961,7,7],[1961,8,8],[1961,9,8],[1961,10,8],[1961,11,7],[1961,12,7]],"1962":[[1962,1,6],[1962,2,4],[1962,3,6],[1962,4,5],[1962,5,6],[1962,6,6],[1962,7,7],[1962,8,8],[1962,9,8],[1962,10,9],[1962,11,8],[1962,12,7]],"1963":[[1963,1,6],[1963,2,4],[1963,3,6],[1963,4,5],[1963,5,6],[1963,6,6],[1963,7,8],[1963,8,8],[1963,9,8],[1963,10,9],[1963,11,8],[1963,12,8]],"1964":[[1964,1,6],[1964,2,5],[1964,3,5],[1964,4,5],[1964,5,5],[1964,6,6],[1964,7,7],[1964,8,7],[1964,9,7],[1964,10,8],[1964,11,7],[1964,12,7]],"1965":[[1965,1,5],[1965,2,4],[1965,3,6],[1965,4,5],[1965,5,6],[1965,6,6],[1965,7,7],[1965,8,8],[1965,9,8],[1965,10,8],[1965,11,7],[1965,12,7]],"1966":[[1966,1,6],[1966,2,4],[1966,3,6],[1966,4,5],[1966,5,6],[1966,6,6],[1966,7,7],[1966,8,8],[1966,9,8],[1966,10,9],[1966,11,8],[1966,12,7]],"1967":[[1967,1,6],[1967,2,4],[1967,3,6],[1967,4,5],[1967,5,6],[1967,6,6],[1967,7,8],[1967,8,8],[1967,9,8],[1967,10,9],[1967,11,8],[1967,12,8]],"1968":[[1968,1,6],[1968,2,5],[1968,3,5],[1968,4,5],[1968,5,5],[1968,6,5],[1968,7,7],[1968,8,7],[1968,9,7],[1968,10,8],[1968,11,7],[1968,12,7]],"1969":[[1969,1,5],[1969,2,4],[1969,3,6],[1969,4,5],[1969,5,6],[1969,6,6],[1969,7,7],[1969,8,8],[1969,9,8],[1969,10,8],[1969,11,7],[1969,12,7]],"1970":[[1970,1,6],[1970,2,4],[1970,3,6],[1970,4,5],[1970,5,6],[1970,6,6],[1970,7,7],[1970,8,8],[1970,9,8],[1970,10,9],[1970,11,8],[1970,12,7]],"1971":[[1971,1,6],[1971,2,4],[1971,3,6],[1971,4,5],[1971,5,6],[1971,6,6],[1971,7,8],[1971,8,8],[1971,9,8],[1971,10,9],[1971,11,8],[1971,12,8]],"1972":[[1972,1,6],[1972,2,5],[1972,3,5],[1972,4,5],[1972,5,5],[1972,6,5],[1972,7,7],[1972,8,7],[1972,9,7],[1972,10,8],[1972,11,7],[1972,12,7]],"1973":[[1973,1,5],[1973,2,4],[1973,3,6],[1973,4,5],[1973,5,5],[1973,6,6],[1973,7,7],[1973,8,8],[1973,9,8],[1973,10,8],[1973,11,7],[1973,12,7]],"1974":[[1974,1,6],[1974,2,4],[1974,3,6],[1974,4,5],[1974,5,6],[1974,6,6],[1974,7,7],[1974,8,8],[1974,9,8],[1974,10,9],[1974,11,8],[1974,12,7]],"1975":[[1975,1,6],[1975,2,4],[1975,3,6],[1975,4,5],[1975,5,6],[1975,6,6],[1975,7,8],[1975,8,8],[1975,9,8],[1975,10,9],[1975,11,8],[1975,12,8]],"1976":[[1976,1,6],[1976,2,5],[1976,3,5],[1976,4,4],[1976,5,5],[1976,6,5],[1976,7,7],[1976,8,7],[1976,9,7],[1976,10,8],[1976,11,7],[1976,12,7]],"1977":[[1977,1,5],[1977,2,4],[1977,3,6],[1977,4,5],[1977,5,5],[1977,6,6],[1977,7,7],[1977,8,7],[1977,9,8],[1977,10,8],[1977,11,7],[1977,12,7]],"1978":[[1978,1,6],[1978,2,4],[1978,3,6],[1978,4,5],[1978,5,6],[1978,6,6],[1978,7,7],[1978,8,8],[1978,9,8],[1978,10,8],[1978,11,8],[1978,12,7]],"1979":[[1979,1,6],[1979,2,4],[1979,3,6],[1979,4,5],[1979,5,6],[1979,6,6],[1979,7,8],[1979,8,8],[1979,9,8],[1979,10,9],[1979,11,8],[1979,12,8]],"1980":[[1980,1,6],[1980,2,5],[1980,3,5],[1980,4,4],[1980,5,5],[1980,6,5],[1980,7,7],[1980,8,7],[1980,9,7],[1980,10,8],[1980,11,7],[1980,12,7]],"1981":[[1981,1,5],[1981,2,4],[1981,3,6],[1981,4,5],[1981,5,5],[1981,6,6],[1981,7,7],[1981,8,7],[1981,9,8],[1981,10,8],[1981,11,7],[1981,12,7]],"1982":[[1982,1,6],[1982,2,4],[1982,3,6],[1982,4,5],[1982,5,6],[1982,6,6],[1982,7,7],[1982,8,8],[1982,9,8],[1982,10,8],[1982,11,8],[1982,12,7]],"1983":[[1983,1,6],[1983,2,4],[1983,3,6],[1983,4,5],[1983,5,6],[1983,6,6],[1983,7,8],[1983,8,8],[1983,9,8],[1983,10,9],[1983,11,8],[1983,12,8]],"1984":[[1984,1,6],[1984,2,4],[1984,3,5],[1984,4,4],[1984,5,5],[1984,6,5],[1984,7,7],[1984,8,7],[1984,9,7],[1984,10,8],[1984,11,7],[1984,12,7]],"1985":[[1985,1,5],[1985,2,4],[1985,3,5],[1985,4,5],[1985,5,5],[1985,6,6],[1985,7,7],[1985,8,7],[1985,9,8],[1985,10,8],[1985,11,7],[1985,12,7]],"1986":[[1986,1,5],[1986,2,4],[1986,3,6],[1986,4,5],[1986,5,6],[1986,6,6],[1986,7,7],[1986,8,8],[1986,9,8],[1986,10,8],[1986,11,8],[1986,12,7]],"1987":[[1987,1,6],[1987,2,4],[1987,3,6],[1987,4,5],[1987,5,6],[1987,6,6],[1987,7,7],[1987,8,8],[1987,9,8],[1987,10,9],[1987,11,8],[1987,12,7]],"1988":[[1988,1,6],[1988,2,4],[1988,3,5],[1988,4,4],[1988,5,5],[1988,6,5],[1988,7,7],[1988,8,7],[1988,9,7],[1988,10,8],[1988,11,7],[1988,12,7]],"1989":[[1989,1,5],[1989,2,4],[1989,3,5],[1989,4,5],[1989,5,5],[1989,6,6],[1989,7,7],[1989,8,7],[1989,9,7],[1989,10,8],[1989,11,7],[1989,12,7]],"1990":[[1990,1,5],[1990,2,4],[1990,3,6],[1990,4,5],[1990,5,6],[1990,6,6],[1990,7,7],[1990,8,8],[1990,9,8],[1990,10,8],[1990,11,8],[1990,12,7]],"1991":[[1991,1,6],[1991,2,4],[1991,3,6],[1991,4,5],[1991,5,6],[1991,6,6],[1991,7,7],[1991,8,8],[1991,9,8],[1991,10,9],[1991,11,8],[1991,12,7]],"1992":[[1992,1,6],[1992,2,4],[1992,3,5],[1992,4,4],[1992,5,5],[1992,6,5],[1992,7,7],[1992,8,7],[1992,9,7],[1992,10,8],[1992,11,7],[1992,12,7]],"1993":[[1993,1,5],[1993,2,4],[1993,3,5],[1993,4,5],[1993,5,5],[1993,6,6],[1993,7,7],[1993,8,7],[1993,9,7],[1993,10,8],[1993,11,7],[1993,12,7]],"1994":[[1994,1,5],[1994,2,4],[1994,3,6],[1994,4,5],[1994,5,6],[1994,6,6],[1994,7,7],[1994,8,8],[1994,9,8],[1994,10,8],[1994,11,7],[1994,12,7]],"1995":[[1995,1,6],[1995,2,4],[1995,3,6],[1995,4,5],[1995,5,6],[1995,6,6],[1995,7,7],[1995,8,8],[1995,9,8],[1995,10,9],[1995,11,8],[1995,12,7]],"1996":[[1996,1,6],[1996,2,4],[1996,3,5],[1996,4,4],[1996,5,5],[1996,6,5],[1996,7,7],[1996,8,7],[1996,9,7],[1996,10,8],[1996,11,7],[1996,12,7]],"1997":[[1997,1,5],[1997,2,4],[1997,3,5],[1997,4,5],[1997,5,5],[1997,6,5],[1997,7,7],[1997,8,7],[1997,9,7],[1997,10,8],[1997,11,7],[1997,12,7]],"1998":[[1998,1,5],[1998,2,4],[1998,3,6],[1998,4,5],[1998,5,6],[1998,6,6],[1998,7,7],[1998,8,8],[1998,9,8],[1998,10,8],[1998,11,7],[1998,12,7]],"1999":[[1999,1,6],[1999,2,4],[1999,3,6],[1999,4,5],[1999,5,6],[1999,6,6],[1999,7,7],[1999,8,8],[1999,9,8],[1999,10,9],[1999,11,8],[1999,12,7]],"2000":[[2000,1,6],[2000,2,4],[2000,3,5],[2000,4,4],[2000,5,5],[2000,6,5],[2000,7,7],[2000,8,7],[2000,9,7],[2000,10,8],[2000,11,7],[2000,12,7]],"2001":[[2001,1,5],[2001,2,4],[2001,3,5],[2001,4,5],[2001,5,5],[2001,6,5],[2001,7,7],[2001,8,7],[2001,9,7],[2001,10,8],[2001,11,7],[2001,12,7]],"2002":[[2002,1,5],[2002,2,4],[2002,3,6],[2002,4,5],[2002,5,6],[2002,6,6],[2002,7,7],[2002,8,8],[2002,9,8],[2002,10,8],[2002,11,7],[2002,12,7]],"2003":[[2003,1,6],[2003,2,4],[2003,3,6],[2003,4,5],[2003,5,6],[2003,6,6],[2003,7,7],[2003,8,8],[2003,9,8],[2003,10,9],[2003,11,8],[2003,12,7]],"2004":[[2004,1,6],[2004,2,4],[2004,3,5],[2004,4,4],[2004,5,5],[2004,6,5],[2004,7,7],[2004,8,7],[2004,9,7],[2004,10,8],[2004,11,7],[2004,12,7]],"2005":[[2005,1,5],[2005,2,4],[2005,3,5],[2005,4,5],[2005,5,5],[2005,6,5],[2005,7,7],[2005,8,7],[2005,9,7],[2005,10,8],[2005,11,7],[2005,12,7]],"2006":[[2006,1,5],[2006,2,4],[2006,3,6],[2006,4,5],[2006,5,5],[2006,6,6],[2006,7,7],[2006,8,7],[2006,9,8],[2006,10,8],[2006,11,7],[2006,12,7]],"2007":[[2007,1,6],[2007,2,4],[2007,3,6],[2007,4,5],[2007,5,6],[2007,6,6],[2007,7,7],[2007,8,8],[2007,9,8],[2007,10,9],[2007,11,8],[2007,12,7]],"2008":[[2008,1,6],[2008,2,4],[2008,3,5],[2008,4,4],[2008,5,5],[2008,6,5],[2008,7,7],[2008,8,7],[2008,9,7],[2008,10,8],[2008,11,7],[2008,12,7]],"2009":[[2009,1,5],[2009,2,4],[2009,3,5],[2009,4,4],[2009,5,5],[2009,6,5],[2009,7,7],[2009,8,7],[2009,9,7],[2009,10,8],[2009,11,7],[2009,12,7]],"2010":[[2010,1,5],[2010,2,4],[2010,3,6],[2010,4,5],[2010,5,5],[2010,6,6],[2010,7,7],[2010,8,7],[2010,9,8],[2010,10,8],[2010,11,7],[2010,12,7]],"2011":[[2011,1,6],[2011,2,4],[2011,3,6],[2011,4,5],[2011,5,6],[2011,6,6],[2011,7,7],[2011,8,8],[2011,9,8],[2011,10,8],[2011,11,8],[2011,12,7]],"2012":[[2012,1,6],[2012,2,4],[2012,3,5],[2012,4,4],[2012,5,5],[2012,6,5],[2012,7,7],[2012,8,7],[2012,9,7],[2012,10,8],[2012,11,7],[2012,12,7]],"2013":[[2013,1,5],[2013,2,4],[2013,3,5],[2013,4,4],[2013,5,5],[2013,6,5],[2013,7,7],[2013,8,7],[2013,9,7],[2013,10,8],[2013,11,7],[2013,12,7]],"2014":[[2014,1,5],[2014,2,4],[2014,3,6],[2014,4,5],[2014,5,5],[2014,6,6],[2014,7,7],[2014,8,7],[2014,9,8],[2014,10,8],[2014,11,7],[2014,12,7]],"2015":[[2015,1,6],[2015,2,4],[2015,3,6],[2015,4,5],[2015,5,6],[2015,6,6],[2015,7,7],[2015,8,8],[2015,9,8],[2015,10,8],[2015,11,8],[2015,12,7]],"2016":[[2016,1,6],[2016,2,4],[2016,3,5],[2016,4,4],[2016,5,5],[2016,6,5],[2016,7,7],[2016,8,7],[2016,9,7],[2016,10,8],[2016,11,7],[2016,12,7]],"2017":[[2017,1,5],[2017,2,3],[2017,3,5],[2017,4,4],[2017,5,5],[2017,6,5],[2017,7,7],[2017,8,7],[2017,9,7],[2017,10,8],[2017,11,7],[2017,12,7]],"2018":[[2018,1,5],[2018,2,4],[2018,3,5],[2018,4,5],[2018,5,5],[2018,6,6],[2018,7,7],[2018,8,7],[2018,9,8],[2018,10,8],[2018,11,7],[2018,12,7]],"2019":[[2019,1,5],[2019,2,4],[2019,3,6],[2019,4,5],[2019,5,6],[2019,6,6],[2019,7,7],[2019,8,8],[2019,9,8],[2019,10,8],[2019,11,8],[2019,12,7]],"2020":[[2020,1,6],[2020,2,4],[2020,3,5],[2020,4,4],[2020,5,5],[2020,6,5],[2020,7,6],[2020,8,7],[2020,9,7],[2020,10,8],[2020,11,7],[2020,12,7]],"2021":[[2021,1,5],[2021,2,3],[2021,3,5],[2021,4,4],[2021,5,5],[2021,6,5],[2021,7,7],[2021,8,7],[2021,9,7],[2021,10,8],[2021,11,7],[2021,12,7]],"2022":[[2022,1,5],[2022,2,4],[2022,3,5],[2022,4,5],[2022,5,5],[2022,6,6],[2022,7,7],[2022,8,7],[2022,9,7],[2022,10,8],[2022,11,7],[2022,12,7]],"2023":[[2023,1,5],[2023,2,4],[2023,3,6],[2023,4,5],[2023,5,6],[2023,6,6],[2023,7,7],[2023,8,8],[2023,9,8],[2023,10,8],[2023,11,8],[2023,12,7]],"2024":[[2024,1,6],[2024,2,4],[2024,3,5],[2024,4,4],[2024,5,5],[2024,6,5],[2024,7,6],[2024,8,7],[2024,9,7],[2024,10,8],[2024,11,7],[2024,12,6]],"2025":[[2025,1,5],[2025,2,3],[2025,3,5],[2025,4,4],[2025,5,5],[2025,6,5],[2025,7,7],[2025,8,7],[2025,9,7],[2025,10,8],[2025,11,7],[2025,12,7]],"2026":[[2026,1,5],[2026,2,4],[2026,3,5],[2026,4,5],[2026,5,5],[2026,6,5],[2026,7,7],[2026,8,7],[2026,9,7],[2026,10,8],[2026,11,7],[2026,12,7]],"2027":[[2027,1,5],[2027,2,4],[2027,3,6],[2027,4,5],[2027,5,6],[2027,6,6],[2027,7,7],[2027,8,8],[2027,9,8],[2027,10,8],[2027,11,7],[2027,12,7]],"2028":[[2028,1,6],[2028,2,4],[2028,3,5],[2028,4,4],[2028,5,5],[2028,6,5],[2028,7,6],[2028,8,7],[2028,9,7],[2028,10,8],[2028,11,7],[2028,12,6]],"2029":[[2029,1,5],[2029,2,3],[2029,3,5],[2029,4,4],[2029,5,5],[2029,6,5],[2029,7,7],[2029,8,7],[2029,9,7],[2029,10,8],[2029,11,7],[2029,12,7]],"2030":[[2030,1,5],[2030,2,4],[2030,3,5],[2030,4,5],[2030,5,5],[2030,6,5],[2030,7,7],[2030,8,7],[2030,9,7],[2030,10,8],[2030,11,7],[2030,12,7]],"2031":[[2031,1,5],[2031,2,4],[2031,3,6],[2031,4,5],[2031,5,6],[2031,6,6],[2031,7,7],[2031,8,8],[2031,9,8],[2031,10,8],[2031,11,7],[2031,12,7]]},
+"yearYang":{"1929":false,"1930":true,"1931":false,"1932":true,"1933":false,"1934":true,"1935":false,"1936":true,"1937":false,"1938":true,"1939":false,"1940":true,"1941":false,"1942":true,"1943":false,"1944":true,"1945":false,"1946":true,"1947":false,"1948":true,"1949":false,"1950":true,"1951":false,"1952":true,"1953":false,"1954":true,"1955":false,"1956":true,"1957":false,"1958":true,"1959":false,"1960":true,"1961":false,"1962":true,"1963":false,"1964":true,"1965":false,"1966":true,"1967":false,"1968":true,"1969":false,"1970":true,"1971":false,"1972":true,"1973":false,"1974":true,"1975":false,"1976":true,"1977":false,"1978":true,"1979":false,"1980":true,"1981":false,"1982":true,"1983":false,"1984":true,"1985":false,"1986":true,"1987":false,"1988":true,"1989":false,"1990":true,"1991":false,"1992":true,"1993":false,"1994":true,"1995":false,"1996":true,"1997":false,"1998":true,"1999":false,"2000":true,"2001":false,"2002":true,"2003":false,"2004":true,"2005":false,"2006":true,"2007":false,"2008":true,"2009":false,"2010":true,"2011":false,"2012":true,"2013":false,"2014":true,"2015":false,"2016":true,"2017":false,"2018":true,"2019":false,"2020":true,"2021":false,"2022":true,"2023":false,"2024":true,"2025":false,"2026":true,"2027":false,"2028":true,"2029":false,"2030":true,"2031":false},
+"yearZhi":{"1929":"巳","1930":"午","1931":"未","1932":"申","1933":"酉","1934":"戌","1935":"亥","1936":"子","1937":"丑","1938":"寅","1939":"卯","1940":"辰","1941":"巳","1942":"午","1943":"未","1944":"申","1945":"酉","1946":"戌","1947":"亥","1948":"子","1949":"丑","1950":"寅","1951":"卯","1952":"辰","1953":"巳","1954":"午","1955":"未","1956":"申","1957":"酉","1958":"戌","1959":"亥","1960":"子","1961":"丑","1962":"寅","1963":"卯","1964":"辰","1965":"巳","1966":"午","1967":"未","1968":"申","1969":"酉","1970":"戌","1971":"亥","1972":"子","1973":"丑","1974":"寅","1975":"卯","1976":"辰","1977":"巳","1978":"午","1979":"未","1980":"申","1981":"酉","1982":"戌","1983":"亥","1984":"子","1985":"丑","1986":"寅","1987":"卯","1988":"辰","1989":"巳","1990":"午","1991":"未","1992":"申","1993":"酉","1994":"戌","1995":"亥","1996":"子","1997":"丑","1998":"寅","1999":"卯","2000":"辰","2001":"巳","2002":"午","2003":"未","2004":"申","2005":"酉","2006":"戌","2007":"亥","2008":"子","2009":"丑","2010":"寅","2011":"卯","2012":"辰","2013":"巳","2014":"午","2015":"未","2016":"申","2017":"酉","2018":"戌","2019":"亥","2020":"子","2021":"丑","2022":"寅","2023":"卯","2024":"辰","2025":"巳","2026":"午","2027":"未","2028":"申","2029":"酉","2030":"戌","2031":"亥","2032":"子","2033":"丑","2034":"寅","2035":"卯","2036":"辰","2037":"巳","2038":"午","2039":"未","2040":"申"},
+"dayBase":{"num":54,"days":36524}};
+
+// ===== 干支テーブル =====
+const KAN10=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const SHI12=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const KAN_GOGYO={甲:'木',乙:'木',丙:'火',丁:'火',戊:'土',己:'土',庚:'金',辛:'金',壬:'水',癸:'水'};
+const SHI_GOGYO={子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午:'火',未:'土',申:'金',酉:'金',戌:'土',亥:'水'};
+const ZOKAN={子:['癸'],丑:['己','癸','辛'],寅:['甲','丙'],卯:['乙'],辰:['戊','乙','癸'],巳:['丙','庚'],午:['丁'],未:['己','丁','乙'],申:['庚','壬'],酉:['辛'],戌:['戊','辛','丁'],亥:['壬','甲']};
+
+// 時支マップ（セレクト値→地支インデックス）
+const HOUR_TO_SHI_IDX={23:0,1:1,3:2,5:3,7:4,9:5,11:6,13:7,15:8,17:9,19:10,21:11};
+
+// ===== 四柱計算 =====
+function toDays(y,m,d){return Math.round((Date.UTC(y,m-1,d)-Date.UTC(1900,0,1))/86400000);}
+
+// 年柱（立春基準）
+function yearPillar(y,m,d){
+  const lc=DATA.lichun[y]||[2,4];
+  let eff=(m<lc[0]||(m===lc[0]&&d<lc[1]))?y-1:y;
+  // 甲子=1864年基準で60干支
+  const diff=((eff-1864)%60+60)%60;
+  return {kan:KAN10[diff%10], shi:DATA.yearZhi[eff]||SHI12[diff%12], year:eff};
+}
+
+// 月柱（節入り基準・五虎遁年法）
+const SETSU_TO_M={2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8,10:9,11:10,12:11,1:12};
+const MONTH_SHI=['寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑'];
+// 年干→寅月干の開始インデックス（甲己→丙=2, 乙庚→戊=4, 丙辛→庚=6, 丁壬→壬=8, 戊癸→甲=0）
+const GOKOU={甲:2,己:2,乙:4,庚:4,丙:6,辛:6,丁:8,壬:8,戊:0,癸:0};
+
+function monthPillar(y,m,d,yearKan){
+  const arr=(DATA.setsu[y]||[]).slice().sort((a,b)=>a[1]-b[1]||a[2]-b[2]);
+  let chosen=null;
+  for(const t of arr){if(m>t[1]||(m===t[1]&&d>=t[2]))chosen=t;}
+  const sm=chosen?SETSU_TO_M[chosen[1]]:11; // 1=立春(寅)〜12=小寒(丑)
+  const shi=MONTH_SHI[(sm-1)%12];
+  const start=GOKOU[yearKan]!==undefined?GOKOU[yearKan]:0;
+  const kan=KAN10[(start+(sm-1))%10];
+  return {kan,shi,sm};
+}
+
+// 日柱（dayBase基準）
+function dayPillar(y,m,d){
+  const days=toDays(y,m,d);
+  const num=(((DATA.dayBase.num+(days-DATA.dayBase.days))%60)+60)%60;
+  return {kan:KAN10[num%10], shi:SHI12[num%12], num};
+}
+
+// 時柱（五鼠遁日法）
+// 日干→子時の干インデックス（甲己→甲=0, 乙庚→丙=2, 丙辛→戊=4, 丁壬→庚=6, 戊癸→壬=8）
+const GOUSO={甲:0,己:0,乙:2,庚:2,丙:4,辛:4,丁:6,壬:6,戊:8,癸:8};
+function hourPillar(dayKan,hour){
+  const shiIdx=HOUR_TO_SHI_IDX[+hour]||0;
+  const shi=SHI12[shiIdx];
+  const start=GOUSO[dayKan]||0;
+  const kan=KAN10[(start+shiIdx)%10];
+  return {kan,shi};
+}
+
+// ===== 通変星（正式名称）=====
+function getTsuuhensei(nichiKan, targetKan){
+  const nG=KAN_GOGYO[nichiKan], tG=KAN_GOGYO[targetKan];
+  const nY=KAN_INYO[nichiKan], tY=KAN_INYO[targetKan];
+  const douku=(nY===tY); // 同極=偏、異極=正
+  if(nG===tG) return douku?'比肩':'劫財';
+  if(gen(tG,nG)) return douku?'偏印':'印綬';
+  if(gen(nG,tG)) return douku?'食神':'傷官';
+  if(ove(nG,tG)) return douku?'偏財':'正財';
+  if(ove(tG,nG)) return douku?'偏官':'正官';
+  return '';
+}
+
+// ===== 12運 =====
+// 日干の五行・陰陽ごとの長生の地支インデックス
+const CHOUSEIG={
+  甲:SHI12=>SHI12.indexOf('亥'),
+  乙:SHI12=>SHI12.indexOf('午'),
+  丙:SHI12=>SHI12.indexOf('寅'),
+  丁:SHI12=>SHI12.indexOf('酉'),
+  戊:SHI12=>SHI12.indexOf('寅'),
+  己:SHI12=>SHI12.indexOf('酉'),
+  庚:SHI12=>SHI12.indexOf('巳'),
+  辛:SHI12=>SHI12.indexOf('子'),
+  壬:SHI12=>SHI12.indexOf('申'),
+  癸:SHI12=>SHI12.indexOf('卯'),
+};
+const JUNI12=['長生','沐浴','冠帯','建禄','帝旺','衰','病','死','墓','絶','胎','養'];
+// 陽干は順行、陰干は逆行
+function getJuni(nichiKan, shi){
+  const SHI12_=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const startIdx=CHOUSEIG[nichiKan](SHI12_);
+  const shiIdx=SHI12_.indexOf(shi);
+  const yang=KAN_INYO[nichiKan]==='陽';
+  let diff=yang?(shiIdx-startIdx+12)%12:(startIdx-shiIdx+12)%12;
+  return JUNI12[diff];
+}
+
+// ===== 陰陽データ =====
+const KAN_INYO={甲:'陽',乙:'陰',丙:'陽',丁:'陰',戊:'陽',己:'陰',庚:'陽',辛:'陰',壬:'陽',癸:'陰'};
+const SHI_INYO={子:'陽',丑:'陰',寅:'陽',卯:'陰',辰:'陽',巳:'陰',午:'陽',未:'陰',申:'陽',酉:'陰',戌:'陽',亥:'陰'};
+
+// ===== 身強身弱ロジック =====
+function gen(a,b){return(a==='木'&&b==='火')||(a==='火'&&b==='土')||(a==='土'&&b==='金')||(a==='金'&&b==='水')||(a==='水'&&b==='木');}
+function ove(a,b){return(a==='木'&&b==='土')||(a==='火'&&b==='金')||(a==='土'&&b==='水')||(a==='金'&&b==='木')||(a==='水'&&b==='火');}
+
+function getTokuryo(nK,mShi){
+  const nG=KAN_GOGYO[nK],mG=SHI_GOGYO[mShi];
+  if(nG===mG)return{state:'旺',score:3,desc:'月支の五行＝日干の五行'};
+  if(gen(mG,nG))return{state:'相',score:2,desc:'月支が日干を生じる'};
+  if(gen(nG,mG))return{state:'休',score:-1,desc:'日干が月支を生じる'};
+  if(ove(nG,mG))return{state:'囚',score:-2,desc:'日干が月支を剋す'};
+  if(ove(mG,nG))return{state:'死',score:-3,desc:'月支が日干を剋す'};
+  return{state:'?',score:0,desc:''};
+}
+
+function getTokuchi(nK,shis){
+  const nG=KAN_GOGYO[nK];let score=0,det=[];
+  for(const s of shis){const hit=(ZOKAN[s]||[]).some(k=>KAN_GOGYO[k]===nG);
+    score+=hit?1:0;det.push(s+(hit?'✓':'✗'));}
+  return{score,det};
+}
+
+const RS={hikyu:2,insho:2,shokusho:-1,zai:-1,kansat:-2};
+const RN={hikyu:'比劫',insho:'印綬',shokusho:'食傷',zai:'財',kansat:'官殺'};
+const RD={hikyu:'日干を助ける',insho:'日干を生じる',shokusho:'日干が生じる',zai:'日干が剋す',kansat:'日干を剋す'};
+
+function rel(nK,tG){
+  const nG=KAN_GOGYO[nK];
+  if(nG===tG)return'hikyu';if(gen(tG,nG))return'insho';
+  if(gen(nG,tG))return'shokusho';if(ove(nG,tG))return'zai';
+  if(ove(tG,nG))return'kansat';return'none';
+}
+
+// かぴ流：陰陽で点数を調整（同極=フル、異極=半分）
+function inyoScore(baseScore, nInyo, tInyo){
+  return nInyo===tInyo ? baseScore : baseScore/2;
+}
+
+// かぴ流得勢（月干・時干・日支・時支、陰陽考慮、伝導あり）
+function getTokusei(nK, mKan, hKan, dShi, hShi){
+  const nG=KAN_GOGYO[nK];
+  const nI=KAN_INYO[nK];
+  const rows=[];
+  let score=0;
+
+  // 伝導判定：日干と日支が同五行なら時支も伝導
+  const dShiG=SHI_GOGYO[dShi];
+  const dendo=(nG===dShiG);
+
+  // 月干
+  if(mKan){
+    const tG=KAN_GOGYO[mKan],r=rel(nK,tG),base=RS[r]||0;
+    const sc=inyoScore(base,nI,KAN_INYO[mKan]);
+    score+=sc;rows.push({label:mKan,gogyo:tG,rel:RN[r]||'-',inyo:KAN_INYO[mKan],score:sc,dendo:false});
+  }
+  // 時干
+  if(hKan){
+    const tG=KAN_GOGYO[hKan],r=rel(nK,tG),base=RS[r]||0;
+    const sc=inyoScore(base,nI,KAN_INYO[hKan]);
+    score+=sc;rows.push({label:hKan,gogyo:tG,rel:RN[r]||'-',inyo:KAN_INYO[hKan],score:sc,dendo:false});
+  }
+  // 日支
+  {
+    const tG=SHI_GOGYO[dShi],r=rel(nK,tG),base=RS[r]||0;
+    const sc=inyoScore(base,nI,SHI_INYO[dShi]);
+    score+=sc;rows.push({label:dShi+'（日支）',gogyo:tG,rel:RN[r]||'-',inyo:SHI_INYO[dShi],score:sc,dendo:false});
+  }
+  // 時支（伝導があれば加算）
+  if(hShi && dendo){
+    const tG=SHI_GOGYO[hShi],r=rel(nK,tG),base=RS[r]||0;
+    const sc=inyoScore(base,nI,SHI_INYO[hShi]);
+    score+=sc;rows.push({label:hShi+'（時支・伝導）',gogyo:tG,rel:RN[r]||'-',inyo:SHI_INYO[hShi],score:sc,dendo:true});
+  }
+
+  return{score,rows,dendo};
+}
+
+// ===== 性別 =====
+let SEX='male';
+document.addEventListener('DOMContentLoaded',function(){document.getElementById('inp-m').value='12';document.getElementById('inp-h').value='13';setSex('male');});
+function setSex(s){
+  SEX=s;
+  document.getElementById('btn-male').style.borderColor=s==='male'?'var(--kin)':'rgba(201,164,76,.28)';
+  document.getElementById('btn-male').style.color=s==='male'?'var(--kin2)':'var(--washi)';
+  document.getElementById('btn-female').style.borderColor=s==='female'?'var(--kin)':'rgba(201,164,76,.28)';
+  document.getElementById('btn-female').style.color=s==='female'?'var(--kin2)':'var(--washi)';
+}
+
+// ===== 空亡計算 =====
+// 60干支番号（0〜59）から空亡を求める
+// 組（0〜5）= Math.floor(num/10)、空亡は組ごとに決まる
+const KUUBOU=[
+  ['戌','亥'], // 0組：甲子〜癸酉
+  ['申','酉'], // 1組：甲戌〜癸未
+  ['午','未'], // 2組：甲申〜癸巳
+  ['辰','巳'], // 3組：甲午〜癸卯
+  ['寅','卯'], // 4組：甲辰〜癸丑
+  ['子','丑'], // 5組：甲寅〜癸亥
+];
+function getKuubou(dayNum){
+  const group=Math.floor(dayNum/10);
+  return KUUBOU[group]||[];
+}
+
+// ===== 沖・刑・合データ =====
+// 干合
+const KANGO={甲:'己',己:'甲',乙:'庚',庚:'乙',丙:'辛',辛:'丙',丁:'壬',壬:'丁',戊:'癸',癸:'戊'};
+
+const CHUU={子:'午',丑:'未',寅:'申',卯:'酉',辰:'戌',巳:'亥',午:'子',未:'丑',申:'寅',酉:'卯',戌:'辰',亥:'巳'};
+const KEI={
+  子:['卯'],卯:['子'],// 子卯刑
+  寅:['巳','申'],巳:['申','寅'],申:['寅','巳'],// 寅巳申刑
+  丑:['戌'],戌:['未'],未:['丑'],// 丑戌未刑
+  辰:['辰'],午:['午'],酉:['酉'],亥:['亥']// 自刑
+};
+// 六合（支合）のみ
+const GOU={
+  子:'丑',丑:'子',寅:'亥',卯:'戌',辰:'酉',巳:'申',
+  午:'未',未:'午',申:'巳',酉:'辰',戌:'卯',亥:'寅'
+};
+
+// 三合局
+const SANGOU=[
+  ['申','子','辰'], // 水局
+  ['寅','午','戌'], // 火局
+  ['巳','酉','丑'], // 金局
+  ['亥','卯','未'], // 木局
+];
+
+function getSangouGroup(shi){
+  return SANGOU.find(g=>g.includes(shi))||null;
+}
+
+function getRelations(dShi, tShi, meishiki){
+  const tags=[];
+  if(CHUU[dShi]===tShi) tags.push('沖');
+  if((KEI[dShi]||[]).includes(tShi)) tags.push('刑');
+  // 六合
+  if(GOU[dShi]===tShi) tags.push('合');
+  // 三合：命式＋大運地支で揃っているか
+  const group=getSangouGroup(dShi);
+  if(group&&group.includes(tShi)){
+    const remaining=group.filter(s=>s!==dShi&&s!==tShi);
+    if(meishiki&&remaining.every(s=>meishiki.includes(s))) tags.push('三');
+  }
+  return tags;
+}
+
+// ===== 九星気学関数（三命クロス法より）=====
+function reduce1(n){while(n>=10){n=String(n).split('').reduce((a,c)=>a+ +c,0);}return n;}
+function honmeiStar(y,m,d){
+  let eff=y; const lc=DATA.lichun[y]||[2,4];
+  if(m<lc[0]||(m===lc[0]&&d<lc[1])) eff=y-1;
+  let s=reduce1(String(eff%100).split('').reduce((a,c)=>a+ +c,0));
+  let star=(eff>=2000)?(9-s):(10-s);
+  if(star===10) star-=9; if(star<=0) star+=9;
+  return [star,eff];
+}
+function yearCenter(ty){
+  let n=reduce1(String(ty).split('').reduce((a,c)=>a+ +c,0));
+  let star=11-n; if(star>=10) star=reduce1(star); if(star===0) star=9; return star;
+}
+const HOME_MAP2={1:"坎",2:"坤",3:"震",4:"巽",5:"中宮",6:"乾",7:"兌",8:"艮",9:"離"};
+const HOME2=[["坎",1],["坤",2],["震",3],["巽",4],["中宮",5],["乾",6],["兌",7],["艮",8],["離",9]];
+function palaceOf2(center,my){
+  const shift=((center-5)%9+9)%9;
+  for(const pr of HOME2){ const here=((pr[1]-1+shift)%9)+1; if(here===my) return pr[0]; }
+  return "中宮";
+}
+
+// ===== 命式内関係分析 ====="
+function analyzeMeishiki(yP, mP, dP, hP, hUnknown, nichiKan, kuubou){
+  const results=[];
+  const allKans=[
+    {label:'年干',kan:yP.kan},{label:'月干',kan:mP.kan},
+    {label:'日干',kan:nichiKan},
+    ...(hUnknown?[]:[{label:'時干',kan:hP.kan}])
+  ];
+  const allShis=[
+    {label:'年支',shi:yP.shi},{label:'月支',shi:mP.shi},
+    {label:'日支',shi:dP.shi},
+    ...(hUnknown?[]:[{label:'時支',shi:hP.shi}])
+  ];
+
+  // ①空亡の柱
+  const kuubouPillars=allShis.filter(s=>kuubou.includes(s.shi));
+  if(kuubouPillars.length>0){
+    results.push('空亡：'+kuubouPillars.map(s=>s.label+'（'+s.shi+'）').join('・'));
+  }
+
+  // ②天干の干合（隣接のみ）
+  const kangoList=[];
+  const adjKanPairs=[[0,1],[1,2],[2,3]];
+  for(const [i,j] of adjKanPairs){
+    if(j>=allKans.length) continue;
+    if(KANGO[allKans[i].kan]===allKans[j].kan){
+      kangoList.push(allKans[i].label+''+allKans[i].kan+'×'+allKans[j].label+''+allKans[j].kan);
+    }
+  }
+  if(kangoList.length>0) results.push('干合：'+kangoList.join('・'));
+
+  // ③地支の六合（隣接のみ）
+  const rokugoList=[];
+  const adjShiPairs=[[0,1],[1,2],[2,3]];
+  for(const [i,j] of adjShiPairs){
+    if(j>=allShis.length) continue;
+    if(GOU[allShis[i].shi]===allShis[j].shi){
+      rokugoList.push(allShis[i].label+''+allShis[i].shi+'×'+allShis[j].label+''+allShis[j].shi);
+    }
+  }
+  if(rokugoList.length>0) results.push('六合：'+rokugoList.join('・'));
+
+  // ④三合局（重複地支を除いてユニークな地支で判定）
+  const uniqueShis=[...new Set(allShis.map(s=>s.shi))];
+  for(const group of SANGOU){
+    const matched=group.filter(g=>uniqueShis.includes(g));
+    if(matched.length>=2){
+      const name=group[1]==='午'?'火局':group[1]==='子'?'水局':group[1]==='卯'?'木局':'金局';
+      results.push('三合'+name+'（'+matched.join('')+'）'+(matched.length===3?'完全':'半会'));
+    }
+  }
+
+  // ⑤地支の沖（隣接のみ）
+  const chuuList=[];
+  for(const [i,j] of adjShiPairs){
+    if(j>=allShis.length) continue;
+    if(CHUU[allShis[i].shi]===allShis[j].shi){
+      chuuList.push(allShis[i].label+''+allShis[i].shi+'×'+allShis[j].label+''+allShis[j].shi);
+    }
+  }
+  if(chuuList.length>0) results.push('沖：'+chuuList.join('・'));
+
+  // ⑥無情の官殺
+  // 日干→無情の官殺天干のマップ
+  const MUJO_ZAI={
+    '甲':['戊'],
+    '戊':['壬'],
+    '己':['壬'],
+    '辛':['甲']
+  };
+  const mujoZaiFound=[];
+  const adjacentKans2=[
+    {label:'月干',kan:mP.kan},
+    ...(hUnknown?[]:[{label:'時干',kan:hP.kan}])
+  ];
+  for(const k of adjacentKans2){
+    if((MUJO_ZAI[nichiKan]||[]).includes(k.kan)){
+      mujoZaiFound.push(k.label+'（'+k.kan+'）');
+    }
+  }
+  if(mujoZaiFound.length>0){
+    results.push('⚠️ 無情の財：'+mujoZaiFound.join('・'));
+  }
+
+  const MUJO_KANSAT={
+    '乙':['辛'],
+    '丙':['癸'],
+    '丁':['癸'],
+    '戊':['甲','乙'],
+    '辛':['丁'],
+    '壬':['己'],
+    '己':['甲','乙']
+  };
+  const mujoTargets=MUJO_KANSAT[nichiKan]||[];
+  const mujoFound=[];
+  // 隣接のみ有効：月干・時干のみ対象（年干は除外）
+  const adjacentKans=[
+    {label:'月干',kan:mP.kan},
+    ...(hUnknown?[]:[{label:'時干',kan:hP.kan}])
+  ];
+  for(const k of adjacentKans){
+    if(mujoTargets.includes(k.kan)){
+      mujoFound.push(k.label+'（'+k.kan+'）');
+    }
+  }
+  if(mujoFound.length>0){
+    results.push('⚠️ 無情の官殺：'+mujoFound.join('・'));
+  }
+
+  // ⑦有情の財
+  const YUJO_ZAI={
+    '甲':['己'],
+    '乙':['戊','己'],
+    '丙':['辛'],
+    '壬':['丙'],
+    '癸':['丙'],
+    '己':['癸']
+  };
+  const yujoZaiFound=[];
+  for(const k of adjacentKans){
+    if((YUJO_ZAI[nichiKan]||[]).includes(k.kan)){
+      yujoZaiFound.push(k.label+'（'+k.kan+'）');
+    }
+  }
+  if(yujoZaiFound.length>0){
+    results.push('✨ 有情の財：'+yujoZaiFound.join('・'));
+  }
+
+  // ⑧有情の官殺
+  const YUJO_KANSAT={
+    '丙':['壬'],
+    '辛':['丙'],
+    '壬':['戊'],
+    '癸':['己']
+  };
+  const yujoKansatFound=[];
+  for(const k of adjacentKans){
+    if((YUJO_KANSAT[nichiKan]||[]).includes(k.kan)){
+      yujoKansatFound.push(k.label+'（'+k.kan+'）');
+    }
+  }
+  if(yujoKansatFound.length>0){
+    results.push('✨ 有情の官殺：'+yujoKansatFound.join('・'));
+  }
+
+  return results;
+}
+
+const MONTH_TO_SHI2={1:'丑',2:'寅',3:'卯',4:'辰',5:'巳',6:'午',7:'未',8:'申',9:'酉',10:'戌',11:'亥',12:'子'};
+
+// ===== 用神判定 =====
+function yojinHantei(nichiKan, targetGogyo, total){
+  const nG=KAN_GOGYO[nichiKan];
+  let rel='';
+  if(nG===targetGogyo) rel='hikyu';
+  else if(gen(targetGogyo,nG)) rel='insho';
+  else if(gen(nG,targetGogyo)) rel='shokusho';
+  else if(ove(nG,targetGogyo)) rel='zai';
+  else if(ove(targetGogyo,nG)) rel='kansat';
+  // 身旺・身強（total≧3）：食傷・財・官殺が○
+  if(total>=3) return ['shokusho','zai','kansat'].includes(rel)?'○':'✕';
+  // 中庸（0～2）：反映なし
+  if(total>=0) return '－';
+  // 身弱・極弱（total≦-1）：印綬・比劫が○
+  return ['insho','hikyu'].includes(rel)?'○':'✕';
+}
+
+// ===== 年運計算 =====
+// 甲子=1984年を基準に60干支を回す
+function getYearKanShi(year){
+  const diff=((year-1984)%60+60)%60;
+  return {kan:KAN10[diff%10], shi:SHI12[diff%12]};
+}
+
+function updateNengun(){
+  const d=window._nengunData;
+  if(!d) return;
+  const centerEl=document.getElementById('nengaku-center');
+  if(!centerEl) return;
+  const center=+centerEl.value||2026;
+  window._nengunCenter=center;
+  const tbody=document.getElementById('nengun-table');
+  if(!tbody) return;
+
+  // 本命星
+  const honmei=honmeiStar(d.y,d.bm,d.bd)[0];
+
+  let rows='<table style="width:100%;border-collapse:collapse;">'+
+    '<tr>'+
+    '<th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">年</th>'+
+    '<th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">干支</th>'+
+    '<th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">回座</th>'+
+    '<th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">年齢</th>'+
+    '</tr>';
+
+  for(let yr=center-5;yr<=center+5;yr++){
+    const ks=getYearKanShi(yr);
+    const isNow=(yr===2026);
+    const isCenter=(yr===center);
+    const age=yr-d.y;
+
+    // 関係タグ
+    const rels=getRelations(d.dShi,ks.shi,null);
+    const isKuubou=d.kuubou.includes(ks.shi);
+    const isKango=d.KANGO[d.nK]===ks.kan;
+    const MUJO_KANSAT_N={'乙':['辛'],'丙':['癸'],'丁':['癸'],'戊':['甲','乙'],'辛':['丁'],'壬':['己'],'己':['甲','乙']};
+    const MUJO_ZAI_N={'甲':['戊'],'戊':['壬'],'己':['壬'],'辛':['甲']};
+    const YUJO_ZAI_N={'甲':['己'],'乙':['戊','己'],'丙':['辛'],'壬':['丙'],'癸':['丙'],'己':['癸']};
+    const YUJO_KANSAT_N={'丙':['壬'],'辛':['丙'],'壬':['戊'],'癸':['己']};
+    const isMujoKansat=(MUJO_KANSAT_N[d.nK]||[]).includes(ks.kan);
+    const isMujoZai=(MUJO_ZAI_N[d.nK]||[]).includes(ks.kan);
+    const isYujoZai=(YUJO_ZAI_N[d.nK]||[]).includes(ks.kan);
+    const isYujoKansat=(YUJO_KANSAT_N[d.nK]||[]).includes(ks.kan);
+    const isHeirinN=(ks.kan===d.nK && ks.shi===d.dShi);
+    // 歳運併臨：年運干支と大運干支が一致
+    const curDaiin=(d.allRounds||[]).find(r=>r.startYear<=yr && r.startYear+10>yr);
+    const isSaiHeirin=curDaiin && ks.kan===curDaiin.kan && ks.shi===curDaiin.shi;
+    // 大運交替：この年が大運の開始年かどうか
+    const nextDaiinData=(d.allRounds||[]).find(r=>r.startYear===yr);
+    const isDaiinKotai=!!nextDaiinData;
+    const tags=[
+      ...rels.map(t=>{
+        const c=t==='沖'?'#f0857a':t==='刑'?'#7ab4d8':'#9ed687';
+        return '<span style="font-size:11px;color:'+c+';border:1px solid '+c+';border-radius:4px;padding:1px 5px;margin-left:3px;">'+t+'</span>';
+      }),
+      isKuubou?'<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>':'',
+      isKango?'<span style="font-size:11px;color:#c78fff;border:1px solid #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">干合</span>':'',
+      isMujoKansat?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>':'',
+      isMujoZai?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>':'',
+      isYujoZai?'<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情財</span>':'',
+      isYujoKansat?'<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>':'',
+      isHeirinN?'<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>':'',
+      isSaiHeirin?'<span style="font-size:11px;color:#7ab4d8;border:1px solid #7ab4d8;border-radius:4px;padding:1px 5px;margin-left:3px;">🔵歳運併臨</span>':'',
+      isDaiinKotai?'<span style="font-size:11px;color:#b8d4a8;border:1px solid #b8d4a8;border-radius:4px;padding:1px 5px;margin-left:3px;">交替（'+nextDaiinData.transKan+'年/'+nextDaiinData.kiunMonth+'月）</span>':''
+    ].join('');
+
+    // 九星回座
+    const yc=yearCenter(yr);
+    const palace=palaceOf2(yc,honmei);
+
+    // 色分け：中心年=赤、現在年=金
+    let bgSty='', txtSty='';
+    if(isCenter&&isNow){ bgSty='background:rgba(192,57,43,.2);border-left:3px solid var(--kin);'; txtSty='color:#f0857a;font-weight:700;'; }
+    else if(isCenter){ bgSty='background:rgba(192,57,43,.15);border-left:3px solid var(--shu);'; txtSty='color:#f0857a;font-weight:700;'; }
+    else if(isNow){ bgSty='background:rgba(201,164,76,.15);'; txtSty='color:var(--kin2);font-weight:700;'; }
+
+    const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
+    rows+='<tr style="'+bgSty+'">'+
+      '<td style="'+tdSty+'font-size:16px;'+txtSty+'">'+yr+'年</td>'+
+      '<td style="'+tdSty+'font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+ks.kan+ks.shi+tags+'</td>'+
+      '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'">'+palace+'</td>'+
+      '<td style="'+tdSty+'font-size:16px;'+txtSty+'">'+age+'歳</td>'+
+      '</tr>';
+  }
+  rows+='</table>';
+  tbody.innerHTML=rows;
+
+}
+
+// ===== 大運計算 =====
+function calcDaiin(y, m, d, sex, mP, yP){
+  // 陽男・陰女 → 順行、陰男・陽女 → 逆行
+  const yearYang = DATA.yearYang[yP.year];
+  const isMale = (sex==='male');
+  const junko = (yearYang && isMale) || (!yearYang && !isMale);
+
+  // 節入り日を探す
+  const setsuArr = DATA.setsu[y] || [];
+  let nextSetsu=null, prevSetsu=null;
+  for(const t of setsuArr){
+    const td=new Date(Date.UTC(t[0],t[1]-1,t[2]));
+    const bd=new Date(Date.UTC(y,m-1,d));
+    if(td>bd && !nextSetsu) nextSetsu=t;
+    if(td<=bd) prevSetsu=t;
+  }
+
+  // 起運計算：生日から次節（順行）or前節（逆行）までの日数÷3
+  let diffDays;
+  if(junko && nextSetsu){
+    const bd=new Date(Date.UTC(y,m-1,d));
+    const nd=new Date(Date.UTC(nextSetsu[0],nextSetsu[1]-1,nextSetsu[2]));
+    diffDays=Math.floor((nd-bd)/86400000);
+  } else if(!junko && prevSetsu){
+    const bd=new Date(Date.UTC(y,m-1,d));
+    const pd=new Date(Date.UTC(prevSetsu[0],prevSetsu[1]-1,prevSetsu[2]));
+    diffDays=Math.floor((bd-pd)/86400000);
+  } else { diffDays=0; }
+
+  const kiun=Math.round(diffDays/3);
+
+  // 月柱の干支番号から大運を順行・逆行で算出
+  const mKanIdx=KAN10.indexOf(mP.kan);
+  const mShiIdx=SHI12.indexOf(mP.shi);
+
+  // 交替月計算（余り日数×4=月数）
+  const remainDays=diffDays%3;
+  const kiunMonths=remainDays*4;
+  let kiunStartMonth=m+kiunMonths;
+  let kiunMonthOffset=0;
+  if(kiunStartMonth>12){kiunStartMonth-=12;kiunMonthOffset=1;}
+
+  const rounds=[];
+  for(let i=1;i<=10;i++){
+    const step=junko?i:-i;
+    const kan=KAN10[((mKanIdx+step)%10+10)%10];
+    const shi=SHI12[((mShiIdx+step)%12+12)%12];
+    const age=kiun+(i-1)*10;
+    let startYear=y+age;
+    if(junko){
+      if(kiunStartMonth>m) startYear+=kiunMonthOffset;
+    } else {
+      if(kiunStartMonth<=m) startYear+=kiunMonthOffset;
+    }
+    const transKanI=KAN10[((startYear-1-1864)%10+10)%10];
+    rounds.push({kan,shi,age,startYear,startMonth:kiunStartMonth,transKan:transKanI,kiunMonth:kiunStartMonth});
+  }
+  // 交替年の干（最初の大運交替年から）
+  const firstTransYear=y+kiun;
+  const transKan=KAN10[((firstTransYear-1864)%10+10)%10];
+  const transShi=MONTH_TO_SHI2[kiunStartMonth]||'';
+  return{kiun,kiunMonth:kiunStartMonth,junko,rounds,transKan,transShi};
+}
+
+// ===== 干合処理 =====
+// 変化干合の化五行
+const KANGO_KA={
+  甲:'土',己:'土', // 甲己→土
+  乙:'金',庚:'金', // 乙庚→金
+  丙:'水',辛:'水', // 丙辛→水
+  丁:'木',壬:'木', // 丁壬→木
+  戊:'火',癸:'火', // 戊癸→火
+};
+// 月令（月支蔵干の五行）判定
+function getMonthGogyo(mShi){
+  // 月支の正気（主となる五行）
+  const MOON_GOGYO={
+    子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',
+    午:'火',未:'土',申:'金',酉:'金',戌:'土',亥:'水'
+  };
+  return MOON_GOGYO[mShi]||'';
+}
+
+function applyKango(kans, mShi, nK){
+  // kans: [{pos:'年'|'月'|'日'|'時', kan, gogyo}]
+  // 干合ペア（隣接のみ）: 年-月, 月-日, 日-時
+  const pairs=[['年','月'],['月','日'],['日','時']];
+  const moonG=getMonthGogyo(mShi);
+  const result=kans.map(k=>({...k})); // コピー
+  const used=new Set();
+
+  // 干合が重なる場合は日干・月干を優先
+  const priority=[['月','日'],['日','時'],['年','月']];
+
+  for(const [p1,p2] of priority){
+    const i1=result.findIndex(k=>k.pos===p1);
+    const i2=result.findIndex(k=>k.pos===p2);
+    if(i1<0||i2<0) continue;
+    if(used.has(i1)||used.has(i2)) continue;
+    const k1=result[i1], k2=result[i2];
+    if(KANGO[k1.kan]!==k2.kan) continue;
+
+    // 干合成立
+    const kaGogyo=KANGO_KA[k1.kan];
+
+    if(p1==='年'&&p2==='月'){
+      // 無作用干合：年干と月干のみの干合
+      // 変化干合しない場合は無作用（干を消す）
+      if(moonG===kaGogyo){
+        // 変化干合：月令が化五行と同じ→変化
+        result[i1]={...k1, gogyo:kaGogyo, note:'変化干合('+k1.kan+'→'+kaGogyo+')'};
+        result[i2]={...k2, gogyo:kaGogyo, note:'変化干合('+k2.kan+'→'+kaGogyo+')'};
+      } else {
+        // 無作用干合：消える
+        result[i1]={...k1, gogyo:null, note:'無作用干合(消)'};
+        result[i2]={...k2, gogyo:null, note:'無作用干合(消)'};
+      }
+      used.add(i1); used.add(i2);
+    } else {
+      // 日干・月干 or 日干・時干の干合
+      if(moonG===kaGogyo){
+        // 変化干合
+        result[i1]={...k1, gogyo:kaGogyo, note:'変化干合('+k1.kan+'→'+kaGogyo+')'};
+        result[i2]={...k2, gogyo:kaGogyo, note:'変化干合('+k2.kan+'→'+kaGogyo+')'};
+      } else {
+        // 倍加干合：日干以外の干が×2
+        // 月-日の干合なら月干(i1)が倍加、日-時の干合なら時干(i2)が倍加
+        const targetIdx=(p1==='日'&&p2==='時')?i2:i1;
+        result[targetIdx]={...result[targetIdx], weight:2, note:'倍加干合(×2)'};
+      }
+      used.add(i1); used.add(i2);
+    }
+  }
+  return result;
+}
+
+// ===== 西洋占星術 太陽座・月座計算 =====
+function getSolarSign(m, d) {
+  const signs = [
+    [1,20,'水瓶座'],[2,19,'魚座'],[3,21,'牡羊座'],[4,20,'牡牛座'],
+    [5,21,'双子座'],[6,21,'蟹座'],[7,23,'獅子座'],[8,23,'乙女座'],
+    [9,23,'天秤座'],[10,23,'蠍座'],[11,22,'射手座'],[12,22,'山羊座']
+  ];
+  for(let i=0;i<signs.length;i++){
+    const [sm,sd,name]=signs[i];
+    if(m===sm&&d>=sd) return name;
+    if(m===sm&&d<sd) return signs[(i-1+12)%12][2];
+  }
+  return '不明';
+}
+
+function getMoonSign(y, m, d, hour) {
+  const h = (hour===null||hour===undefined) ? 12 : hour;
+  const a=Math.floor((14-m)/12);
+  const yr=y+4800-a;
+  const mo=m+12*a-3;
+  const jd=d+(h/24)+Math.floor((153*mo+2)/5)+365*yr+Math.floor(yr/4)-Math.floor(yr/100)+Math.floor(yr/400)-32045;
+  const T=(jd-2451545.0)/36525;
+  let L=218.316+481267.881*T;
+  L=((L%360)+360)%360;
+  const idx=Math.floor(L/30);
+  const moonSigns=['牡羊座','牡牛座','双子座','蟹座','獅子座','乙女座',
+                   '天秤座','蠍座','射手座','山羊座','水瓶座','魚座'];
+  return moonSigns[idx];
+}
+
+
+function gogyo_points(nK, yP, mP, dP, hP, hUnknown){
+  const nG=KAN_GOGYO[nK];
+
+  // 天干リスト（位置情報付き）
+  let kans=[
+    {pos:'年', kan:yP.kan, gogyo:KAN_GOGYO[yP.kan], weight:1},
+    {pos:'月', kan:mP.kan, gogyo:KAN_GOGYO[mP.kan], weight:1},
+    {pos:'日', kan:nK,     gogyo:KAN_GOGYO[nK],     weight:0}, // 日干は計算対象外
+  ];
+  if(!hUnknown) kans.push({pos:'時', kan:hP.kan, gogyo:KAN_GOGYO[hP.kan], weight:1});
+
+  // 干合処理を適用
+  const processedKans=applyKango(kans, mP.shi, nK);
+
+  const items=[];
+  for(const k of processedKans){
+    if(k.pos==='日') continue; // 日干はスキップ
+    items.push({
+      label:'('+k.pos+'干) '+k.kan+(k.note?' ['+k.note+']':''),
+      gogyo:k.gogyo,
+      weight:k.weight
+    });
+  }
+  // 地支
+  items.push({label:'年支 '+yP.shi, gogyo:SHI_GOGYO[yP.shi], weight:1});
+  items.push({label:'月支 '+mP.shi, gogyo:SHI_GOGYO[mP.shi], weight:3});
+  items.push({label:'日支 '+dP.shi, gogyo:SHI_GOGYO[dP.shi], weight:2});
+  if(!hUnknown) items.push({label:'時支 '+hP.shi, gogyo:SHI_GOGYO[hP.shi], weight:1});
+
+  let score=0, rows=[];
+  for(const i of items){
+    let pt=0;
+    if(i.gogyo===null){ pt=0; } // 無作用干合→消える
+    else if(i.gogyo===nG) pt=i.weight;
+    else if(gen(i.gogyo,nG)) pt=i.weight;
+    else if(gen(nG,i.gogyo)) pt=-i.weight;
+    else if(ove(nG,i.gogyo)) pt=-i.weight;
+    else if(ove(i.gogyo,nG)) pt=-i.weight;
+    score+=pt;
+    rows.push({label:i.label, gogyo:i.gogyo||'(消)', weight:i.weight, score:pt});
+  }
+  let verdict,cls;
+  if(score>=4){verdict='身　強';cls='sig-strong';}
+  else if(score<=-3){verdict='身　弱';cls='sig-weak';}
+  else{verdict='中　庸';cls='sig-mid';}
+  return{score,rows,verdict,cls};
+}
+
+// ===== 五行レーダーチャート =====
+
+// ===== メイン =====
+function calculate(){
+  const y=+document.getElementById('inp-y').value;
+  const m=+document.getElementById('inp-m').value;
+  const d=+document.getElementById('inp-d').value;
+  const h=document.getElementById('inp-h').value;
+  if(!y||y<1930||y>2030||!d||d<1||d>31){alert('1930〜2030年の正しい日付を入力してください。');return;}
+
+  const yP=yearPillar(y,m,d);
+  const mP=monthPillar(y,m,d,yP.kan);
+  const dP=dayPillar(y,m,d);
+  const hUnknown=(h==='unknown');
+  const hP=hUnknown?null:hourPillar(dP.kan,+h);
+  const nK=dP.kan;
+
+  const kuubou=getKuubou(dP.num);
+  const ryo=getTokuryo(nK,mP.shi);
+  const chiShis=hUnknown?[yP.shi,dP.shi]:[yP.shi,dP.shi,hP.shi];
+  const chi=getTokuchi(nK,chiShis);
+  const sei=getTokusei(nK, mP.kan, hUnknown?null:hP.kan, dP.shi, hUnknown?null:hP.shi);
+  const total=ryo.score+chi.score+sei.score;
+  const gp=gogyo_points(nK,yP,mP,dP,hUnknown?null:hP,hUnknown);
+  const daiin=calcDaiin(y,m,d,SEX,mP,yP);
+
+  let cls,verdict,punch,yojin;
+  if(total>=6){
+    cls='sig-strong';verdict='身　旺';punch='エネルギーが過剰な命式。発散する力を持って生まれた。';
+    yojin='用神：食傷・財・官殺（水・木・火）／強すぎる日干を積極的に発散・活用する五行が吉。';
+  } else if(total>=3){
+    cls='sig-strong';verdict='身　強';punch='日干が充実した命式。自力で道を切り開く力がある。';
+    yojin='用神：食傷・財・官殺（水・木・火）／日干のエネルギーを発散・活用する五行が吉。';
+  } else if(total<=-6){
+    cls='sig-weak';verdict='極　弱';punch='日干が極めて弱い命式。依存と協調の中で生きる宿命。';
+    yojin='用神：印綬・比劫（土・同五行）／日干を生じ・支える五行が最優先。消耗は厳禁。';
+  } else if(total<=-2){
+    cls='sig-weak';verdict='身　弱';punch='日干が弱い命式。周囲のサポートを得て力を発揮する。';
+    yojin='用神：印綬・比劫（土・同五行）／日干を生じ・支える五行が吉。消耗する五行は忌。';
+  } else {
+    cls='sig-mid';verdict='中　庸';punch='陰陽が均衡した命式。環境の影響を受けやすい柔軟な性質。';
+    yojin='用神：印綬・比劫（土・同五行）／中庸は安定が優先。日干を支える五行で地盤を固めてから流れに乗る。';
+  }
+
+  const sc=n=>(n>0?'+':'')+n;
+  const vc=n=>n>0?'pos':n<0?'neg':'zer';
+  const kuubouStr=kuubou[0]+'・'+kuubou[1];
+  const gpRows=gp.rows.map(r=>{
+    const vc2=n=>n>0?'pos':n<0?'neg':'zer';
+    return `<tr><td>${r.label}</td><td>${r.gogyo}</td><td>×${r.weight}</td><td class="${vc2(r.score)}">${r.score>0?'+':''}${r.score}</td></tr>`;
+  }).join('');
+
+  // 大運テーブル
+  const allRounds=[];
+  const kiunYear=y+daiin.kiun;
+  let preStep=0;
+  while(true){
+    preStep++;
+    const step=daiin.junko?-preStep:preStep;
+    const kan=KAN10[((KAN10.indexOf(mP.kan)+step)%10+10)%10];
+    const shi=SHI12[((SHI12.indexOf(mP.shi)+step)%12+12)%12];
+    const startYear=kiunYear-preStep*10;
+    const age=daiin.kiun-preStep*10;
+    if(startYear<y) break;
+    allRounds.unshift({kan,shi,age,startYear,pre:true});
+  }
+  // 月柱の0歳は過去大運と重複しない場合のみ追加
+  if(allRounds.length===0||allRounds[allRounds.length-1].startYear!==y){
+    allRounds.push({kan:mP.kan,shi:mP.shi,age:0,startYear:y,pre:true});
+  }
+  daiin.rounds.forEach(r=>allRounds.push(r));
+
+  const daiinRows=allRounds.map(r=>{
+    const nowYear=new Date().getFullYear();
+    const nowMonth=new Date().getMonth()+1;
+    const rStartMonth=r.startMonth||1;
+    const rEndYear=r.startYear+10;
+    const rEndMonth=rStartMonth;
+    const afterStart=(nowYear>r.startYear)||(nowYear===r.startYear&&nowMonth>=rStartMonth);
+    const beforeEnd=(nowYear<rEndYear)||(nowYear===rEndYear&&nowMonth<rEndMonth);
+    const isNow=afterStart&&beforeEnd;
+    const isPast=false;
+    const meishikiShi=[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])];
+    const rels=getRelations(dP.shi,r.shi,meishikiShi);
+    const isKuubou2=kuubou.includes(r.shi);
+    const isKango=KANGO[nK]===r.kan;
+    const MUJO_KANSAT_D={'乙':['辛'],'丙':['癸'],'丁':['癸'],'戊':['甲','乙'],'辛':['丁'],'壬':['己'],'己':['甲','乙']};
+    const MUJO_ZAI_D={'甲':['戊'],'戊':['壬'],'己':['壬'],'辛':['甲']};
+    const YUJO_ZAI_D={'甲':['己'],'乙':['戊','己'],'丙':['辛'],'壬':['丙'],'癸':['丙'],'己':['癸']};
+    const YUJO_KANSAT_D={'丙':['壬'],'辛':['丙'],'壬':['戊'],'癸':['己']};
+    const isMujoKansat=(MUJO_KANSAT_D[nK]||[]).includes(r.kan);
+    const isMujoZai=(MUJO_ZAI_D[nK]||[]).includes(r.kan);
+    const isYujoZai=(YUJO_ZAI_D[nK]||[]).includes(r.kan);
+    const isYujoKansat=(YUJO_KANSAT_D[nK]||[]).includes(r.kan);
+    const isHeirinD=(r.kan===dP.kan && r.shi===dP.shi);
+    const tags=[
+      ...rels.map(t=>{
+        const c=t==='沖'?'#f0857a':t==='刑'?'#7ab4d8':'#9ed687';
+        return `<span style="font-size:11px;color:${c};border:1px solid ${c};border-radius:4px;padding:1px 5px;margin-left:3px;">${t}</span>`;
+      }),
+      isKuubou2?`<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>`:'',
+      isKango?`<span style="font-size:11px;color:#c78fff;border:1px solid #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">干合</span>`:'',
+      isMujoKansat?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>`:'',
+      isMujoZai?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>`:'',
+      isYujoZai?`<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情財</span>`:'',
+      isYujoKansat?`<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>`:'',
+      isHeirinD?`<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>`:''
+    ].join('');
+    const nowSty=isNow?'color:var(--kin2);font-weight:700;':'';
+    const nowBg=isNow?'background:rgba(201,164,76,.12);':'';
+    const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
+    // 五行の調和：用神判定
+    const daiiTotal=total;
+    const kanGogyo=KAN_GOGYO[r.kan];
+    const shiGogyo=SHI_GOGYO[r.shi];
+    const kanYojin=yojinHantei(nK,kanGogyo,daiiTotal);
+    const shiYojin=yojinHantei(nK,shiGogyo,daiiTotal);
+    const bothYojin=(kanYojin==='○'&&shiYojin==='○');
+    const bothKijin=(kanYojin==='✕'&&shiYojin==='✕')&&daiiTotal!==null&&(daiiTotal>=3||daiiTotal<=-1);
+    const ageSty=bothKijin?'text-decoration:underline;text-decoration-color:#f0857a;text-underline-offset:3px;':'';
+    // 通変の調和：□隣接五行から判定
+    const adjDaiin=new Set();
+    const dShiG_d=SHI_GOGYO[dP.shi];
+    const hKanG_d=hUnknown?null:KAN_GOGYO[hP.kan];
+    const hShiG_d=hUnknown?null:SHI_GOGYO[hP.shi];
+    const nG_d=KAN_GOGYO[nK];
+    [KAN_GOGYO[mP.kan],dShiG_d,...(hUnknown?[]:[hKanG_d])].forEach(g=>{if(g&&g!==nG_d)adjDaiin.add(g);});
+    if(!hUnknown&&hShiG_d!==nG_d){if(hKanG_d===nG_d||dShiG_d===nG_d)adjDaiin.add(hShiG_d);}
+    const GOGYO5_d=['木','火','土','金','水'];
+    const nIdx_d=GOGYO5_d.indexOf(nG_d);
+    const toTsuuhen_d=(g)=>{const diff=((GOGYO5_d.indexOf(g)-nIdx_d)+5)%5;return ['hikyu','shokusho','zai','kansat','insho'][diff];};
+    const adjTsuuhen_d=new Set([...adjDaiin].map(g=>toTsuuhen_d(g)));
+    const kanTsuuhen_d=toTsuuhen_d(kanGogyo);
+    const shiTsuuhen_d=toTsuuhen_d(shiGogyo);
+    const jibunAxis_d=(adjTsuuhen_d.has('insho')||adjTsuuhen_d.has('shokusho'));
+    const tanninAxis_d=(adjTsuuhen_d.has('zai')||adjTsuuhen_d.has('kansat'));
+    const kanMark=jibunAxis_d&&['insho','shokusho'].includes(kanTsuuhen_d)?'〇':tanninAxis_d&&['zai','kansat'].includes(kanTsuuhen_d)?'●':'';
+    const shiMark=jibunAxis_d&&['insho','shokusho'].includes(shiTsuuhen_d)?'〇':tanninAxis_d&&['zai','kansat'].includes(shiTsuuhen_d)?'●':'';
+    return '<tr style="'+nowBg+'">'+ 
+      '<td style="'+tdSty+'font-size:17px;'+nowSty+ageSty+'">'+r.age+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
+      '<td style="'+tdSty+'font-size:17px;'+nowSty+'">'+r.startYear+'年〜</td>'+
+      '<td style="'+tdSty+'font-size:22px;'+nowSty+'">'+
+        '<span style="color:#e0c478;font-size:16px;display:inline-block;width:1em;text-align:center;">'+kanMark+'</span>'+
+        r.kan+
+        '<span style="color:#e0c478;font-size:16px;display:inline-block;width:1em;text-align:center;">'+shiMark+'</span>'+
+        r.shi+
+        tags+
+      '</td>'+
+      '</tr>';
+  }).join('');
+
+  const pil=(lbl,kan,shi,isDay)=>{
+    const ts=isDay?'':getTsuuhensei(nK,kan);
+    const juni=getJuni(nK,shi);
+    return '<div class="pillar'+(isDay?' day':'')+'">' +
+      '<div class="p-label">'+lbl+'</div>'+
+      '<div class="p-kan-row">'+
+        '<span class="p-kan">'+kan+'</span>'+
+        '<span class="p-ts" style="opacity:'+(ts?'1':'0')+';">'+(ts||'印綬')+'</span>'+
+      '</div>'+
+      '<div class="p-shi-row">'+
+        '<span class="p-shi">'+shi+'</span>'+
+        '<span class="p-juni">'+juni+'</span>'+
+      '</div>'+
+      '<div class="p-gogyo">'+KAN_GOGYO[kan]+'・'+SHI_GOGYO[shi]+'</div>'+
+      '</div>';
+  };
+
+  document.getElementById('result').innerHTML=`
+    <div class="card">
+      <div class="form-title">八字命式</div>
+      <div class="shichuu-disp">
+        ${pil('年柱',yP.kan,yP.shi,false)}
+        ${pil('月柱',mP.kan,mP.shi,false)}
+        ${pil('日柱★',dP.kan,dP.shi,true)}
+        ${hUnknown?'<div></div>':pil('時柱',hP.kan,hP.shi,false)}
+      </div>
+      ${hUnknown?'<div style="margin-top:10px;font-size:13px;color:var(--kin);opacity:.8;">※ 時刻不明のため時柱を除外して計算しています</div>':''}
+      <div style="margin-top:12px;font-size:14px;color:var(--kin);letter-spacing:.15em;">
+        空亡：<span style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${kuubouStr}</span>
+      </div>
+      ${(()=>{
+        const solar=getSolarSign(m,d);
+        const lunar=getMoonSign(y,m,d,hUnknown?12:(+document.getElementById('inp-h').value||12));
+        const rels=analyzeMeishiki(yP,mP,dP,hUnknown?null:hP,hUnknown,nK,kuubou);
+        if(rels.length===0&&!solar&&!lunar) return '';
+        const leftHtml=rels.length===0?'':rels.map(r=>{
+          const isMujo=r.startsWith('⚠️');
+          const isYujo=r.startsWith('✨');
+          const color=isMujo?'#f0857a':isYujo?'#e0c478':'var(--washi2)';
+          const bg=isMujo?'background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.35);border-radius:6px;padding:6px 10px;':
+                   isYujo?'background:rgba(201,164,76,.15);border:1px solid rgba(201,164,76,.4);border-radius:6px;padding:6px 10px;':'';
+          return '<div style="font-size:13px;color:'+color+';letter-spacing:.08em;margin-top:6px;'+bg+'">'+r+'</div>';
+        }).join('');
+        const rightHtml='<div style="text-align:right;font-family:\'Shippori Mincho\',serif;font-size:13px;color:var(--kin2);line-height:2;letter-spacing:.1em;">'+
+          '☀️ '+solar+'<br>🌙 '+lunar+'</div>';
+        return '<div style="margin-top:12px;border-top:1px solid rgba(201,164,76,.15);padding-top:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">'+
+          '<div style="flex:1;">'+leftHtml+'</div>'+
+          '<div>'+rightHtml+'</div>'+
+          '</div>';
+      })()}
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <div class="form-title">五行計算表</div>
+      ${(()=>{
+        const moonG=SHI_GOGYO[mP.shi];
+        const GOGYO5=['木','火','土','金','水'];
+        const nG=KAN_GOGYO[nK];
+        const nIdx=GOGYO5.indexOf(nG);
+        const toTsuuhen=(g)=>{
+          const diff=((GOGYO5.indexOf(g)-nIdx)+5)%5;
+          return ['比劫','食傷','財','官殺','印綬'][diff];
+        };
+        const kanArr=[yP.kan,mP.kan,nK,...(hUnknown?[]:[hP.kan])];
+        const shiArr=[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])];
+        const kanCnt={比劫:0,食傷:0,財:0,官殺:0,印綬:0};
+        const shiCnt={比劫:0,食傷:0,財:0,官殺:0,印綬:0};
+        const gogyoOfTsuuhen=(t)=>GOGYO5[(nIdx+['比劫','食傷','財','官殺','印綬'].indexOf(t))%5];
+        kanArr.forEach(k=>{if(KAN_GOGYO[k])kanCnt[toTsuuhen(KAN_GOGYO[k])]++;});
+        shiArr.forEach(s=>{(ZOKAN[s]||[]).forEach(zk=>{if(KAN_GOGYO[zk])shiCnt[toTsuuhen(KAN_GOGYO[zk])]++;});});
+        const calcScore=(k,s,tourei)=>{
+          if(k===0&&s===0) return 0;
+          const base=tourei?Math.pow(3,s):Math.pow(2,s);
+          return k*base;
+        };
+        const TSUUHEN=['比劫','食傷','財','官殺','印綬'];
+        const colors={比劫:'#7ab4d8',食傷:'#f0857a',財:'#e0c478',官殺:'#b8d4a8',印綬:'#c78fff'};
+        const rows=TSUUHEN.map(t=>{
+          const k=kanCnt[t];
+          const s=shiCnt[t];
+          const g=gogyoOfTsuuhen(t);
+          const tourei=(g===moonG);
+          const score=calcScore(k,s,tourei);
+          const color=colors[t];
+          return `<tr>
+            <td style="padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);font-size:16px;color:${color};font-family:'Shippori Mincho',serif;">${t}</td>
+            <td style="padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);font-size:13px;color:var(--washi2);">${tourei?'当令':'不当令'}</td>
+            <td style="padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);font-size:13px;color:var(--washi2);">${k}干 ${s}支</td>
+            <td style="padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);font-size:20px;font-weight:700;color:${color};">${score}</td>
+          </tr>`;
+        }).join('');
+        return `<table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">通変</th>
+            <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">当令</th>
+            <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">干支数</th>
+            <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">点数</th>
+          </tr>${rows}</table>
+          <div style="font-size:12px;color:var(--kin);opacity:.7;margin-top:10px;">月令：${nG==='水'?'水':moonG}（${mP.shi}）</div>`;
+      })()}
+    </div>
+    <div class="signal-banner ${cls}" style="margin-top:22px;">
+      <div class="lamp">身強身弱判断</div>
+      <div class="score-num">${sc(total)}</div>
+      <div class="verdict">${verdict}</div>
+      <div class="punch">${punch}</div>
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;">
+        ${[
+          ['比肩','自分の道を行く・人に頼らない・頑固一徹'],
+          ['劫財','商才あり・勝負強い・お金の出入り激しい'],
+          ['食神','食・芸術・趣味に才能・のんびり楽しむ'],
+          ['傷官','天才肌・職人気質・言葉の才能'],
+          ['偏財','人脈広い・お金を動かす・社交的'],
+          ['正財','堅実に積み上げる・約束を守る・現実的'],
+          ['偏官','スピード勝負・リスクを取る・男気'],
+          ['正官','まじめ・出世志向・組織の人'],
+          ['偏印','ひらめき型・飽きっぽい・マイペース'],
+          ['印綬','勉強家・面倒見がいい・包み込む'],
+        ].map(([name,desc])=>`
+          <div style="font-size:13px;line-height:1.7;">
+            <span style="color:var(--kin);font-family:'Shippori Mincho',serif;font-weight:700;margin-right:6px;">${name}</span>
+            <span style="color:var(--washi2);opacity:.85;">${desc}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div style="margin-top:14px;font-size:13px;color:var(--washi2);letter-spacing:.08em;line-height:1.8;opacity:.9;"></div>
+    </div>
+    <div class="score-grid">
+      <div class="score-card">
+        <div class="sc-lab">得令（月支）</div>
+        <div class="sc-val ${vc(ryo.score)}">${sc(ryo.score)}</div>
+        <div class="sc-note">${mP.shi}月支　${ryo.state}<br>${ryo.desc}</div>
+      </div>
+      <div class="score-card">
+        <div class="sc-lab">得地（通根）</div>
+        <div class="sc-val ${vc(chi.score)}">${sc(chi.score)}</div>
+        <div class="sc-note">${chi.det.slice().reverse().join('　')}<br>${hUnknown?'年支・日支':'年支・日支・時支'}</div>
+      </div>
+      <div class="score-card">
+        <div class="sc-lab">得勢（かぴ流）</div>
+        <div class="sc-val ${vc(sei.score)}">${sc(sei.score)}</div>
+        <div class="sc-note">${hUnknown?'月干・日支':'月干・時干・日支・時支'}${(!hUnknown&&sei.dendo)?'　⚡伝導':''}</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <div class="form-title">五行バランス</div>
+      <canvas id="gogyo-chart" width="320" height="320" style="display:block;margin:0 auto;"></canvas>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <div class="form-title">大運<span style="font-size:13px;color:var(--washi2);font-family:'Zen Kaku Gothic New',sans-serif;font-weight:400;margin-left:12px;letter-spacing:.05em;">交替（${daiin.transKan}年/${daiin.transShi}月）</span></div>
+      <div style="font-size:13px;color:var(--kin);margin-bottom:12px;letter-spacing:.1em;">
+        起運：<b style="color:var(--kin2);font-size:16px;">${daiin.kiun}歳</b>　${daiin.junko?'順行（陽男・陰女）':'逆行（陰男・陽女）'}
+      </div>
+      <table id="daiin-table" style="width:100%;border-collapse:collapse;">
+        <tr>
+          <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">年齢</th>
+          <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">開始年</th>
+          <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.2);text-align:left;">干支</th>
+        </tr>
+        ${daiinRows}
+      </table>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <div class="form-title">年運<span style="font-size:13px;color:var(--washi2);font-family:'Zen Kaku Gothic New',sans-serif;font-weight:400;margin-left:12px;letter-spacing:.05em;">交替（${daiin.transKan}年/${daiin.transShi}月）</span></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <label style="font-size:14px;color:var(--washi2);letter-spacing:.1em;">中心年</label>
+        <input type="number" id="nengaku-center" value="2026" min="1900" max="2100"
+          style="width:100px;padding:8px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);
+          border-radius:8px;color:var(--washi);font-size:16px;font-family:inherit;"
+          onfocus="this.select()">
+        <button onclick="updateNengun()" style="padding:8px 16px;background:var(--shu);border:1px solid var(--kin);border-radius:8px;color:#fff;font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;letter-spacing:.1em;">更新</button>
+      </div>
+      <div id="nengun-table"></div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <div class="form-title">五行点数制（参考）</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;">
+        <div class="signal-banner ${gp.cls}" style="padding:20px;">
+          <div class="lamp">五行点数制</div>
+          <div class="score-num" style="font-size:clamp(36px,7vw,56px);">${gp.score>0?'+':''}${gp.score}</div>
+          <div class="verdict" style="font-size:clamp(20px,4vw,28px);">${gp.verdict}</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><th style="color:var(--kin);font-size:12px;padding:6px 8px;border-bottom:1px solid rgba(201,164,76,.1);">干支</th>
+                <th style="color:var(--kin);font-size:12px;padding:6px 8px;border-bottom:1px solid rgba(201,164,76,.1);">五行</th>
+                <th style="color:var(--kin);font-size:12px;padding:6px 8px;border-bottom:1px solid rgba(201,164,76,.1);">重み</th>
+                <th style="color:var(--kin);font-size:12px;padding:6px 8px;border-bottom:1px solid rgba(201,164,76,.1);">点数</th></tr>
+            ${gpRows}
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('result').classList.add('show');
+
+  // 五行バランス図（五角形＋円）
+  (function(){
+    const canvas=document.getElementById('gogyo-chart');
+    if(!canvas)return;
+    const ctx=canvas.getContext('2d');
+    const W=320,H=320,cx=160,cy=165,R=105,CR=36;
+    canvas.width=W;canvas.height=H;
+
+    const nG2=KAN_GOGYO[nK];
+    const GOGYO_ALL=['木','火','土','金','水'];
+    const nIdx=GOGYO_ALL.indexOf(nG2);
+    const order=[];
+    for(let i=0;i<5;i++) order.push(GOGYO_ALL[(nIdx+i)%5]);
+
+    const allKanShi2=[
+      {g:KAN_GOGYO[yP.kan]},{g:SHI_GOGYO[yP.shi]},
+      {g:KAN_GOGYO[mP.kan]},{g:SHI_GOGYO[mP.shi]},
+      {g:KAN_GOGYO[nK]},{g:SHI_GOGYO[dP.shi]},
+      ...(hUnknown?[]:[{g:KAN_GOGYO[hP.kan]},{g:SHI_GOGYO[hP.shi]}])
+    ];
+    const cnt={木:0,火:0,土:0,金:0,水:0};
+    allKanShi2.forEach(x=>cnt[x.g]++);
+
+    const dShiG2=SHI_GOGYO[dP.shi];
+    const hKanG2=hUnknown?null:KAN_GOGYO[hP.kan];
+    const hShiG2=hUnknown?null:SHI_GOGYO[hP.shi];
+    const adjG2=new Set();
+    [KAN_GOGYO[mP.kan],dShiG2,...(hUnknown?[]:[hKanG2])].forEach(g=>{if(g&&g!==nG2)adjG2.add(g);});
+    if(!hUnknown&&hShiG2!==nG2){if(hKanG2===nG2||dShiG2===nG2)adjG2.add(hShiG2);}
+
+    const COLORS2={木:'#5b9e4f',火:'#c0392b',土:'#c9a44c',金:'#b0b8c8',水:'#2a6ea6'};
+    const pts=order.map((g,i)=>{
+      const angle=-Math.PI/2+i*2*Math.PI/5;
+      return {x:cx+R*Math.cos(angle),y:cy+R*Math.sin(angle),g};
+    });
+
+    ctx.clearRect(0,0,W,H);
+
+    // 相生ライン
+    ctx.beginPath();
+    pts.forEach((p,i)=>{i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);});
+    ctx.closePath();
+    ctx.strokeStyle='rgba(201,164,76,.3)';ctx.lineWidth=1.5;ctx.stroke();
+
+    // 相剋ライン
+    ctx.beginPath();
+    [0,2,4,1,3,0].forEach((i,j)=>{j===0?ctx.moveTo(pts[i].x,pts[i].y):ctx.lineTo(pts[i].x,pts[i].y);});
+    ctx.strokeStyle='rgba(192,57,43,.3)';ctx.lineWidth=1;ctx.stroke();
+
+    pts.forEach(p=>{
+      const c=COLORS2[p.g]||'#ece3d0';
+      const isAdj=adjG2.has(p.g);
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,CR,0,Math.PI*2);
+      ctx.fillStyle='rgba(20,17,15,.85)';ctx.fill();
+      ctx.strokeStyle=c;ctx.lineWidth=2;ctx.stroke();
+      if(isAdj){
+        const s=CR+8;
+        ctx.strokeStyle=c;ctx.lineWidth=1.5;
+        ctx.strokeRect(p.x-s,p.y-s,s*2,s*2);
+      }
+      ctx.font='bold 16px serif';
+      ctx.fillStyle=c;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(p.g,p.x,p.y-9);
+      ctx.font='11px serif';
+      ctx.fillStyle='rgba(236,227,208,.85)';
+      ctx.fillText('●'.repeat(cnt[p.g]),p.x,p.y+10);
+    });
+  })();
+
+  // adjG2を事前計算（通変の調和判定用）
+  const adjG2=new Set();
+  const dShiG2_pre=SHI_GOGYO[dP.shi];
+  const hKanG2_pre=hUnknown?null:KAN_GOGYO[hP.kan];
+  const hShiG2_pre=hUnknown?null:SHI_GOGYO[hP.shi];
+  const nG2_pre=KAN_GOGYO[nK];
+  [KAN_GOGYO[mP.kan],dShiG2_pre,...(hUnknown?[]:[hKanG2_pre])].forEach(g=>{if(g&&g!==nG2_pre)adjG2.add(g);});
+  if(!hUnknown&&hShiG2_pre!==nG2_pre){if(hKanG2_pre===nG2_pre||dShiG2_pre===nG2_pre)adjG2.add(hShiG2_pre);}
+
+  // 年運描画
+  window._nengunData={dShi:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, allRounds, dKan:dP.kan, adjG2};
+  updateNengun();
+
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>

@@ -409,11 +409,19 @@ function getRelations(dShi, tShi, meishiki){
   if((KEI[dShi]||[]).includes(tShi)) tags.push('刑');
   // 六合
   if(GOU[dShi]===tShi) tags.push('合');
-  // 三合：命式＋大運地支で揃っているか
-  const group=getSangouGroup(dShi);
-  if(group&&group.includes(tShi)){
-    const remaining=group.filter(s=>s!==dShi&&s!==tShi);
-    if(meishiki&&remaining.every(s=>meishiki.includes(s))) tags.push('三');
+  // 三合：命式の全地支を起点に、大運/年運地支で揃うか判定
+  if(meishiki){
+    for(const group of SANGOU){
+      if(!group.includes(tShi)) continue; // 年運/大運がグループに無ければスキップ
+      const remaining=group.filter(s=>s!==tShi);
+      // 残り2支のうち2支とも命式にあれば完全三合、1支なら半会のみ→不成立
+      // 残り2支のうち1支が命式にある → 命式1支＋年運/大運1支で半会、不足
+      // 残り2支が両方命式にある → 三合完成
+      if(remaining.every(s=>meishiki.includes(s))){
+        tags.push('三');
+        break;
+      }
+    }
   }
   return tags;
 }
@@ -642,7 +650,7 @@ function updateNengun(){
     const age=yr-d.y;
 
     // 関係タグ
-    const rels=getRelations(d.dShi,ks.shi,null);
+    const rels=getRelations(d.dShi,ks.shi,d.meishikiShi);
     const isKuubou=d.kuubou.includes(ks.shi);
     const isKango=d.KANGO[d.nK]===ks.kan;
     const MUJO_KANSAT_N={'乙':['辛'],'丙':['癸'],'丁':['癸'],'戊':['甲','乙'],'辛':['丁'],'壬':['己'],'己':['甲','乙']};
@@ -1377,7 +1385,7 @@ function calculate(){
   if(!hUnknown&&hShiG2_pre!==nG2_pre){if(hKanG2_pre===nG2_pre||dShiG2_pre===nG2_pre)adjG2.add(hShiG2_pre);}
 
   // 年運描画
-  window._nengunData={dShi:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, allRounds, dKan:dP.kan, adjG2};
+  window._nengunData={dShi:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])]};
   updateNengun();
 
   document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});

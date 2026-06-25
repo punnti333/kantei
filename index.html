@@ -1098,7 +1098,7 @@ function calculate(){
       '<div class="p-label">'+lbl+'</div>'+
       '<div class="p-kan-row">'+
         '<span class="p-kan">'+kan+'</span>'+
-        '<span class="p-ts" style="opacity:'+(ts?'1':'0')+';">'+(ts||'印綬')+'</span>'+
+        '<span class="p-ts" style="opacity:'+(ts?'1':'0')+';">'+(ts||'印')+'</span>'+
       '</div>'+
       '<div class="p-shi-row">'+
         '<span class="p-shi">'+shi+'</span>'+
@@ -1118,8 +1118,13 @@ function calculate(){
         ${hUnknown?'<div></div>':pil('時柱',hP.kan,hP.shi,false)}
       </div>
       ${hUnknown?'<div style="margin-top:10px;font-size:13px;color:var(--kin);opacity:.8;">※ 時刻不明のため時柱を除外して計算しています</div>':''}
-      <div style="margin-top:12px;font-size:14px;color:var(--kin);letter-spacing:.15em;">
-        空亡：<span style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${kuubouStr}</span>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+        <div style="font-size:14px;color:var(--kin);letter-spacing:.15em;">
+          空亡：<span style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${kuubouStr}</span>
+        </div>
+        <div style="font-size:14px;color:var(--kin);letter-spacing:.15em;">
+          今年の年齢：<span style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${new Date().getFullYear()-y}歳</span>
+        </div>
       </div>
       ${(()=>{
         const solar=getSolarSign(m,d);
@@ -1154,13 +1159,13 @@ function calculate(){
         const nIdx=GOGYO5.indexOf(nG);
         const toTsuuhen=(g)=>{
           const diff=((GOGYO5.indexOf(g)-nIdx)+5)%5;
-          return ['比劫','食傷','財','官殺','印綬'][diff];
+          return ['比劫','食傷','財','官殺','印'][diff];
         };
         const kanArr=[yP.kan,mP.kan,nK,...(hUnknown?[]:[hP.kan])];
         const shiArr=[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])];
-        const kanCnt={比劫:0,食傷:0,財:0,官殺:0,印綬:0};
-        const shiCnt={比劫:0,食傷:0,財:0,官殺:0,印綬:0};
-        const gogyoOfTsuuhen=(t)=>GOGYO5[(nIdx+['比劫','食傷','財','官殺','印綬'].indexOf(t))%5];
+        const kanCnt={比劫:0,食傷:0,財:0,官殺:0,印:0};
+        const shiCnt={比劫:0,食傷:0,財:0,官殺:0,印:0};
+        const gogyoOfTsuuhen=(t)=>GOGYO5[(nIdx+['比劫','食傷','財','官殺','印'].indexOf(t))%5];
         kanArr.forEach(k=>{if(KAN_GOGYO[k])kanCnt[toTsuuhen(KAN_GOGYO[k])]++;});
         shiArr.forEach(s=>{(ZOKAN[s]||[]).forEach(zk=>{if(KAN_GOGYO[zk])shiCnt[toTsuuhen(KAN_GOGYO[zk])]++;});});
         const calcScore=(k,s,tourei)=>{
@@ -1168,8 +1173,8 @@ function calculate(){
           const base=tourei?Math.pow(3,s):Math.pow(2,s);
           return k*base;
         };
-        const TSUUHEN=['比劫','食傷','財','官殺','印綬'];
-        const colors={比劫:'#7ab4d8',食傷:'#f0857a',財:'#e0c478',官殺:'#b8d4a8',印綬:'#c78fff'};
+        const TSUUHEN=['比劫','食傷','財','官殺','印'];
+        const colors={比劫:'#7ab4d8',食傷:'#f0857a',財:'#e0c478',官殺:'#b8d4a8',印:'#c78fff'};
         const rows=TSUUHEN.map(t=>{
           const k=kanCnt[t];
           const s=shiCnt[t];
@@ -1247,6 +1252,7 @@ function calculate(){
           border-radius:8px;color:var(--washi);font-size:16px;font-family:inherit;"
           onfocus="this.select()">
         <button onclick="updateNengun()" style="padding:8px 16px;background:var(--shu);border:1px solid var(--kin);border-radius:8px;color:#fff;font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;letter-spacing:.1em;">更新</button>
+        <button onclick="document.getElementById('nengaku-center').value=new Date().getFullYear();updateNengun();" style="padding:8px 14px;background:#0f0c0a;border:1px solid rgba(201,164,76,.4);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:14px;cursor:pointer;letter-spacing:.1em;">現在に戻る</button>
       </div>
       <div id="nengun-table"></div>
     </div>

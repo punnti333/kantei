@@ -662,6 +662,8 @@ function updateNengun(){
     const isYujoZai=(YUJO_ZAI_N[d.nK]||[]).includes(ks.kan);
     const isYujoKansat=(YUJO_KANSAT_N[d.nK]||[]).includes(ks.kan);
     const isHeirinN=(ks.kan===d.nK && ks.shi===d.dShi);
+    const isHeirinM=(ks.kan===d.mKan && ks.shi===d.mShi);
+    const isHeirinY=(ks.kan===d.yKan && ks.shi===d.yShi);
     // 歳運併臨：年運干支と大運干支が一致
     const curDaiin=(d.allRounds||[]).find(r=>r.startYear<=yr && r.startYear+10>yr);
     const isSaiHeirin=curDaiin && ks.kan===curDaiin.kan && ks.shi===curDaiin.shi;
@@ -680,6 +682,8 @@ function updateNengun(){
       isYujoZai?'<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情財</span>':'',
       isYujoKansat?'<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>':'',
       isHeirinN?'<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>':'',
+      isHeirinM?'<span style="font-size:11px;color:#a0d8a0;border:1px solid #a0d8a0;border-radius:4px;padding:1px 5px;margin-left:3px;">🔶月柱併臨</span>':'',
+      isHeirinY?'<span style="font-size:11px;color:#d8a0d8;border:1px solid #d8a0d8;border-radius:4px;padding:1px 5px;margin-left:3px;">🔷年柱併臨</span>':'',
       isSaiHeirin?'<span style="font-size:11px;color:#7ab4d8;border:1px solid #7ab4d8;border-radius:4px;padding:1px 5px;margin-left:3px;">🔵歳運併臨</span>':''
     ].join('');
 
@@ -1016,6 +1020,8 @@ function calculate(){
     const isYujoZai=(YUJO_ZAI_D[nK]||[]).includes(r.kan);
     const isYujoKansat=(YUJO_KANSAT_D[nK]||[]).includes(r.kan);
     const isHeirinD=(r.kan===dP.kan && r.shi===dP.shi);
+    const isHeirinMD=(r.kan===mP.kan && r.shi===mP.shi);
+    const isHeirinYD=(r.kan===yP.kan && r.shi===yP.shi);
     const tags=[
       ...rels.map(t=>{
         const c=t==='沖'?'#f0857a':t==='刑'?'#7ab4d8':'#9ed687';
@@ -1027,7 +1033,9 @@ function calculate(){
       isMujoZai?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>`:'',
       isYujoZai?`<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情財</span>`:'',
       isYujoKansat?`<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>`:'',
-      isHeirinD?`<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>`:''
+      isHeirinD?`<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>`:'',
+      isHeirinMD?`<span style="font-size:11px;color:#a0d8a0;border:1px solid #a0d8a0;border-radius:4px;padding:1px 5px;margin-left:3px;">🔶月柱併臨</span>`:'',
+      isHeirinYD?`<span style="font-size:11px;color:#d8a0d8;border:1px solid #d8a0d8;border-radius:4px;padding:1px 5px;margin-left:3px;">🔷年柱併臨</span>`:''
     ].join('');
     const nowSty=isNow?'color:var(--kin2);font-weight:700;':'';
     const nowBg=isNow?'background:rgba(201,164,76,.12);':'';
@@ -1385,7 +1393,7 @@ function calculate(){
   if(!hUnknown&&hShiG2_pre!==nG2_pre){if(hKanG2_pre===nG2_pre||dShiG2_pre===nG2_pre)adjG2.add(hShiG2_pre);}
 
   // 年運描画
-  window._nengunData={dShi:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])]};
+  window._nengunData={dShi:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])], mKan:mP.kan, mShi:mP.shi, yKan:yP.kan, yShi:yP.shi};
   updateNengun();
 
   document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});

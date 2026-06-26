@@ -91,7 +91,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .sig-weak{background:radial-gradient(circle at 50% 0,rgba(42,77,110,.5),var(--sumi2));}
 .sig-weak .score-num,.sig-weak .verdict{color:#7ab4d8;text-shadow:0 0 24px rgba(100,160,210,.5);}
 .score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
-@media(max-width:560px){.score-grid{grid-template-columns:1fr;}}
+@media(max-width:560px){.harmony-grid{grid-template-columns:1fr;}}
 .score-card{background:#0f0c0a;border:1px solid rgba(201,164,76,.18);border-radius:10px;padding:18px 16px;text-align:center;}
 .sc-lab{font-size:12px;letter-spacing:.18em;color:var(--kin2);opacity:.85;margin-bottom:6px;font-weight:700;}
 .sc-val{font-family:'Shippori Mincho',serif;font-size:32px;font-weight:700;}
@@ -1271,6 +1271,30 @@ function calculate(){
         <button onclick="document.getElementById('nengaku-center').value=new Date().getFullYear();updateNengun();" style="padding:8px 14px;background:#0f0c0a;border:1px solid rgba(201,164,76,.4);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:14px;cursor:pointer;letter-spacing:.1em;">現在に戻る</button>
       </div>
       <div id="nengun-table"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;" class="harmony-grid">
+      <div class="card">
+        <div class="form-title">五行調和の視点</div>
+        <div style="margin-bottom:14px;">
+          <div style="font-size:13px;font-weight:700;color:var(--kin2);letter-spacing:.1em;margin-bottom:6px;">【五行の調和】</div>
+          <div style="font-size:12px;color:var(--washi2);opacity:.85;line-height:1.9;">日常生活において望むときに休息が取れ、身体的負担が小さく病気の要因から遠ざかる状態（健康的生活）<br>・定時の起床、定時の食事、栄養バランスが叶う<br>・のんびり生活できる<br>・働く意欲がなくなる<br>・悠々自適に暮らしたい、身を削るほど頑張りたくない</div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#f0857a;letter-spacing:.1em;margin-bottom:6px;">【五行の非調和】</div>
+          <div style="font-size:12px;color:var(--washi2);opacity:.85;line-height:1.9;">健康的ではない、多忙な状態に身を置くことになる。仕事がハードになったり労働時間が長くなるなど、不規則で不健康な生活になる。その分社会的に活躍しやすい。病気の原因になる。</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="form-title">通変調和の視点</div>
+        <div style="margin-bottom:14px;">
+          <div style="font-size:13px;font-weight:700;color:var(--kin2);letter-spacing:.1em;margin-bottom:6px;">【印と食傷】自分軸の調和</div>
+          <div style="font-size:12px;color:var(--washi2);opacity:.85;line-height:1.9;">（内面的な充足感）<br>・楽しめることがある<br>・才能と能力を発揮できる<br>・我が道を行く<br>・やりがい、充実感がある<br>・やりたいことが見つかる<br>・オリジナリティが出る</div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--kin2);letter-spacing:.1em;margin-bottom:6px;">【財と官殺】他人軸の調和</div>
+          <div style="font-size:12px;color:var(--washi2);opacity:.85;line-height:1.9;">（社会的、物質的な充足感）<br>・価値観が時代とマッチする<br>・世間と歯車が噛み合う<br>・運が向いてきたと感じる<br>・社会的に活躍できる<br>・経済面が良くなりやすい<br>・既存の社会に溶け込める</div>
+        </div>
+      </div>
     </div>
     <div class="score-grid" style="margin-bottom:6px;">
       <div class="score-card">

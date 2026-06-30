@@ -944,8 +944,10 @@ function gogyo_points(nK, yP, mP, dP, hP, hUnknown){
     rows.push({label:i.label, gogyo:i.gogyo||'(消)', weight:i.weight, score:pt});
   }
   let verdict,cls;
-  if(score>=4){verdict='身　強';cls='sig-strong';}
-  else if(score<=-3){verdict='身　弱';cls='sig-weak';}
+  if(score>=6){verdict='身　旺';cls='sig-strong';}
+  else if(score>=3){verdict='身　強';cls='sig-strong';}
+  else if(score<=-6){verdict='極　弱';cls='sig-weak';}
+  else if(score<=-1){verdict='身　弱';cls='sig-weak';}
   else{verdict='中　庸';cls='sig-mid';}
   return{score,rows,verdict,cls};
 }
@@ -986,7 +988,7 @@ function calculate(){
   } else if(total<=-6){
     cls='sig-weak';verdict='極　弱';punch='日干が極めて弱い命式。依存と協調の中で生きる宿命。';
     yojin='用神：印綬・比劫（土・同五行）／日干を生じ・支える五行が最優先。消耗は厳禁。';
-  } else if(total<=-2){
+  } else if(total<0){
     cls='sig-weak';verdict='身　弱';punch='日干が弱い命式。周囲のサポートを得て力を発揮する。';
     yojin='用神：印綬・比劫（土・同五行）／日干を生じ・支える五行が吉。消耗する五行は忌。';
   } else {

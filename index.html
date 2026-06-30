@@ -40,8 +40,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
   .shichuu-disp .pillar{padding:8px 4px;}
   .p-kan{font-size:18px !important;}
   .p-shi{font-size:18px !important;}
-  .p-ts{font-size:8px !important;min-width:20px !important;}
-  .p-juni{font-size:8px !important;min-width:20px !important;}
+  .p-ts{font-size:11px !important;min-width:24px !important;}
+  .p-juni{font-size:11px !important;min-width:24px !important;}
   .p-gogyo{font-size:9px !important;}
   .p-label{font-size:9px !important;}
   .p-kan-row{height:28px;}
@@ -52,18 +52,18 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .p-kan-row{display:flex;align-items:center;justify-content:center;gap:4px;height:42px;}
 .p-kan{font-family:'Shippori Mincho',serif;font-size:34px;font-weight:700;color:var(--washi);line-height:1;}
 .pillar.day .p-kan{color:var(--kin2);}
-.p-ts{font-size:10px;color:var(--kin);white-space:nowrap;min-width:28px;text-align:left;vertical-align:top;position:relative;top:-8px;}
+.p-ts{font-size:13px;color:var(--kin);white-space:nowrap;min-width:28px;text-align:left;vertical-align:top;position:relative;top:-8px;}
 .p-shi-row{margin-top:6px;height:42px;display:flex;align-items:center;justify-content:center;gap:4px;}
 .p-shi{font-family:'Shippori Mincho',serif;font-size:34px;font-weight:700;color:var(--washi2);line-height:1;}
-.p-juni{font-size:10px;color:var(--washi2);opacity:.75;white-space:nowrap;min-width:28px;text-align:left;vertical-align:top;position:relative;top:-8px;}
+.p-juni{font-size:13px;color:var(--washi2);opacity:.75;white-space:nowrap;min-width:28px;text-align:left;vertical-align:top;position:relative;top:-8px;}
 .p-gogyo{font-size:12px;color:var(--kin);opacity:.7;margin-top:6px;letter-spacing:.1em;height:18px;}
 @media(max-width:480px){
   .p-kan-row{height:28px;}
   .p-kan{font-size:20px;}
   .p-shi-row{height:28px;}
   .p-shi{font-size:20px;}
-  .p-ts{font-size:9px;min-width:22px;}
-  .p-juni{font-size:9px;min-width:22px;}
+  .p-ts{font-size:12px;min-width:26px;}
+  .p-juni{font-size:12px;min-width:26px;}
   .p-gogyo{font-size:10px;}
   .p-label{font-size:10px;}
   .pillar{padding:10px 6px;}
@@ -536,10 +536,9 @@ function analyzeMeishiki(yP, mP, dP, hP, hUnknown, nichiKan, kuubou){
     '乙':['辛'],
     '丙':['癸'],
     '丁':['癸'],
-    '戊':['甲','乙'],
+    '戊':['甲'],
     '辛':['丁'],
-    '壬':['己'],
-    '己':['甲','乙']
+    '壬':['己']
   };
   const mujoTargets=MUJO_KANSAT[nichiKan]||[];
   const mujoFound=[];
@@ -555,6 +554,22 @@ function analyzeMeishiki(yP, mP, dP, hP, hUnknown, nichiKan, kuubou){
   }
   if(mujoFound.length>0){
     results.push('⚠️ 無情の官殺：'+mujoFound.join('・'));
+  }
+
+  // ⑥-2 奉官殺
+  const FUKU_KANSAT={
+    '戊':['乙'],
+    '己':['甲','乙']
+  };
+  const fukuTargets=FUKU_KANSAT[nichiKan]||[];
+  const fukuFound=[];
+  for(const k of adjacentKans){
+    if(fukuTargets.includes(k.kan)){
+      fukuFound.push(k.label+'（'+k.kan+'）');
+    }
+  }
+  if(fukuFound.length>0){
+    results.push('⚠️ 奉官殺：'+fukuFound.join('・'));
   }
 
   // ⑦有情の財
@@ -653,14 +668,16 @@ function updateNengun(){
     const rels=getRelations(d.dShi,ks.shi,d.meishikiShi);
     const isKuubou=d.kuubou.includes(ks.shi);
     const isKango=d.KANGO[d.nK]===ks.kan;
-    const MUJO_KANSAT_N={'乙':['辛'],'丙':['癸'],'丁':['癸'],'戊':['甲','乙'],'辛':['丁'],'壬':['己'],'己':['甲','乙']};
+    const MUJO_KANSAT_N={'乙':['辛'],'丙':['癸'],'丁':['癸'],'戊':['甲'],'辛':['丁'],'壬':['己']};
     const MUJO_ZAI_N={'甲':['戊'],'戊':['壬'],'己':['壬'],'辛':['甲']};
     const YUJO_ZAI_N={'甲':['己'],'乙':['戊','己'],'丙':['辛'],'壬':['丙'],'癸':['丙'],'己':['癸']};
     const YUJO_KANSAT_N={'丙':['壬'],'辛':['丙'],'壬':['戊'],'癸':['己']};
+    const FUKU_KANSAT_N={'戊':['乙'],'己':['甲','乙']};
     const isMujoKansat=(MUJO_KANSAT_N[d.nK]||[]).includes(ks.kan);
     const isMujoZai=(MUJO_ZAI_N[d.nK]||[]).includes(ks.kan);
     const isYujoZai=(YUJO_ZAI_N[d.nK]||[]).includes(ks.kan);
     const isYujoKansat=(YUJO_KANSAT_N[d.nK]||[]).includes(ks.kan);
+    const isFukuKansat=(FUKU_KANSAT_N[d.nK]||[]).includes(ks.kan);
     const isHeirinN=(ks.kan===d.nK && ks.shi===d.dShi);
     const isHeirinM=(ks.kan===d.mKan && ks.shi===d.mShi);
     const isHeirinY=(ks.kan===d.yKan && ks.shi===d.yShi);
@@ -678,6 +695,7 @@ function updateNengun(){
       isKuubou?'<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>':'',
       isKango?'<span style="font-size:11px;color:#c78fff;border:1px solid #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">干合</span>':'',
       isMujoKansat?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>':'',
+      isFukuKansat?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️奉官殺</span>':'',
       isMujoZai?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>':'',
       isYujoZai?'<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情財</span>':'',
       isYujoKansat?'<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>':'',
@@ -973,7 +991,7 @@ function calculate(){
   const vc=n=>n>0?'pos':n<0?'neg':'zer';
   const kuubouStr=kuubou[0]+'・'+kuubou[1];
   const gpRows=gp.rows.map(r=>{
-    const vc2=n=>n>0?'pos':n<0?'neg':'zer';
+    const vc2=n=>n>2?'pos':n<0?'neg':'zer';
     return `<tr><td>${r.label}</td><td>${r.gogyo}</td><td>×${r.weight}</td><td class="${vc2(r.score)}">${r.score>0?'+':''}${r.score}</td></tr>`;
   }).join('');
 
@@ -1011,14 +1029,16 @@ function calculate(){
     const rels=getRelations(dP.shi,r.shi,meishikiShi);
     const isKuubou2=kuubou.includes(r.shi);
     const isKango=KANGO[nK]===r.kan;
-    const MUJO_KANSAT_D={'乙':['辛'],'丙':['癸'],'丁':['癸'],'戊':['甲','乙'],'辛':['丁'],'壬':['己'],'己':['甲','乙']};
+    const MUJO_KANSAT_D={'乙':['辛'],'丙':['癸'],'丁':['癸'],'戊':['甲'],'辛':['丁'],'壬':['己']};
     const MUJO_ZAI_D={'甲':['戊'],'戊':['壬'],'己':['壬'],'辛':['甲']};
     const YUJO_ZAI_D={'甲':['己'],'乙':['戊','己'],'丙':['辛'],'壬':['丙'],'癸':['丙'],'己':['癸']};
     const YUJO_KANSAT_D={'丙':['壬'],'辛':['丙'],'壬':['戊'],'癸':['己']};
+    const FUKU_KANSAT_D={'戊':['乙'],'己':['甲','乙']};
     const isMujoKansat=(MUJO_KANSAT_D[nK]||[]).includes(r.kan);
     const isMujoZai=(MUJO_ZAI_D[nK]||[]).includes(r.kan);
     const isYujoZai=(YUJO_ZAI_D[nK]||[]).includes(r.kan);
     const isYujoKansat=(YUJO_KANSAT_D[nK]||[]).includes(r.kan);
+    const isFukuKansat=(FUKU_KANSAT_D[nK]||[]).includes(r.kan);
     const isHeirinD=(r.kan===dP.kan && r.shi===dP.shi);
     const isHeirinMD=(r.kan===mP.kan && r.shi===mP.shi);
     const isHeirinYD=(r.kan===yP.kan && r.shi===yP.shi);
@@ -1030,6 +1050,7 @@ function calculate(){
       isKuubou2?`<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>`:'',
       isKango?`<span style="font-size:11px;color:#c78fff;border:1px solid #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">干合</span>`:'',
       isMujoKansat?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>`:'',
+      isFukuKansat?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️奉官殺</span>`:'',
       isMujoZai?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>`:'',
       isYujoZai?`<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情財</span>`:'',
       isYujoKansat?`<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>`:'',
@@ -1069,24 +1090,24 @@ function calculate(){
     const has3=adjTsuuhen_d.has('kansat');
     const has4=adjTsuuhen_d.has('insho');
     const markOf=(t, isKan)=>{
-      if(t==='shokusho') return has4?'〇':'✖';
-      if(t==='insho')    return has1?'〇':'✖';
-      if(t==='kansat')   return has2?'●':'✖';
-      if(t==='zai')      return has3?'●':'✖';
+      if(t==='shokusho') return has4?'〇':'✕';
+      if(t==='insho')    return has1?'〇':'✕';
+      if(t==='kansat')   return has2?'●':'✕';
+      if(t==='zai')      return has3?'●':'✕';
       if(t==='hikyu'){
         // 比劫が来たら年柱で判定
         if(isKan){
-          // 干に比劫→年干の通変で〇✖
+          // 干に比劫→年干の通変で〇✕
           const yKanT=toTsuuhen_d(KAN_GOGYO[yP.kan]);
-          if(yKanT==='shokusho') return has4?'〇':'✖';
-          if(yKanT==='insho')    return has1?'〇':'✖';
-          return '✖';
+          if(yKanT==='shokusho') return has4?'〇':'✕';
+          if(yKanT==='insho')    return has1?'〇':'✕';
+          return '✕';
         } else {
-          // 支に比劫→年支の通変で●✖
+          // 支に比劫→年支の通変で●✕
           const yShiT=toTsuuhen_d(SHI_GOGYO[yP.shi]);
-          if(yShiT==='kansat') return has2?'●':'✖';
-          if(yShiT==='zai')    return has3?'●':'✖';
-          return '✖';
+          if(yShiT==='kansat') return has2?'●':'✕';
+          if(yShiT==='zai')    return has3?'●':'✕';
+          return '✕';
         }
       }
       return '';
@@ -1110,6 +1131,11 @@ function calculate(){
   const pil=(lbl,kan,shi,isDay)=>{
     const ts=isDay?'':getTsuuhensei(nK,kan);
     const juni=getJuni(nK,shi);
+    const shiJuniCell=
+      '<span class="p-juni" style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.5;">'+
+        '<span>'+getTsuuhensei(nK,ZOKAN[shi][0])+'</span>'+
+        '<span>'+juni+'</span>'+
+      '</span>';
     return '<div class="pillar'+(isDay?' day':'')+'">' +
       '<div class="p-label">'+lbl+'</div>'+
       '<div class="p-kan-row">'+
@@ -1118,7 +1144,7 @@ function calculate(){
       '</div>'+
       '<div class="p-shi-row">'+
         '<span class="p-shi">'+shi+'</span>'+
-        '<span class="p-juni">'+juni+'</span>'+
+        shiJuniCell+
       '</div>'+
       '<div class="p-gogyo">'+KAN_GOGYO[kan]+'・'+SHI_GOGYO[shi]+'</div>'+
       '</div>';

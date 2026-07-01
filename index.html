@@ -689,11 +689,12 @@ function yojinHantei(nichiKan, targetGogyo, total){
   else if(gen(nG,targetGogyo)) rel='shokusho';
   else if(ove(nG,targetGogyo)) rel='zai';
   else if(ove(targetGogyo,nG)) rel='kansat';
-  // 身強（total≧2.5）：食傷・財・官殺が○
-  if(total>=2.5) return ['shokusho','zai','kansat'].includes(rel)?'○':'✕';
-  // 中庸（-1〜2.4）：反映なし
-  if(total>=-1) return '－';
-  // 身弱・極弱（total≦-1.1）：印綬・比劫が○
+  // 赤LINE用：中庸も effectiveTotal で身強寄り(+3)／身弱寄り(-1)として渡す
+  // 身強寄り・身強・身旺（total≧3）：食傷・財・官殺が○、印星・比劫は✕
+  if(total>=3) return ['shokusho','zai','kansat'].includes(rel)?'○':'✕';
+  // 完全中立で渡された場合のみ、赤LINE判定なし
+  if(total>-1) return '－';
+  // 身弱寄り・身弱・極弱（total≦-1）：印綬・比劫が○、食傷・財・官殺は✕
   return ['insho','hikyu'].includes(rel)?'○':'✕';
 }
 
@@ -731,11 +732,11 @@ function updateNengun(){
     const isCenter=(yr===center);
     const age=yr-d.y;
 
-    // 五行の調和：大運と同じ赤LINEルール
+    // 年運の赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う
     const effectiveTotal=(d.effectiveTotal!==undefined&&d.effectiveTotal!==null)?d.effectiveTotal:d.total;
     const kanYojin=yojinHantei(d.nK,KAN_GOGYO[ks.kan],effectiveTotal);
     const shiYojin=yojinHantei(d.nK,SHI_GOGYO[ks.shi],effectiveTotal);
-    const bothKijin=(kanYojin==='✕'&&shiYojin==='✕')&&effectiveTotal!==null&&(effectiveTotal>=2.5||effectiveTotal<=-1.1);
+    const bothKijin=(kanYojin==='✕'&&shiYojin==='✕')&&effectiveTotal!==null&&(effectiveTotal>=3||effectiveTotal<=-1);
     const yearLineSty=bothKijin?'text-decoration:underline;text-decoration-color:#f0857a;text-underline-offset:3px;text-decoration-thickness:2px;':'';
 
     // 関係タグ
@@ -1026,8 +1027,10 @@ function gogyo_points(nK, yP, mP, dP, hP, hUnknown){
     rows.push({label:i.label, gogyo:i.gogyo||'(消)', weight:i.weight, score:pt});
   }
   let verdict,cls;
-  if(score>=4){verdict='身　強';cls='sig-strong';}
-  else if(score<=-3){verdict='身　弱';cls='sig-weak';}
+  if(score>=5){verdict='身　旺';cls='sig-strong';}
+  else if(score>=3){verdict='身　強';cls='sig-strong';}
+  else if(score<=-3){verdict='極　弱';cls='sig-weak';}
+  else if(score<=-1){verdict='身　弱';cls='sig-weak';}
   else{verdict='中　庸';cls='sig-mid';}
   return{score,rows,verdict,cls};
 }
@@ -1056,26 +1059,27 @@ function calculate(){
   const chi=getTokuchi(nK,chiShis,toucans);
   const sei=null; // 得勢廃止（得令＋得地の2本柱に統一）
   const total=Math.round((ryo.score+chi.score)*10)/10;
-  const midType=(total>=-1&&total<=2.4)?calcChuoBalance(nK,yP,mP,dP,hUnknown?null:hP,hUnknown):null;
+  const midType=(total>-1&&total<3)?calcChuoBalance(nK,yP,mP,dP,hUnknown?null:hP,hUnknown):null;
   const gp=gogyo_points(nK,yP,mP,dP,hUnknown?null:hP,hUnknown);
   if(gp.verdict==='中　庸'&&midType!==null){
     const yoriLabel=midType==='strong'?'（身強寄り）':'（身弱寄り）';
     gp.verdict='中　庸<br><span style="font-size:.45em;font-weight:400;letter-spacing:.1em;opacity:.85;">'+yoriLabel+'</span>';
   }
   const daiin=calcDaiin(y,m,d,SEX,mP,yP);
-  const effectiveTotalForLuck = midType!==null ? (midType==='strong'?2.5:-1.1) : total;
+  // 赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う
+  const effectiveTotalForLuck = midType!==null ? (midType==='strong'?3:-1) : total;
 
   let cls,verdict,punch,yojin;
   if(total>=5){
     cls='sig-strong';verdict='身　旺';punch='エネルギーが過剰な命式。発散する力を持って生まれた。';
     yojin='用神：食傷・財・官殺（水・木・火）／強すぎる日干を積極的に発散・活用する五行が吉。';
-  } else if(total>=2.5){
+  } else if(total>=3){
     cls='sig-strong';verdict='身　強';punch='日干が充実した命式。自力で道を切り開く力がある。';
     yojin='用神：食傷・財・官殺（水・木・火）／日干のエネルギーを発散・活用する五行が吉。';
-  } else if(total<=-2.6){
+  } else if(total<=-3){
     cls='sig-weak';verdict='極　弱';punch='日干が極めて弱い命式。依存と協調の中で生きる宿命。';
     yojin='用神：印綬・比劫（土・同五行）／日干を生じ・支える五行が最優先。消耗は厳禁。';
-  } else if(total<=-1.1){
+  } else if(total<=-1){
     cls='sig-weak';verdict='身　弱';punch='日干が弱い命式。周囲のサポートを得て力を発揮する。';
     yojin='用神：印綬・比劫（土・同五行）／日干を生じ・支える五行が吉。消耗する五行は忌。';
   } else {
@@ -1164,13 +1168,14 @@ function calculate(){
     const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
     // 五行の調和：用神判定
     const daiiTotal=total;
-    const effectiveTotal=midType!==null?(midType==='strong'?2.5:-1.1):daiiTotal;
+    // 大運の赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う
+    const effectiveTotal=midType!==null?(midType==='strong'?3:-1):daiiTotal;
     const kanGogyo=KAN_GOGYO[r.kan];
     const shiGogyo=SHI_GOGYO[r.shi];
     const kanYojin=yojinHantei(nK,kanGogyo,effectiveTotal);
     const shiYojin=yojinHantei(nK,shiGogyo,effectiveTotal);
     const bothYojin=(kanYojin==='○'&&shiYojin==='○');
-    const bothKijin=(kanYojin==='✕'&&shiYojin==='✕')&&effectiveTotal!==null&&(effectiveTotal>=2.5||effectiveTotal<=-1.1);
+    const bothKijin=(kanYojin==='✕'&&shiYojin==='✕')&&effectiveTotal!==null&&(effectiveTotal>=3||effectiveTotal<=-1);
     const ageSty=bothKijin?'text-decoration:underline;text-decoration-color:#f0857a;text-underline-offset:3px;':'';
     // 通変の調和：□隣接五行から判定
     const adjDaiin=new Set();

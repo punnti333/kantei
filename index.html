@@ -731,6 +731,13 @@ function updateNengun(){
     const isCenter=(yr===center);
     const age=yr-d.y;
 
+    // 五行の調和：大運と同じ赤LINEルール
+    const effectiveTotal=(d.effectiveTotal!==undefined&&d.effectiveTotal!==null)?d.effectiveTotal:d.total;
+    const kanYojin=yojinHantei(d.nK,KAN_GOGYO[ks.kan],effectiveTotal);
+    const shiYojin=yojinHantei(d.nK,SHI_GOGYO[ks.shi],effectiveTotal);
+    const bothKijin=(kanYojin==='✕'&&shiYojin==='✕')&&effectiveTotal!==null&&(effectiveTotal>=2.5||effectiveTotal<=-1.1);
+    const yearLineSty=bothKijin?'text-decoration:underline;text-decoration-color:#f0857a;text-underline-offset:3px;text-decoration-thickness:2px;':'';
+
     // 関係タグ
     const rels=getRelations(d.dShi,ks.shi,d.meishikiShi);
     const isKuubou=d.kuubou.includes(ks.shi);
@@ -784,7 +791,7 @@ function updateNengun(){
 
     const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
     rows+='<tr style="'+bgSty+'">'+
-      '<td style="'+tdSty+'font-size:16px;'+txtSty+'">'+yr+'年</td>'+
+      '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
       '<td style="'+tdSty+'font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+ks.kan+ks.shi+tags+'</td>'+
       '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'">'+palace+'</td>'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+'">'+age+'歳</td>'+
@@ -1056,6 +1063,7 @@ function calculate(){
     gp.verdict='中　庸<br><span style="font-size:.45em;font-weight:400;letter-spacing:.1em;opacity:.85;">'+yoriLabel+'</span>';
   }
   const daiin=calcDaiin(y,m,d,SEX,mP,yP);
+  const effectiveTotalForLuck = midType!==null ? (midType==='strong'?2.5:-1.1) : total;
 
   let cls,verdict,punch,yojin;
   if(total>=5){
@@ -1528,7 +1536,7 @@ function calculate(){
   if(!hUnknown&&hShiG2_pre!==nG2_pre){if(hKanG2_pre===nG2_pre||dShiG2_pre===nG2_pre)adjG2.add(hShiG2_pre);}
 
   // 年運描画
-  window._nengunData={dShi:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])], mKan:mP.kan, mShi:mP.shi, yKan:yP.kan, yShi:yP.shi};
+  window._nengunData={dShi:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, effectiveTotal:effectiveTotalForLuck, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])], mKan:mP.kan, mShi:mP.shi, yKan:yP.kan, yShi:yP.shi};
   updateNengun();
 
   document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});

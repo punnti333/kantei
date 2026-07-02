@@ -259,6 +259,18 @@ function getTsuuhensei(nichiKan, targetKan){
   return '';
 }
 
+// ===== 性格フレーズ（月干+月支→形容、日支→締めの一言）=====
+const TSUHEN_ADJ={比肩:'マイペース',劫財:'負けず嫌い',食神:'おおらか',傷官:'感性鋭く率直',偏財:'気さくで世話好き',正財:'誠実',偏官:'行動的',正官:'真面目',偏印:'個性的',印綬:'知的'};
+const TSUHEN_END={比肩:'自分の信念を貫く',劫財:'最後まで諦めない',食神:'楽しみを大切にする',傷官:'繊細な感性を持つ',偏財:'人のために動ける',正財:'手堅く積み上げる',偏官:'思い切りよく動く',正官:'筋を通す',偏印:'独自の世界を持つ',印綬:'学び続ける'};
+function personaLine(nK,mP,dP){
+  const a=getTsuuhensei(nK,mP.kan);
+  const b=getTsuuhensei(nK,ZOKAN[mP.shi][0]);
+  const c=getTsuuhensei(nK,ZOKAN[dP.shi][0]);
+  if(!TSUHEN_ADJ[a]||!TSUHEN_ADJ[b]||!TSUHEN_END[c]) return null;
+  if(a===b) return '裏表なく'+TSUHEN_ADJ[a]+'。'+TSUHEN_END[c]+'人。';
+  return TSUHEN_ADJ[a]+'で'+TSUHEN_ADJ[b]+'。'+TSUHEN_END[c]+'人。';
+}
+
 // ===== 12運 =====
 // 日干の五行・陰陽ごとの長生の地支インデックス
 const CHOUSEIG={
@@ -1079,6 +1091,9 @@ function calculate(){
       '用神：食傷・財・官殺／中庸身強寄り。発散の星で流れを活かす方向が吉。':
       '用神：印綬・比劫／中庸身弱寄り。日干を支える五行で地盤を固めてから流れに乗る。';
   }
+  // バナー下コメントは通変星ベースの性格ワンフレーズに差し替え
+  const persona=personaLine(nK,mP,dP);
+  if(persona) punch=persona;
 
   const sc=n=>(n>0?'+':'')+n;
   const vc=n=>n>0?'pos':n<0?'neg':'zer';

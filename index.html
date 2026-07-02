@@ -824,8 +824,8 @@ function calcDaiin(y, m, d, sex, mP, yP){
   const isMale = (sex==='male');
   const junko = (yearYang && isMale) || (!yearYang && !isMale);
 
-  // 節入り日を探す
-  const setsuArr = DATA.setsu[y] || [];
+  // 節入り日を探す（年境目の生まれに対応するため前年・翌年も検索対象に含める）
+  const setsuArr = [...(DATA.setsu[y-1]||[]), ...(DATA.setsu[y]||[]), ...(DATA.setsu[y+1]||[])];
   let nextSetsu=null, prevSetsu=null;
   for(const t of setsuArr){
     const td=new Date(Date.UTC(t[0],t[1]-1,t[2]));
@@ -846,7 +846,7 @@ function calcDaiin(y, m, d, sex, mP, yP){
     diffDays=Math.floor((bd-pd)/86400000);
   } else { diffDays=0; }
 
-  const kiun=Math.round(diffDays/3);
+  const kiun=Math.floor(diffDays/3);  // 端数(余り日数)は月数に換算するため切り捨て
 
   // 月柱の干支番号から大運を順行・逆行で算出
   const mKanIdx=KAN10.indexOf(mP.kan);
@@ -865,20 +865,15 @@ function calcDaiin(y, m, d, sex, mP, yP){
     const kan=KAN10[((mKanIdx+step)%10+10)%10];
     const shi=SHI12[((mShiIdx+step)%12+12)%12];
     const age=kiun+(i-1)*10;
-    let startYear=y+age;
-    if(junko){
-      if(kiunStartMonth>m) startYear+=kiunMonthOffset;
-    } else {
-      if(kiunStartMonth<=m) startYear+=kiunMonthOffset;
-    }
-    const transKanI=KAN10[((startYear-1-1864)%10+10)%10];
+    const startYear=y+age+kiunMonthOffset;  // 交替月が年をまたぐ場合は+1年
+    const transKanI=KAN10[((startYear-1864)%10+10)%10];
     rounds.push({kan,shi,age,startYear,startMonth:kiunStartMonth,transKan:transKanI,kiunMonth:kiunStartMonth});
   }
   // 交替年の干（最初の大運交替年から）
-  const firstTransYear=y+kiun;
+  const firstTransYear=y+kiun+kiunMonthOffset;
   const transKan=KAN10[((firstTransYear-1864)%10+10)%10];
   const transShi=MONTH_TO_SHI2[kiunStartMonth]||'';
-  return{kiun,kiunMonth:kiunStartMonth,junko,rounds,transKan,transShi};
+  return{kiun,kiunMonth:kiunStartMonth,kiunStartYear:firstTransYear,junko,rounds,transKan,transShi};
 }
 
 // ===== 干合処理 =====
@@ -1105,7 +1100,7 @@ function calculate(){
 
   // 大運テーブル
   const allRounds=[];
-  const kiunYear=y+daiin.kiun;
+  const kiunYear=daiin.kiunStartYear;
   let preStep=0;
   while(true){
     preStep++;
@@ -1227,7 +1222,7 @@ function calculate(){
     const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
       '<td style="'+tdSty+'font-size:17px;'+nowSty+ageSty+'">'+r.age+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
-      '<td style="'+tdSty+'font-size:17px;'+nowSty+'">'+r.startYear+'年〜</td>'+
+      '<td style="'+tdSty+'font-size:17px;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
       '<td style="'+tdSty+'font-size:22px;'+nowSty+'">'+
         '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+kanMark+'</span>'+
         r.kan+

@@ -289,6 +289,8 @@ const KAN_INYO={甲:'陽',乙:'陰',丙:'陽',丁:'陰',戊:'陽',己:'陰',庚:
 const SHI_INYO={子:'陽',丑:'陰',寅:'陽',卯:'陰',辰:'陽',巳:'陰',午:'陽',未:'陰',申:'陽',酉:'陰',戌:'陽',亥:'陰'};
 
 // ===== 身強身弱ロジック =====
+// 判定閾値（一元管理）：身強 total≧TH_STRONG ／ 身弱 total≦TH_WEAK ／ その間が中庸
+const TH_STRONG=3, TH_WEAK=-1;
 function gen(a,b){return(a==='木'&&b==='火')||(a==='火'&&b==='土')||(a==='土'&&b==='金')||(a==='金'&&b==='水')||(a==='水'&&b==='木');}
 function ove(a,b){return(a==='木'&&b==='土')||(a==='火'&&b==='金')||(a==='土'&&b==='水')||(a==='金'&&b==='木')||(a==='水'&&b==='火');}
 
@@ -691,9 +693,9 @@ function yojinHantei(nichiKan, targetGogyo, total){
   else if(ove(targetGogyo,nG)) rel='kansat';
   // 赤LINE用：中庸も effectiveTotal で身強寄り(+3)／身弱寄り(-1)として渡す
   // 身強寄り・身強・身旺（total≧3）：食傷・財・官殺が○、印星・比劫は✕
-  if(total>=3) return ['shokusho','zai','kansat'].includes(rel)?'○':'✕';
+  if(total>=TH_STRONG) return ['shokusho','zai','kansat'].includes(rel)?'○':'✕';
   // 完全中立で渡された場合のみ、赤LINE判定なし
-  if(total>-1) return '－';
+  if(total>TH_WEAK) return '－';
   // 身弱寄り・身弱・極弱（total≦-1）：印綬・比劫が○、食傷・財・官殺は✕
   return ['insho','hikyu'].includes(rel)?'○':'✕';
 }
@@ -736,7 +738,7 @@ function updateNengun(){
     const effectiveTotal=(d.effectiveTotal!==undefined&&d.effectiveTotal!==null)?d.effectiveTotal:d.total;
     const kanYojin=yojinHantei(d.nK,KAN_GOGYO[ks.kan],effectiveTotal);
     const shiYojin=yojinHantei(d.nK,SHI_GOGYO[ks.shi],effectiveTotal);
-    const bothKijin=(kanYojin==='✕'&&shiYojin==='✕')&&effectiveTotal!==null&&(effectiveTotal>=3||effectiveTotal<=-1);
+    const bothKijin=(kanYojin==='✕'&&shiYojin==='✕')&&effectiveTotal!==null&&(effectiveTotal>=TH_STRONG||effectiveTotal<=TH_WEAK);
     const yearLineSty=bothKijin?'text-decoration:underline;text-decoration-color:#f0857a;text-underline-offset:3px;text-decoration-thickness:2px;':'';
 
     // 関係タグ
@@ -1026,13 +1028,8 @@ function gogyo_points(nK, yP, mP, dP, hP, hUnknown){
     score+=pt;
     rows.push({label:i.label, gogyo:i.gogyo||'(消)', weight:i.weight, score:pt});
   }
-  let verdict,cls;
-  if(score>=5){verdict='身　旺';cls='sig-strong';}
-  else if(score>=3){verdict='身　強';cls='sig-strong';}
-  else if(score<=-3){verdict='極　弱';cls='sig-weak';}
-  else if(score<=-1){verdict='身　弱';cls='sig-weak';}
-  else{verdict='中　庸';cls='sig-mid';}
-  return{score,rows,verdict,cls};
+  // ※身強身弱の正式判定は得令＋得地(total)で行う。ここは参考値のみ返す。
+  return{score,rows};
 }
 
 // ===== 五行レーダーチャート =====
@@ -1059,37 +1056,28 @@ function calculate(){
   const chi=getTokuchi(nK,chiShis,toucans);
   const sei=null; // 得勢廃止（得令＋得地の2本柱に統一）
   const total=Math.round((ryo.score+chi.score)*10)/10;
-  const midType=(total>-1&&total<3)?calcChuoBalance(nK,yP,mP,dP,hUnknown?null:hP,hUnknown):null;
+  const midType=(total>TH_WEAK&&total<TH_STRONG)?calcChuoBalance(nK,yP,mP,dP,hUnknown?null:hP,hUnknown):null;
   const gp=gogyo_points(nK,yP,mP,dP,hUnknown?null:hP,hUnknown);
-  if(gp.verdict==='中　庸'&&midType!==null){
-    const yoriLabel=midType==='strong'?'（身強寄り）':'（身弱寄り）';
-    gp.verdict='中　庸<br><span style="font-size:.45em;font-weight:400;letter-spacing:.1em;opacity:.85;">'+yoriLabel+'</span>';
-  }
   const daiin=calcDaiin(y,m,d,SEX,mP,yP);
   // 赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う
-  const effectiveTotalForLuck = midType!==null ? (midType==='strong'?3:-1) : total;
+  const effectiveTotalForLuck = midType!==null ? (midType==='strong'?TH_STRONG:TH_WEAK) : total;
 
+  // 判定は3段階：身強（total≧TH_STRONG）／中庸（間、身強寄り・身弱寄りを併記）／身弱（total≦TH_WEAK）
   let cls,verdict,punch,yojin;
-  if(total>=5){
-    cls='sig-strong';verdict='身　旺';punch='エネルギーが過剰な命式。発散する力を持って生まれた。';
-    yojin='用神：食傷・財・官殺（水・木・火）／強すぎる日干を積極的に発散・活用する五行が吉。';
-  } else if(total>=3){
+  if(total>=TH_STRONG){
     cls='sig-strong';verdict='身　強';punch='日干が充実した命式。自力で道を切り開く力がある。';
-    yojin='用神：食傷・財・官殺（水・木・火）／日干のエネルギーを発散・活用する五行が吉。';
-  } else if(total<=-3){
-    cls='sig-weak';verdict='極　弱';punch='日干が極めて弱い命式。依存と協調の中で生きる宿命。';
-    yojin='用神：印綬・比劫（土・同五行）／日干を生じ・支える五行が最優先。消耗は厳禁。';
-  } else if(total<=-1){
+    yojin='用神：食傷・財・官殺／日干のエネルギーを発散・活用する五行が吉。';
+  } else if(total<=TH_WEAK){
     cls='sig-weak';verdict='身　弱';punch='日干が弱い命式。周囲のサポートを得て力を発揮する。';
-    yojin='用神：印綬・比劫（土・同五行）／日干を生じ・支える五行が吉。消耗する五行は忌。';
+    yojin='用神：印綬・比劫／日干を生じ・支える五行が吉。消耗する五行は忌。';
   } else {
     cls='sig-mid';
     const yoriLabel=midType==='strong'?'（身強寄り）':'（身弱寄り）';
     verdict='中　庸<br><span style="font-size:.45em;font-weight:400;letter-spacing:.1em;opacity:.85;">'+yoriLabel+'</span>';
     punch='陰陽が均衡した命式。環境の影響を受けやすい柔軟な性質。';
     yojin=midType==='strong'?
-      '用神：食傷・財・官殺（水・木・火）／中庸身強寄り。発散の星で流れを活かす方向が吉。':
-      '用神：印綬・比劫（土・同五行）／中庸身弱寄り。日干を支える五行で地盤を固めてから流れに乗る。';
+      '用神：食傷・財・官殺／中庸身強寄り。発散の星で流れを活かす方向が吉。':
+      '用神：印綬・比劫／中庸身弱寄り。日干を支える五行で地盤を固めてから流れに乗る。';
   }
 
   const sc=n=>(n>0?'+':'')+n;
@@ -1169,13 +1157,13 @@ function calculate(){
     // 五行の調和：用神判定
     const daiiTotal=total;
     // 大運の赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う
-    const effectiveTotal=midType!==null?(midType==='strong'?3:-1):daiiTotal;
+    const effectiveTotal=midType!==null?(midType==='strong'?TH_STRONG:TH_WEAK):daiiTotal;
     const kanGogyo=KAN_GOGYO[r.kan];
     const shiGogyo=SHI_GOGYO[r.shi];
     const kanYojin=yojinHantei(nK,kanGogyo,effectiveTotal);
     const shiYojin=yojinHantei(nK,shiGogyo,effectiveTotal);
     const bothYojin=(kanYojin==='○'&&shiYojin==='○');
-    const bothKijin=(kanYojin==='✕'&&shiYojin==='✕')&&effectiveTotal!==null&&(effectiveTotal>=3||effectiveTotal<=-1);
+    const bothKijin=(kanYojin==='✕'&&shiYojin==='✕')&&effectiveTotal!==null&&(effectiveTotal>=TH_STRONG||effectiveTotal<=TH_WEAK);
     const ageSty=bothKijin?'text-decoration:underline;text-decoration-color:#f0857a;text-underline-offset:3px;':'';
     // 通変の調和：□隣接五行から判定
     const adjDaiin=new Set();
@@ -1441,10 +1429,10 @@ function calculate(){
       <div class="card" style="margin-top:18px;">
       <div class="form-title">五行点数制（参考）</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;">
-        <div class="signal-banner ${gp.cls}" style="padding:20px;">
-          <div class="lamp">五行点数制</div>
+        <div class="signal-banner ${cls}" style="padding:20px;">
+          <div class="lamp">五行点数（参考）</div>
           <div class="score-num" style="font-size:clamp(36px,7vw,56px);">${gp.score>0?'+':''}${gp.score}</div>
-          <div class="verdict" style="font-size:clamp(20px,4vw,28px);">${gp.verdict}</div>
+          <div style="margin-top:8px;font-size:12px;color:var(--washi2);opacity:.8;letter-spacing:.08em;line-height:1.7;">※身強身弱の判定は「得令＋得地」で行っています。<br>この点数は五行バランスの参考値です。</div>
         </div>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;">

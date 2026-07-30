@@ -797,6 +797,15 @@ function updateNengun(){
     // 九星回座
     const yc=yearCenter(yr);
     const palace=palaceOf2(yc,honmei);
+    const goouPalace=palaceOf2(yc,5);
+    const keisha=keishaPalace(d.y,d.bm,d.bd,SEX==='male');
+    const honmeiAnken=goouPalace!=='中宮'&&palace===OPP_PAL_K[goouPalace];
+    const keishaAnken=goouPalace!=='中宮'&&keisha===OPP_PAL_K[goouPalace];
+    const hasKeishaGoou=goouPalace!=='中宮'&&keisha===goouPalace;
+    const ankenMark=honmeiAnken&&keishaAnken?'◎':keishaAnken?'●':honmeiAnken?'○':'';
+    const kaiMark=
+      (ankenMark?'<span title="'+(honmeiAnken&&keishaAnken?'本命・傾斜暗剣殺':keishaAnken?'傾斜暗剣殺':'本命暗剣殺')+'" style="display:inline-block;margin-left:6px;color:#f0857a;font-size:13px;font-weight:700;vertical-align:middle;">'+ankenMark+'</span>':'')+
+      (hasKeishaGoou?'<span title="傾斜五黄殺" style="display:inline-block;margin-left:6px;color:#7ab4d8;font-size:11px;vertical-align:middle;">●</span>':'');
 
     // 色分け：中心年=赤、現在年=金
     let bgSty='', txtSty='';
@@ -808,7 +817,7 @@ function updateNengun(){
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
       '<td style="'+tdSty+'font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+ks.kan+ks.shi+tags+'</td>'+
-      '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'">'+palace+'</td>'+
+      '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'">'+palace+kaiMark+'</td>'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+'">'+age+'歳</td>'+
       '</tr>';
   }

@@ -167,6 +167,11 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .flow b{color:var(--kin2);font-weight:700;}
 .arr{color:var(--shu);margin:0 6px;}
 .flow table{width:100%;border-collapse:collapse;margin-top:10px;}
+.nengun-kaza{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;line-height:1;}
+.nengun-kaza-mark{display:inline-flex;align-items:center;justify-content:center;
+line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
+.nengun-kaza-mark.red{color:#f0857a;font-size:13px;font-weight:700;}
+.nengun-kaza-mark.blue{color:#7ab4d8;font-size:11px;font-weight:700;}
 .flow td,.flow th{padding:7px 10px;font-size:14px;border-bottom:1px solid rgba(201,164,76,.1);}
 .flow th{color:var(--kin);letter-spacing:.1em;font-weight:700;font-size:12px;}
 .pos{color:#9ed687;}.neg{color:#f0857a;}.zer{color:var(--washi2);}
@@ -856,8 +861,8 @@ function updateNengun(){
     const hasKeishaGoou=goouPalace!=='中宮'&&keisha===goouPalace;
     const ankenMark=honmeiAnken&&keishaAnken?'◎':keishaAnken?'●':honmeiAnken?'○':'';
     const kaiMark=
-      (ankenMark?'<span title="'+(honmeiAnken&&keishaAnken?'本命・傾斜暗剣殺':keishaAnken?'傾斜暗剣殺':'本命暗剣殺')+'" style="display:inline-block;margin-left:6px;color:#f0857a;font-size:13px;font-weight:700;vertical-align:middle;">'+ankenMark+'</span>':'')+
-      (hasKeishaGoou?'<span title="傾斜五黄殺" style="display:inline-block;margin-left:6px;color:#7ab4d8;font-size:11px;vertical-align:middle;">●</span>':'');
+      (ankenMark?'<span class="nengun-kaza-mark red" title="'+(honmeiAnken&&keishaAnken?'本命・傾斜暗剣殺':keishaAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+ankenMark+'</span>':'')+
+      (hasKeishaGoou?'<span class="nengun-kaza-mark blue" title="傾斜五黄殺">●</span>':'');
 
     // 色分け：中心年=赤、現在年=金
     let bgSty='', txtSty='';
@@ -869,7 +874,7 @@ function updateNengun(){
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
       '<td style="'+tdSty+'font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+ks.kan+ks.shi+tags+'</td>'+
-      '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'">'+palace+kaiMark+'</td>'+
+      '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'"><span class="nengun-kaza"><span>'+palace+'</span>'+kaiMark+'</span></td>'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+'">'+age+'歳</td>'+
       '</tr>';
   }

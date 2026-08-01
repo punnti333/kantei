@@ -23,6 +23,19 @@ h1 .k{color:var(--kin2);}
 @media(max-width:560px){.fields{grid-template-columns:1fr;}}
 .field label{display:block;font-size:14px;letter-spacing:.15em;color:var(--washi2);margin-bottom:7px;opacity:.8;}
 .field-full{grid-column:1/-1;}
+.save-row{display:flex;gap:10px;align-items:center;}
+.save-row input{flex:1;}
+.save-btn{padding:12px 18px;background:#0f0c0a;border:1px solid rgba(201,164,76,.45);
+border-radius:8px;color:var(--kin2);font-size:14px;letter-spacing:.1em;cursor:pointer;white-space:nowrap;}
+.save-btn:active{background:rgba(201,164,76,.15);}
+.people-wrap{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;}
+.people-empty{font-size:12.5px;color:var(--washi);opacity:.45;letter-spacing:.05em;}
+.pchip{display:inline-flex;align-items:center;background:rgba(201,164,76,.10);
+border:1px solid rgba(201,164,76,.45);border-radius:999px;padding:8px 12px;
+font-size:13px;color:var(--washi);cursor:pointer;letter-spacing:.03em;}
+.pchip:active{background:rgba(201,164,76,.22);}
+.pchip .pname{font-weight:700;color:var(--kin2);margin-right:7px;}
+.pchip .pdel{margin-left:9px;opacity:.5;padding:0 3px;font-size:15px;}
 input,select{width:100%;padding:14px;font-weight:500;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:17px;font-family:inherit;transition:border-color .2s,box-shadow .2s;}
 input:focus,select:focus{outline:none;border-color:var(--kin);box-shadow:0 0 0 3px rgba(201,164,76,.14);}
 input[type=number]{-moz-appearance:textfield;}
@@ -179,6 +192,14 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
           <button type="button" id="btn-male" onclick="setSex('male')" style="flex:1;padding:14px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:16px;cursor:pointer;transition:border-color .2s;">男</button>
           <button type="button" id="btn-female" onclick="setSex('female')" style="flex:1;padding:14px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:16px;cursor:pointer;transition:border-color .2s;">女</button>
         </div>
+      </div>
+      <div class="field field-full">
+        <label>名前をつけて保存（この端末にだけ残ります）</label>
+        <div class="save-row">
+          <input type="text" id="inp-name" placeholder="例：山田さん" maxlength="20">
+          <button type="button" class="save-btn" onclick="savePerson()">保存する</button>
+        </div>
+        <div id="people" class="people-wrap"></div>
       </div>
       <div class="field field-full">
         <button class="divine-btn" onclick="calculate()">判　断</button>
@@ -814,6 +835,76 @@ function setTimeMode(mode){
   b.style.borderColor=mode==='jst'?'var(--kin)':'rgba(201,164,76,.28)';
   b.style.color=mode==='jst'?'var(--kin2)':'var(--washi)';
 }
+
+// ===== 鑑定した人の保存（この端末のブラウザにだけ残ります）=====
+const PEOPLE_KEY='hachiji_people';
+const PEOPLE_MAX=50;
+function escHTML(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function loadPeople(){
+  try{ const a=JSON.parse(localStorage.getItem(PEOPLE_KEY)||'[]'); return Array.isArray(a)?a:[]; }
+  catch(e){ return []; }
+}
+function savePeopleList(list){
+  try{ localStorage.setItem(PEOPLE_KEY,JSON.stringify(list)); }catch(e){}
+  renderPeople();
+}
+function savePerson(){
+  const nameEl=document.getElementById('inp-name');
+  const name=(nameEl.value||'').trim();
+  if(!name){ alert('名前を入れてください。'); nameEl.focus(); return; }
+  const y=+document.getElementById('inp-y').value;
+  const m=+document.getElementById('inp-m').value;
+  const d=+document.getElementById('inp-d').value;
+  if(!y||y<1930||y>2030||!d||d<1||d>31){ alert('1930〜2030年の正しい日付を入力してください。'); return; }
+  const rec={ name:name, y:y, m:m, d:d,
+    time:document.getElementById('inp-time').value||'12:00',
+    hUnknown:H_UNKNOWN,
+    pref:+document.getElementById('inp-pref').value||0,
+    sex:SEX };
+  const list=loadPeople();
+  const i=list.findIndex(function(e){return e.name===name;});
+  if(i>=0){
+    if(!confirm('「'+name+'」は登録済みです。上書きしますか？')) return;
+    list[i]=rec;
+  }else{
+    if(list.length>=PEOPLE_MAX){ alert('保存できるのは'+PEOPLE_MAX+'人までです。いらない人を消してください。'); return; }
+    list.push(rec);
+  }
+  savePeopleList(list);
+  nameEl.value='';
+}
+function usePerson(i){
+  const p=loadPeople()[i]; if(!p) return;
+  document.getElementById('inp-y').value=p.y;
+  document.getElementById('inp-m').value=p.m;
+  document.getElementById('inp-d').value=p.d;
+  document.getElementById('inp-time').value=p.time||'12:00';
+  document.getElementById('inp-pref').value=String(p.pref||0);
+  document.getElementById('inp-name').value=p.name;
+  setHUnknown(!!p.hUnknown);
+  setSex(p.sex==='female'?'female':'male');
+  calculate();
+}
+function delPerson(i,ev){
+  if(ev&&ev.stopPropagation) ev.stopPropagation();
+  const list=loadPeople(); const p=list[i]; if(!p) return;
+  if(!confirm('「'+p.name+'」を消しますか？')) return;
+  list.splice(i,1); savePeopleList(list);
+}
+function renderPeople(){
+  const box=document.getElementById('people'); if(!box) return;
+  const list=loadPeople();
+  if(!list.length){ box.innerHTML='<span class="people-empty">まだ保存された方はいません</span>'; return; }
+  box.innerHTML=list.map(function(e,i){
+    const t=e.hUnknown?'時刻不明':(e.time||'');
+    return '<span class="pchip" onclick="usePerson('+i+')">'+
+      '<span class="pname">'+escHTML(e.name)+'</span>'+
+      e.y+'.'+e.m+'.'+e.d+' '+t+
+      '<span class="pdel" onclick="delPerson('+i+',event)">×</span></span>';
+  }).join('');
+}
+
 function setHUnknown(v){ if(!!v!==H_UNKNOWN) toggleHUnknown(); }
 function toggleHUnknown(){
   H_UNKNOWN=!H_UNKNOWN;
@@ -830,6 +921,7 @@ document.addEventListener('DOMContentLoaded',function(){
   sel.innerHTML=PREFS.map(function(p,i){return '<option value="'+i+'">'+p[0]+'</option>';}).join('');
   sel.value='0';
   setSex('male'); setTimeMode('tst');
+  renderPeople();
 });
 function setSex(s){
   SEX=s;

@@ -914,6 +914,87 @@ function toggleHUnknown(){
   inp.disabled=H_UNKNOWN; inp.style.opacity=H_UNKNOWN?.4:1;
 }
 
+
+/* 飛び先。GitHub Pages の公開URL。移転したらここだけ直せば済む。 */
+const SANMEI_URL    = 'https://punnti333.github.io/sanmei-cross/';
+const HOROSCOPE_URL = 'https://punnti333.github.io/horoscope/';
+
+/* ===== 他のアプリへ渡す =====
+   鑑定シートは経度しか持たないが、ホロスコープのアセンダントには緯度が要る。
+   そこで県名を、ホロスコープ側の地名へ読み替える。 */
+const HORO_PREF={
+ 1:"北海道（札幌・道央）",
+ 2:"青森（青森市）",
+ 3:"岩手（盛岡）",
+ 4:"宮城（仙台）",
+ 5:"秋田（秋田市）",
+ 6:"山形（山形市）",
+ 7:"福島（福島市）",
+ 8:"茨城（水戸）",
+ 9:"栃木（宇都宮）",
+ 10:"群馬（前橋）",
+ 11:"埼玉（さいたま）",
+ 12:"千葉（千葉市）",
+ 13:"東京（23区・多摩）",
+ 14:"神奈川（横浜）",
+ 15:"新潟（新潟市）",
+ 16:"富山（富山市）",
+ 17:"石川（金沢）",
+ 18:"福井（福井市）",
+ 19:"山梨（甲府）",
+ 20:"長野（長野市）",
+ 21:"岐阜（岐阜市）",
+ 22:"静岡（静岡市）",
+ 23:"愛知（名古屋）",
+ 24:"三重（津）",
+ 25:"滋賀（大津）",
+ 26:"京都（京都市）",
+ 27:"大阪（大阪市）",
+ 28:"兵庫（神戸）",
+ 29:"奈良（奈良市）",
+ 30:"和歌山（和歌山市）",
+ 31:"鳥取（鳥取市）",
+ 32:"島根（松江）",
+ 33:"岡山（岡山市）",
+ 34:"広島（広島市）",
+ 35:"山口（山口市）",
+ 36:"徳島（徳島市）",
+ 37:"香川（高松）",
+ 38:"愛媛（松山）",
+ 39:"高知（高知市）",
+ 40:"福岡（福岡市）",
+ 41:"佐賀（佐賀市）",
+ 42:"長崎（長崎市）",
+ 43:"熊本（熊本市）",
+ 44:"大分（大分市）",
+ 45:"宮崎（宮崎市）",
+ 46:"鹿児島（鹿児島市）",
+ 47:"沖縄（那覇・本島）"
+};
+function goSanmei(){
+  const y=+document.getElementById('inp-y').value;
+  const m=+document.getElementById('inp-m').value;
+  const d=+document.getElementById('inp-d').value;
+  if(!y||!m||!d){ alert('生年月日を入れてください。'); return; }
+  window.open(SANMEI_URL+'?y='+y+'&m='+m+'&d='+d, '_blank');
+}
+function goHoroscope(){
+  const y=+document.getElementById('inp-y').value;
+  const m=+document.getElementById('inp-m').value;
+  const d=+document.getElementById('inp-d').value;
+  if(!y||!m||!d){ alert('生年月日を入れてください。'); return; }
+  const q=new URLSearchParams({y:y,m:m,d:d});
+  const nm=(document.getElementById('inp-name').value||'').trim();
+  if(nm) q.set('n',nm);
+  if(!H_UNKNOWN){
+    const t=(document.getElementById('inp-time').value||'').split(':');
+    if(t.length===2){ q.set('h',+t[0]); q.set('mi',+t[1]); }
+  }
+  const pl=HORO_PREF[+document.getElementById('inp-pref').value||0];
+  if(pl) q.set('pl',pl);
+  window.open(HOROSCOPE_URL+'?'+q.toString(), '_blank');
+}
+
 let SEX='male';
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('inp-m').value='12';
@@ -1942,6 +2023,22 @@ function calculate(){
           '<div>'+rightHtml+'</div>'+
           '</div>';
       })()}
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="form-title">別の角度から見る</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:14px;">
+        <button onclick="goSanmei()" style="font-family:'Shippori Mincho',serif;font-size:15px;
+          background:rgba(201,164,76,.10);border:1.5px solid var(--kin);color:var(--kin2);
+          border-radius:10px;padding:13px 24px;cursor:pointer;letter-spacing:.08em;">
+          三命クロス法で占う</button>
+        <button onclick="goHoroscope()" style="font-family:'Shippori Mincho',serif;font-size:15px;
+          background:rgba(201,164,76,.10);border:1.5px solid var(--kin);color:var(--kin2);
+          border-radius:10px;padding:13px 24px;cursor:pointer;letter-spacing:.08em;">
+          西洋占星術で占う</button>
+      </div>
+      <div style="font-size:12px;color:var(--washi2);margin-top:12px;letter-spacing:.06em;">
+        いま入力している内容を引き継いで、別の窓で開きます
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;" class="harmony-grid">
       <div class="card">

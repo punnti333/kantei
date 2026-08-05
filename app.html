@@ -48,18 +48,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .shichuu-disp .pillar{direction:ltr;min-width:0;}
 .p-kan-row{display:flex;align-items:center;justify-content:center;gap:2px;height:36px;}
 .p-shi-row{margin-top:6px;height:36px;display:flex;align-items:center;justify-content:center;gap:2px;}
-@media(max-width:480px){
-  .shichuu-disp{gap:4px;}
-  .shichuu-disp .pillar{padding:8px 4px;}
-  .p-kan{font-size:18px !important;}
-  .p-shi{font-size:18px !important;}
-  .p-ts{font-size:11px !important;min-width:24px !important;}
-  .p-juni{font-size:11px !important;min-width:24px !important;}
-  .p-gogyo{font-size:9px !important;}
-  .p-label{font-size:9px !important;}
-  .p-kan-row{height:28px;}
-  .p-shi-row{height:28px;}
-}
 .pillar{background:#0f0c0a;border:1px solid rgba(201,164,76,.18);border-radius:10px;padding:22px 18px;text-align:center;}
 .p-label{font-size:11px;letter-spacing:.2em;color:var(--kin);opacity:.8;margin-bottom:8px;font-weight:700;height:16px;}
 .p-kan-row{display:flex;align-items:center;justify-content:center;gap:4px;height:42px;}
@@ -70,17 +58,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .p-shi{font-family:'Shippori Mincho',serif;font-size:34px;font-weight:700;color:var(--washi2);line-height:1;}
 .p-juni{font-size:13px;color:var(--washi2);opacity:.75;white-space:nowrap;min-width:28px;text-align:left;vertical-align:top;position:relative;top:-8px;}
 .p-gogyo{font-size:12px;color:var(--kin);opacity:.7;margin-top:6px;letter-spacing:.1em;height:18px;}
-@media(max-width:480px){
-  .p-kan-row{height:28px;}
-  .p-kan{font-size:20px;}
-  .p-shi-row{height:28px;}
-  .p-shi{font-size:20px;}
-  .p-ts{font-size:12px;min-width:26px;}
-  .p-juni{font-size:12px;min-width:26px;}
-  .p-gogyo{font-size:10px;}
-  .p-label{font-size:10px;}
-  .pillar{padding:10px 6px;}
-}
 .pillar.day{border-color:rgba(201,164,76,.45);}
 .p-label{font-size:11px;letter-spacing:.2em;color:var(--kin);opacity:.8;margin-bottom:8px;font-weight:700;}
 .p-kan{font-family:'Shippori Mincho',serif;font-size:54px;font-weight:700;color:var(--washi);line-height:1;}
@@ -136,6 +113,22 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 .flow td,.flow th{padding:7px 10px;font-size:14px;border-bottom:1px solid rgba(201,164,76,.1);}
 .flow th{color:var(--kin);letter-spacing:.1em;font-weight:700;font-size:12px;}
 .pos{color:#9ed687;}.neg{color:#f0857a;}.zer{color:var(--washi2);}
+
+/* スマホ用（560px以下）：命式まわりを一元管理。!important の二重指定を解消 */
+@media(max-width:560px){
+  .wrap{padding:0 12px;}
+  .card{padding:20px 14px;}
+  .shichuu-disp{gap:6px;margin-top:18px;}
+  .shichuu-disp .pillar{padding:12px 8px;}
+  .p-label{font-size:10px;margin-bottom:6px;}
+  .p-kan-row{height:30px;}
+  .p-shi-row{height:30px;}
+  .p-kan{font-size:20px;}
+  .p-shi{font-size:20px;}
+  .p-ts{font-size:12px;min-width:26px;}
+  .p-juni{font-size:12px;min-width:26px;}
+  .p-gogyo{font-size:10px;}
+}
 </style>
 </head>
 <body>
@@ -1035,10 +1028,13 @@ const KANGO={甲:'己',己:'甲',乙:'庚',庚:'乙',丙:'辛',辛:'丙',丁:'�
 const CHUU={子:'午',丑:'未',寅:'申',卯:'酉',辰:'戌',巳:'亥',午:'子',未:'丑',申:'寅',酉:'卯',戌:'辰',亥:'巳'};
 const KEI={
   子:['卯'],卯:['子'],// 子卯刑
-  寅:['巳','申'],巳:['申','寅'],申:['寅','巳'],// 寅巳申刑
-  丑:['戌'],戌:['未'],未:['丑'],// 丑戌未刑
+  寅:['巳','申'],巳:['寅','申'],申:['寅','巳'],// 寅巳申刑
+  丑:['戌','未'],戌:['丑','未'],未:['丑','戌'],// 丑戌未刑
   辰:['辰'],午:['午'],酉:['酉'],亥:['亥']// 自刑
 };
+// 三刑グループ（3支揃って完成する型）
+const SANKEI=[['寅','巳','申'],['丑','戌','未']];
+const JIKEI=['辰','午','酉','亥'];
 // 六合（支合）のみ
 const GOU={
   子:'丑',丑:'子',寅:'亥',卯:'戌',辰:'酉',巳:'申',
@@ -1060,7 +1056,23 @@ function getSangouGroup(shi){
 function getRelations(dShi, tShi, meishiki){
   const tags=[];
   if(CHUU[dShi]===tShi) tags.push('沖');
-  if((KEI[dShi]||[]).includes(tShi)) tags.push('刑');
+  // 刑：三刑の完成は命式全体で見る。部分刑は日支とのペアのみ（従来仕様）
+  {
+    const ms=meishiki||[dShi];
+    let kei=null;
+    for(const g of SANKEI){
+      if(!g.includes(tShi)) continue;
+      const rest=g.filter(x=>x!==tShi);
+      if(rest.every(x=>ms.includes(x))) kei='三刑'; // 3支揃って成立
+      break;
+    }
+    if(!kei){
+      if((KEI[dShi]||[]).includes(tShi)) kei='刑';                     // 日支との刑（従来）
+      else if(JIKEI.includes(tShi)&&ms.includes(tShi)) kei='刑';       // 自刑の成立
+      else if((tShi==='子'&&ms.includes('卯'))||(tShi==='卯'&&ms.includes('子'))) kei='刑'; // 子卯刑の成立
+    }
+    if(kei) tags.push(kei);
+  }
   // 六合
   if(GOU[dShi]===tShi) tags.push('合');
   // 三合：命式の全地支を起点に、大運/年運地支で揃うか判定
@@ -1156,6 +1168,30 @@ function analyzeMeishiki(yP, mP, dP, hP, hUnknown, nichiKan, kuubou){
     }
   }
   if(chuuList.length>0) results.push('沖：'+chuuList.join('・'));
+
+  // ⑤-2 刑
+  // 三刑（寅巳申・丑戌未）は命式全体のユニーク地支で判定（三合と同じ扱い）
+  for(const g of SANKEI){
+    const matched=g.filter(x=>uniqueShis.includes(x));
+    if(matched.length===3){
+      results.push('⚠️三刑（'+g.join('')+'）成立');
+    }else if(matched.length===2){
+      const miss=g.find(x=>!uniqueShis.includes(x));
+      results.push('三刑（'+matched.join('')+'）潜在：'+miss+'が巡ると成立');
+    }
+  }
+  // 子卯刑・自刑は隣接する柱のみ
+  const keiList=[];
+  for(const [i,j] of adjShiPairs){
+    if(j>=allShis.length) continue;
+    const a=allShis[i], b=allShis[j];
+    if(a.shi===b.shi&&JIKEI.includes(a.shi)){
+      keiList.push('自刑 '+a.label+a.shi+'×'+b.label+b.shi);
+    }else if((a.shi==='子'&&b.shi==='卯')||(a.shi==='卯'&&b.shi==='子')){
+      keiList.push('子卯刑 '+a.label+a.shi+'×'+b.label+b.shi);
+    }
+  }
+  if(keiList.length>0) results.push('刑：'+keiList.join('・'));
 
   // ⑥無情の官殺
   // 日干→無情の官殺天干のマップ
@@ -1344,7 +1380,7 @@ function updateNengun(){
     const isDaiinKotai=!!nextDaiinData;
     const tags=[
       ...rels.map(t=>{
-        const c=t==='沖'?'#f0857a':t==='刑'?'#7ab4d8':'#9ed687';
+        const c=t==='沖'?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':'#9ed687';
         return '<span style="font-size:11px;color:'+c+';border:1px solid '+c+';border-radius:4px;padding:1px 5px;margin-left:3px;">'+t+'</span>';
       }),
       isKuubou?'<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>':'',
@@ -1672,7 +1708,7 @@ function calculate(){
     cls='sig-mid';
     const yoriLabel=midType==='strong'?'（身強寄り）':'（身弱寄り）';
     // ※寄りの判定は、点数ではなく命式全体の比劫印 vs 食傷財官の量で見ています
-    verdict='中　庸<br><span style="font-size:.45em;font-weight:400;letter-spacing:.1em;opacity:.85;">'+yoriLabel+'</span>';
+    verdict='中　庸<br><span style="display:inline-block;margin-top:4px;font-size:.62em;font-weight:700;letter-spacing:.1em;opacity:1;">'+yoriLabel+'</span>';
     punch='陰陽が均衡した命式。環境の影響を受けやすい柔軟な性質。';
     yojin=midType==='strong'?
       '用神：食傷・財・官殺／中庸身強寄り。発散の星で流れを活かす方向が吉。':
@@ -1739,7 +1775,7 @@ function calculate(){
     const isHeirinYD=(r.kan===yP.kan && r.shi===yP.shi);
     const tags=[
       ...rels.map(t=>{
-        const c=t==='沖'?'#f0857a':t==='刑'?'#7ab4d8':'#9ed687';
+        const c=t==='沖'?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':'#9ed687';
         return `<span style="font-size:11px;color:${c};border:1px solid ${c};border-radius:4px;padding:1px 5px;margin-left:3px;">${t}</span>`;
       }),
       isKuubou2?`<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>`:'',
@@ -1857,13 +1893,7 @@ function calculate(){
         ${hUnknown?'<div></div>':pil('時柱',hP.kan,hP.shi,false)}
       </div>
       ${hUnknown?'<div style="margin-top:10px;font-size:13px;color:var(--kin);opacity:.8;">※ 時刻不明のため時柱を除外して計算しています</div>':
-        '<div style="margin-top:10px;font-size:13px;color:var(--kin);opacity:.8;">'+
-        (mode==='tst'
-          ? '入力 '+pad2(hh)+':'+pad2(mi)+'（'+PREFS[prefIdx][0]+'）→ 真太陽時 '+effLabel(B.eff)+
-            '　経度 '+(lon>=135?'+':'−')+Math.abs(Math.round((lon-135)*4))+'分／均時差 '+
-            (B.offsetMin-(lon-135)*4>=0?'+':'−')+Math.abs(Math.round(B.offsetMin-(lon-135)*4))+'分'
-          : '標準時 '+pad2(hh)+':'+pad2(mi)+'（時刻の補正なし）')+
-        (effH>=23?'　→ 23時を過ぎているため日柱は翌日で見ています':'')+'</div>'}
+        (effH>=23?'<div style="margin-top:10px;font-size:13px;color:var(--kin);opacity:.8;">※ 23時を過ぎているため日柱は翌日で見ています</div>':'')}
       ${(function(){const b=mP.boundary?setsuBoundaryInfo(mP,y,m,d):null; return b?
         '<div style="margin-top:10px;font-size:13px;color:#e08a7a;opacity:.95;">※ この日は節入り当日です（'+b.label+'）。この時刻をはさんで月柱'+(b.risshun?'と年柱':'')+'が切り替わります'+(hUnknown?'。時刻不明のため正午として計算しています':'')+'</div>':'';})()}
       <div style="margin-top:12px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
@@ -1981,13 +2011,7 @@ function calculate(){
         ${hUnknown?'<div></div>':pil('時柱',hP.kan,hP.shi,false)}
       </div>
       ${hUnknown?'<div style="margin-top:10px;font-size:13px;color:var(--kin);opacity:.8;">※ 時刻不明のため時柱を除外して計算しています</div>':
-        '<div style="margin-top:10px;font-size:13px;color:var(--kin);opacity:.8;">'+
-        (mode==='tst'
-          ? '入力 '+pad2(hh)+':'+pad2(mi)+'（'+PREFS[prefIdx][0]+'）→ 真太陽時 '+effLabel(B.eff)+
-            '　経度 '+(lon>=135?'+':'−')+Math.abs(Math.round((lon-135)*4))+'分／均時差 '+
-            (B.offsetMin-(lon-135)*4>=0?'+':'−')+Math.abs(Math.round(B.offsetMin-(lon-135)*4))+'分'
-          : '標準時 '+pad2(hh)+':'+pad2(mi)+'（時刻の補正なし）')+
-        (effH>=23?'　→ 23時を過ぎているため日柱は翌日で見ています':'')+'</div>'}
+        (effH>=23?'<div style="margin-top:10px;font-size:13px;color:var(--kin);opacity:.8;">※ 23時を過ぎているため日柱は翌日で見ています</div>':'')}
       ${(function(){const b=mP.boundary?setsuBoundaryInfo(mP,y,m,d):null; return b?
         '<div style="margin-top:10px;font-size:13px;color:#e08a7a;opacity:.95;">※ この日は節入り当日です（'+b.label+'）。この時刻をはさんで月柱'+(b.risshun?'と年柱':'')+'が切り替わります'+(hUnknown?'。時刻不明のため正午として計算しています':'')+'</div>':'';})()}
       <div style="margin-top:12px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">

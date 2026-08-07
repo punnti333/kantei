@@ -53,10 +53,10 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .p-kan-row{display:flex;align-items:center;justify-content:center;gap:4px;height:42px;}
 .p-kan{font-family:'Shippori Mincho',serif;font-size:34px;font-weight:700;color:var(--washi);line-height:1;}
 .pillar.day .p-kan{color:var(--kin2);}
-.p-ts{font-size:13px;color:var(--kin);white-space:nowrap;min-width:28px;text-align:left;vertical-align:top;position:relative;top:-8px;}
+.p-ts{font-size:15px;color:var(--kin);white-space:nowrap;min-width:32px;text-align:left;vertical-align:top;position:relative;top:-8px;}
 .p-shi-row{margin-top:6px;height:42px;display:flex;align-items:center;justify-content:center;gap:4px;}
 .p-shi{font-family:'Shippori Mincho',serif;font-size:34px;font-weight:700;color:var(--washi2);line-height:1;}
-.p-juni{font-size:13px;color:var(--washi2);opacity:.75;white-space:nowrap;min-width:28px;text-align:left;vertical-align:top;position:relative;top:-8px;}
+.p-juni{font-size:15px;color:var(--washi2);opacity:.75;white-space:nowrap;min-width:32px;text-align:left;vertical-align:top;position:relative;top:-8px;}
 .p-gogyo{font-size:12px;color:var(--kin);opacity:.7;margin-top:6px;letter-spacing:.1em;height:18px;}
 .pillar.day{border-color:rgba(201,164,76,.45);}
 .p-label{font-size:11px;letter-spacing:.2em;color:var(--kin);opacity:.8;margin-bottom:8px;font-weight:700;}
@@ -125,8 +125,8 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
   .p-shi-row{height:30px;}
   .p-kan{font-size:20px;}
   .p-shi{font-size:20px;}
-  .p-ts{font-size:12px;min-width:26px;}
-  .p-juni{font-size:12px;min-width:26px;}
+  .p-ts{font-size:14px;min-width:30px;}
+  .p-juni{font-size:14px;min-width:30px;}
   .p-gogyo{font-size:10px;}
 }
 </style>
@@ -780,18 +780,53 @@ function getTokusei(nK, mKan, hKan, dShi, hShi){
 }
 
 // ===== 性別 =====
-// ===== 都道府県の経度（県庁所在地）=====
-const PREFS=[["不明（補正なし）",135.0],
-["北海道（札幌）",141.35],["青森",140.74],["岩手（盛岡）",141.15],["宮城（仙台）",140.87],
-["秋田",140.10],["山形",140.36],["福島",140.47],["茨城（水戸）",140.45],["栃木（宇都宮）",139.88],
-["群馬（前橋）",139.06],["埼玉（さいたま）",139.65],["千葉",140.12],["東京",139.69],["神奈川（横浜）",139.64],
-["新潟",139.02],["富山",137.21],["石川（金沢）",136.63],["福井",136.22],["山梨（甲府）",138.57],
-["長野",138.18],["岐阜",136.72],["静岡",138.38],["愛知（名古屋）",136.91],["三重（津）",136.51],
-["滋賀（大津）",135.87],["京都",135.76],["大阪",135.52],["兵庫（神戸）",135.18],["奈良",135.83],
-["和歌山",135.17],["鳥取",134.24],["島根（松江）",133.05],["岡山",133.93],["広島",132.46],
-["山口",131.47],["徳島",134.55],["香川（高松）",134.04],["愛媛（松山）",132.77],["高知",133.53],
-["福岡",130.42],["佐賀",130.30],["長崎",129.87],["熊本",130.74],["大分",131.61],
-["宮崎",131.42],["鹿児島",130.56],["沖縄（那覇）",127.68]];
+// ===== 出生地（ホロスコープと同じ地名リスト）=====
+// 経度は真太陽時の補正に効く。経度1度＝時間にして4分。
+// 都道府県を基本にして、東西に広いところだけ分けている。
+const NO_PLACE='不明（補正なし）';
+const PLACES=[
+ ["北海道・東北",[
+  ["北海道（札幌・道央）",141.35],["北海道（函館・道南）",140.73],
+  ["北海道（旭川・道北）",142.36],["北海道（釧路・十勝）",144.38],
+  ["北海道（根室・網走）",145.58],
+  ["青森（青森市）",140.74],["青森（八戸）",141.49],
+  ["岩手（盛岡）",141.15],["宮城（仙台）",140.87],
+  ["秋田（秋田市）",140.10],["山形（山形市）",140.36],["福島（福島市）",140.47]
+ ]],
+ ["関東",[
+  ["茨城（水戸）",140.45],["栃木（宇都宮）",139.88],["群馬（前橋）",139.06],
+  ["埼玉（さいたま）",139.65],["千葉（千葉市）",140.12],
+  ["東京（23区・多摩）",139.69],["東京（伊豆諸島・八丈島）",139.79],
+  ["東京（小笠原・父島）",142.19],["神奈川（横浜）",139.64]
+ ]],
+ ["中部",[
+  ["新潟（新潟市）",139.02],["新潟（上越）",138.24],
+  ["富山（富山市）",137.21],["石川（金沢）",136.63],["福井（福井市）",136.22],
+  ["山梨（甲府）",138.57],["長野（長野市）",138.18],["岐阜（岐阜市）",136.72],
+  ["静岡（静岡市）",138.38],["静岡（浜松）",137.73],["愛知（名古屋）",136.91]
+ ]],
+ ["近畿",[
+  ["三重（津）",136.51],["滋賀（大津）",135.87],["京都（京都市）",135.76],
+  ["大阪（大阪市）",135.50],["兵庫（神戸）",135.20],["奈良（奈良市）",135.83],
+  ["和歌山（和歌山市）",135.17],["和歌山（新宮）",135.99]
+ ]],
+ ["中国・四国",[
+  ["鳥取（鳥取市）",134.24],["島根（松江）",133.05],["島根（浜田）",132.08],
+  ["岡山（岡山市）",133.93],["広島（福山）",133.36],["広島（広島市）",132.46],
+  ["山口（山口市）",131.47],["徳島（徳島市）",134.55],["香川（高松）",134.05],
+  ["愛媛（松山）",132.77],["高知（高知市）",133.53]
+ ]],
+ ["九州・沖縄",[
+  ["福岡（福岡市）",130.40],["佐賀（佐賀市）",130.30],["長崎（長崎市）",129.87],
+  ["熊本（熊本市）",130.74],["大分（大分市）",131.61],["宮崎（宮崎市）",131.42],
+  ["鹿児島（鹿児島市）",130.56],["鹿児島（奄美大島）",129.49],
+  ["沖縄（那覇・本島）",127.68],["沖縄（宮古島）",125.28],["沖縄（石垣・八重山）",124.16]
+ ]]
+];
+// 地名 → 経度。不明のときは明石（135度）と同じ＝補正なしになる
+const PLACE_LON={};
+PLACE_LON[NO_PLACE]=135.0;
+PLACES.forEach(function(g){g[1].forEach(function(e){PLACE_LON[e[0]]=e[1];});});
 
 let TIME_MODE='tst';   // 'tst'=真太陽時（既定） / 'jst'=標準時
 let H_UNKNOWN=false;   // 時刻不明
@@ -853,7 +888,7 @@ function savePerson(){
   const rec={ name:name, y:y, m:m, d:d,
     time:document.getElementById('inp-time').value||'12:00',
     hUnknown:H_UNKNOWN,
-    pref:+document.getElementById('inp-pref').value||0,
+    pref:document.getElementById('inp-pref').value||NO_PLACE,
     sex:SEX };
   const list=loadPeople();
   const i=list.findIndex(function(e){return e.name===name;});
@@ -867,13 +902,20 @@ function savePerson(){
   savePeopleList(list);
   nameEl.value='';
 }
+/* 保存された出生地を、いまの地名に直して返す。
+   古いデータは番号で入っているので LEGACY_PREF で読み替える。 */
+function placeNameOf(v){
+  if(typeof v==='number') return LEGACY_PREF[v]||NO_PLACE;
+  if(typeof v==='string'&&PLACE_LON[v]!==undefined) return v;
+  return NO_PLACE;
+}
 function usePerson(i){
   const p=loadPeople()[i]; if(!p) return;
   document.getElementById('inp-y').value=p.y;
   document.getElementById('inp-m').value=p.m;
   document.getElementById('inp-d').value=p.d;
   document.getElementById('inp-time').value=p.time||'12:00';
-  document.getElementById('inp-pref').value=String(p.pref||0);
+  document.getElementById('inp-pref').value=placeNameOf(p.pref);
   document.getElementById('inp-name').value=p.name;
   setHUnknown(!!p.hUnknown);
   setSex(p.sex==='female'?'female':'male');
@@ -912,10 +954,10 @@ function toggleHUnknown(){
 const SANMEI_URL    = 'https://punnti333.github.io/sanmei-cross/';
 const HOROSCOPE_URL = 'https://punnti333.github.io/horoscope/';
 
-/* ===== 他のアプリへ渡す =====
-   鑑定シートは経度しか持たないが、ホロスコープのアセンダントには緯度が要る。
-   そこで県名を、ホロスコープ側の地名へ読み替える。 */
-const HORO_PREF={
+/* ===== 保存データの読み替え =====
+   以前は出生地を番号（0〜47）で保存していた。地名リストをホロスコープと
+   同じものに揃えたので、古い保存データを新しい地名へ読み替える。 */
+const LEGACY_PREF={
  1:"北海道（札幌・道央）",
  2:"青森（青森市）",
  3:"岩手（盛岡）",
@@ -983,8 +1025,9 @@ function goHoroscope(){
     const t=(document.getElementById('inp-time').value||'').split(':');
     if(t.length===2){ q.set('h',+t[0]); q.set('mi',+t[1]); }
   }
-  const pl=HORO_PREF[+document.getElementById('inp-pref').value||0];
-  if(pl) q.set('pl',pl);
+  // 地名リストはホロスコープと同じなので、そのまま渡せる
+  const pl=document.getElementById('inp-pref').value;
+  if(pl&&pl!==NO_PLACE) q.set('pl',pl);
   window.open(HOROSCOPE_URL+'?'+q.toString(), '_blank');
 }
 
@@ -992,8 +1035,13 @@ let SEX='male';
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('inp-m').value='12';
   const sel=document.getElementById('inp-pref');
-  sel.innerHTML=PREFS.map(function(p,i){return '<option value="'+i+'">'+p[0]+'</option>';}).join('');
-  sel.value='0';
+  sel.innerHTML='<option value="'+NO_PLACE+'">'+NO_PLACE+'</option>'+
+    PLACES.map(function(g){
+      return '<optgroup label="'+g[0]+'">'+
+        g[1].map(function(e){return '<option value="'+e[0]+'">'+e[0]+'</option>';}).join('')+
+        '</optgroup>';
+    }).join('');
+  sel.value=NO_PLACE;
   setSex('male'); setTimeMode('tst');
   renderPeople();
 });
@@ -1663,10 +1711,11 @@ function calculate(){
   // 入力時刻（不明なら正午）
   const tv=(document.getElementById('inp-time').value||'12:00').split(':');
   const hh=hUnknown?12:(+tv[0]||0), mi=hUnknown?0:(+tv[1]||0);
-  const prefIdx=+document.getElementById('inp-pref').value||0;
-  const lon=PREFS[prefIdx]?PREFS[prefIdx][1]:135;
+  const placeName=document.getElementById('inp-pref').value||NO_PLACE;
+  const hasPlace=(placeName!==NO_PLACE)&&(PLACE_LON[placeName]!==undefined);
+  const lon=hasPlace?PLACE_LON[placeName]:135;
   // 場所が不明なら経度補正はできないので標準時で見る
-  const mode=(TIME_MODE==='tst'&&prefIdx>0)?'tst':'jst';
+  const mode=(TIME_MODE==='tst'&&hasPlace)?'tst':'jst';
   const B=birthMoments(y,m,d,hh,mi,lon,mode);
   const hJST=B.hJST;
 

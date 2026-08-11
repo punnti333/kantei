@@ -2330,11 +2330,13 @@ function calculate(){
     const order=[];
     for(let i=0;i<5;i++) order.push(GOGYO_ALL[(nIdx+i)%5]);
 
+    // 支は採用蔵干（小山内流）の五行で数える。四柱に表示している蔵干と同じ基準。
+    const zkG=(zk,shi)=>(zk&&KAN_GOGYO[zk])?KAN_GOGYO[zk]:SHI_GOGYO[shi];
     const allKanShi2=[
-      {g:KAN_GOGYO[yP.kan]},{g:SHI_GOGYO[yP.shi]},
-      {g:KAN_GOGYO[mP.kan]},{g:SHI_GOGYO[mP.shi]},
-      {g:KAN_GOGYO[nK]},{g:SHI_GOGYO[dP.shi]},
-      ...(hUnknown?[]:[{g:KAN_GOGYO[hP.kan]},{g:SHI_GOGYO[hP.shi]}])
+      {g:KAN_GOGYO[yP.kan]},{g:zkG(ZK_ADOPT.年柱,yP.shi)},
+      {g:KAN_GOGYO[mP.kan]},{g:zkG(ZK_ADOPT.月柱,mP.shi)},
+      {g:KAN_GOGYO[nK]},{g:zkG(ZK_ADOPT.日柱,dP.shi)},
+      ...(hUnknown?[]:[{g:KAN_GOGYO[hP.kan]},{g:zkG(ZK_ADOPT.時柱,hP.shi)}])
     ];
     const cnt={木:0,火:0,土:0,金:0,水:0};
     allKanShi2.forEach(x=>cnt[x.g]++);

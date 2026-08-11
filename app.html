@@ -2343,7 +2343,18 @@ function keishaPalace(y,m,d,male){
    codocの表示の中に合言葉が現れたら開きます。 */
 (function(){
   const UNLOCK_MARK='開門';
+  const OWNER_KEY='ナラちゃん';
   const gate=document.getElementById('member-gate');
+  /* 作者用の合言葉。?key=ナラちゃん を一度つけて開くと、この端末が覚えます。
+     codocに所有者としてログインしていると購読できないため、その回避です。 */
+  try{
+    const q=new URLSearchParams(location.search);
+    if(q.get('key')===OWNER_KEY) localStorage.setItem('owner_pass',OWNER_KEY);
+    if(localStorage.getItem('owner_pass')===OWNER_KEY){
+      if(gate) gate.classList.remove('on');
+      return;
+    }
+  }catch(e){}
   const entry=document.getElementById('codoc-entry-4atnND16iw');
   function open(){ if(gate) gate.classList.remove('on'); }
   function check(){

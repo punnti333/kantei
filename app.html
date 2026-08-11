@@ -143,7 +143,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
     <div class="fields">
       <div class="field">
         <label>生年（西暦）</label>
-        <input type="number" id="inp-y" value="1959" min="1930" max="2030" onfocus="this.select()">
+        <input type="number" id="inp-y" value="2000" min="1930" max="2030" onfocus="this.select()">
       </div>
       <div class="field">
         <label>月</label>
@@ -156,12 +156,12 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
       </div>
       <div class="field">
         <label>日</label>
-        <input type="number" id="inp-d" value="4" min="1" max="31" onfocus="this.select()">
+        <input type="number" id="inp-d" value="1" min="1" max="31" onfocus="this.select()">
       </div>
       <div class="field">
         <label>生まれた時刻</label>
         <div style="display:flex;gap:10px;align-items:center;">
-          <input type="time" id="inp-time" value="13:00" style="flex:1;">
+          <input type="time" id="inp-time" value="12:00" style="flex:1;">
           <button type="button" id="btn-hunknown" onclick="toggleHUnknown()" style="flex:1;padding:12px 6px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:15px;cursor:pointer;transition:border-color .2s;white-space:nowrap;">不明</button>
         </div>
       </div>
@@ -1073,7 +1073,7 @@ function goHoroscope(){
 
 let SEX='male';
 document.addEventListener('DOMContentLoaded',function(){
-  document.getElementById('inp-m').value='12';
+  document.getElementById('inp-m').value='6';
   const sel=document.getElementById('inp-pref');
   sel.innerHTML='<option value="'+NO_PLACE+'">'+NO_PLACE+'</option>'+
     PLACES.map(function(g){

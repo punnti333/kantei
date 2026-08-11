@@ -25,7 +25,7 @@ background:rgba(29,25,22,.6);}
 letter-spacing:.1em;margin-bottom:12px;}
 .gate-box ul{list-style:none;}
 .gate-box li{font-size:14px;line-height:1.9;color:var(--washi);margin-bottom:9px;padding-left:16px;position:relative;}
-.gate-box li::before{content:"·";position:absolute;left:2px;color:var(--kin);}
+.gate-box li::before{content:"\30FB";position:absolute;left:2px;color:var(--kin);}
 .codoc-wrap{background:#f7f5f0;border-radius:14px;padding:14px;color:#2a2a2a !important;line-height:1.8;}
 .codoc-wrap h1,.codoc-wrap h2,.codoc-wrap h3,.codoc-wrap p,.codoc-wrap div,.codoc-wrap span,.codoc-wrap li{color:#2a2a2a !important;font-family:sans-serif;}
 .codoc-bottom{display:none !important;}
@@ -161,7 +161,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
     <div class="fields">
       <div class="field">
         <label>生年（西暦）</label>
-        <input type="number" id="inp-y" value="1959" min="1930" max="2030" onfocus="this.select()">
+        <input type="number" id="inp-y" value="2000" min="1930" max="2030" onfocus="this.select()">
       </div>
       <div class="field">
         <label>月</label>
@@ -174,12 +174,12 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
       </div>
       <div class="field">
         <label>日</label>
-        <input type="number" id="inp-d" value="4" min="1" max="31" onfocus="this.select()">
+        <input type="number" id="inp-d" value="1" min="1" max="31" onfocus="this.select()">
       </div>
       <div class="field">
         <label>生まれた時刻</label>
         <div style="display:flex;gap:10px;align-items:center;">
-          <input type="time" id="inp-time" value="13:00" style="flex:1;">
+          <input type="time" id="inp-time" value="12:00" style="flex:1;">
           <button type="button" id="btn-hunknown" onclick="toggleHUnknown()" style="flex:1;padding:12px 6px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:15px;cursor:pointer;transition:border-color .2s;white-space:nowrap;">不明</button>
         </div>
       </div>
@@ -496,6 +496,46 @@ const SHI_GOGYO={子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午
 const ZOKAN={子:['癸'],丑:['己','癸','辛'],寅:['甲','丙'],卯:['乙'],辰:['戊','乙','癸'],巳:['丙','庚'],午:['丁'],未:['己','丁','乙'],申:['庚','壬'],酉:['辛'],戌:['戊','辛','丁'],亥:['壬','甲']};
 // 蔵干の重み（本気1.0・中気0.6・余気0.3）
 const ZOKAN_W=[1,0.6,0.3];
+// ===== 小山内流・簡易蔵干表（隣接五行用）=====
+// 子午卯酉＝余気20%、辰戌未丑＝余気40%、寅巳申亥＝分割なし
+// [余気, 本気, 余気の割合]
+const OZK={
+  子:['壬','癸',0.2], 丑:['癸','己',0.4], 寅:[null,'甲',0],
+  卯:['甲','乙',0.2], 辰:['乙','戊',0.4], 巳:[null,'丙',0],
+  午:['丙','丁',0.2], 未:['丁','己',0.4], 申:[null,'庚',0],
+  酉:['庚','辛',0.2], 戌:['辛','戊',0.4], 亥:[null,'壬',0]
+};
+// 日支の蔵干：その日の時刻で判定（子午卯酉は4:48まで、辰戌未丑は9:36までが余気）
+function zokanDayShi(shi, effH){
+  const z=OZK[shi]; if(!z) return null;
+  if(!z[0]) return z[1];
+  return (effH < 24*z[2]) ? z[0] : z[1];
+}
+// 年支の蔵干：立春からの経過で判定（子午卯酉は4/17ごろ、辰戌未丑は7/1ごろまでが余気）
+function zokanYearShi(shi, mo, dy){
+  const z=OZK[shi]; if(!z) return null;
+  if(!z[0]) return z[1];
+  const md=mo*100+dy;
+  const lim=(z[2]===0.2)?417:701;      // 4月17日 / 7月1日
+  if(md<204) return z[1];              // 立春前は前年の末尾＝本気
+  return (md<lim)?z[0]:z[1];
+}
+// 月支の蔵干：節入りからの日数で判定（子午卯酉は約6日、辰戌未丑は約12日）
+function zokanMonthShi(shi, daysAfterSetsu){
+  const z=OZK[shi]; if(!z) return null;
+  if(!z[0]) return z[1];
+  if(daysAfterSetsu==null) return z[1];
+  return (daysAfterSetsu < 30*z[2]) ? z[0] : z[1];
+}
+// 時支の蔵干：その刻の中の経過時間で判定（刻は2時間＝120分）
+function zokanHourShi(shi, effH, shiIdx){
+  const z=OZK[shi]; if(!z) return null;
+  if(!z[0]) return z[1];
+  const start=((shiIdx*2-1)%24+24)%24;        // その刻の開始時刻
+  const into=((effH-start)%24+24)%24;         // 刻の開始からの経過時間
+  return (into < 2*z[2]) ? z[0] : z[1];
+}
+
 
 // 時支マップ（セレクト値→地支インデックス）
 const HOUR_TO_SHI_IDX={23:0,1:1,3:2,5:3,7:4,9:5,11:6,13:7,15:8,17:9,19:10,21:11};
@@ -1051,7 +1091,7 @@ function goHoroscope(){
 
 let SEX='male';
 document.addEventListener('DOMContentLoaded',function(){
-  document.getElementById('inp-m').value='12';
+  document.getElementById('inp-m').value='6';
   const sel=document.getElementById('inp-pref');
   sel.innerHTML='<option value="'+NO_PLACE+'">'+NO_PLACE+'</option>'+
     PLACES.map(function(g){
@@ -1813,11 +1853,72 @@ function calculate(){
   }
   daiin.rounds.forEach(r=>allRounds.push(r));
 
-  const daiinRows=allRounds.filter(r=>!r.pre).map(r=>{
+  // ===== 彼方の年支 =====
+  // 周天120年の上を年支の蔵干が遷移する。比劫の振替のときだけ参照する。
+  const KANATA_ZOKAN={  // [本気, 余気]
+    子:['癸','壬'], 丑:['己','癸'], 寅:['甲',null], 卯:['乙','甲'],
+    辰:['戊','乙'], 巳:['丙',null], 午:['丁','丙'], 未:['己','丁'],
+    申:['庚',null], 酉:['辛','庚'], 戌:['戊','辛'], 亥:['壬',null]
+  };
+  // 本気の持ち分（年）。寅巳申亥は分割なし。
+  const KANATA_HONKI={辰:72,戌:72,未:72,丑:72, 子:96,午:96,卯:96,酉:96};
+  // 周天0年の位置：大運支が丑（逆行）・寅（順行）になる年齢
+  const kanataAnchor=(()=>{
+    const first=daiin.rounds&&daiin.rounds[0];
+    if(!first) return null;
+    const i0=SHI12.indexOf(first.shi);
+    const tgt=SHI12.indexOf(daiin.junko?'寅':'丑');
+    if(i0<0||tgt<0) return null;
+    const step=daiin.junko?((tgt-i0)%12+12)%12:((i0-tgt)%12+12)%12;
+    return (first.dispAge!=null?first.dispAge:first.age)+step*10;
+  })();
+  // 年齢→彼方の年支の蔵干
+  const kanataZokan=(age)=>{
+    const z=KANATA_ZOKAN[yP.shi];
+    if(!z) return null;
+    if(!z[1]) return z[0];                       // 寅巳申亥は分割なし
+    if(kanataAnchor==null||age==null) return z[0];
+    const honki=KANATA_HONKI[yP.shi]||72;
+    const yoki=120-honki;
+    const pos=(((age-kanataAnchor)%120)+120)%120;
+    // 逆行：本気が先　順行：余気が先
+    return daiin.junko ? (pos<yoki?z[1]:z[0]) : (pos<honki?z[0]:z[1]);
+  };
+
+  // ===== 大運の蔵干による細分 =====
+  // 辰戌未丑は6年/4年、子午卯酉は8年/2年、寅巳申亥は分割なし
+  // 順行は余気→本気、逆行は本気→余気
+  const DAI_ZK={
+    子:['癸','壬'], 丑:['己','癸'], 寅:['甲',null], 卯:['乙','甲'],
+    辰:['戊','乙'], 巳:['丙',null], 午:['丁','丙'], 未:['己','丁'],
+    申:['庚',null], 酉:['辛','庚'], 戌:['戊','辛'], 亥:['壬',null]
+  };
+  const DAI_SPLIT={辰:6,戌:6,未:6,丑:6, 子:8,午:8,卯:8,酉:8};
+  // 1つの大運を[{age, startYear, zokan, seg}] に分ける
+  const splitRound=(r)=>{
+    const base=(r.dispAge!=null?r.dispAge:r.age);
+    const z=DAI_ZK[r.shi]||[null,null];
+    const sp=DAI_SPLIT[r.shi];
+    if(!z[1]||!sp) return [{age:base,startYear:r.startYear,zokan:z[0],seg:0}];
+    // 順行は余気が先（持ち分は10-sp）、逆行は本気が先（持ち分はsp）
+    const firstZk = daiin.junko ? z[1] : z[0];
+    const secondZk= daiin.junko ? z[0] : z[1];
+    const firstLen= daiin.junko ? (10-sp) : sp;
+    return [
+      {age:base,           startYear:r.startYear,           zokan:firstZk, seg:0},
+      {age:base+firstLen,  startYear:r.startYear+firstLen,  zokan:secondZk,seg:1}
+    ];
+  };
+
+  const daiinRows=allRounds.filter(r=>!r.pre).flatMap(R=>splitRound(R).map((SEG,SI,SEGS)=>{
+    const r=Object.assign({},R,{dispAge:SEG.age,startYear:SEG.startYear});
+    const segZk=SEG.zokan;               // この区間の大運蔵干
+    const isSub=(SEG.seg===1);           // 後半の細分行か
+    const segEndYear=(SEGS[SI+1]?SEGS[SI+1].startYear:(R.startYear+10));
     const nowYear=new Date().getFullYear();
     const nowMonth=new Date().getMonth()+1;
     const rStartMonth=r.startMonth||1;
-    const rEndYear=r.startYear+10;
+    const rEndYear=segEndYear;
     const rEndMonth=rStartMonth;
     const afterStart=(nowYear>r.startYear)||(nowYear===r.startYear&&nowMonth>=rStartMonth);
     const beforeEnd=(nowYear<rEndYear)||(nowYear===rEndYear&&nowMonth<rEndMonth);
@@ -1864,7 +1965,7 @@ function calculate(){
     // 大運の赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う
     const effectiveTotal=midType!==null?(midType==='strong'?TH_STRONG:TH_WEAK):daiiTotal;
     const kanGogyo=KAN_GOGYO[r.kan];
-    const shiGogyo=SHI_GOGYO[r.shi];
+    const shiGogyo=segZk?KAN_GOGYO[segZk]:SHI_GOGYO[r.shi];   // 支は区間の蔵干の五行で見る
     const kanYojin=yojinHantei(nK,kanGogyo,effectiveTotal);
     const shiYojin=yojinHantei(nK,shiGogyo,effectiveTotal);
     const bothYojin=(kanYojin==='○'&&shiYojin==='○');
@@ -1872,9 +1973,9 @@ function calculate(){
     const ageSty=bothKijin?'text-decoration:underline;text-decoration-color:#f0857a;text-underline-offset:3px;':'';
     // 通変の調和：□隣接五行から判定
     const adjDaiin=new Set();
-    const dShiG_d=SHI_GOGYO[dP.shi];
+    const dShiG_d=KAN_GOGYO[zokanDayShi(dP.shi,effH)]||SHI_GOGYO[dP.shi];      // 日支は蔵干の五行
     const hKanG_d=hUnknown?null:KAN_GOGYO[hP.kan];
-    const hShiG_d=hUnknown?null:SHI_GOGYO[hP.shi];
+    const hShiG_d=hUnknown?null:(KAN_GOGYO[zokanHourShi(hP.shi,effH,shiIdx)]||SHI_GOGYO[hP.shi]);  // 時支も蔵干
     const nG_d=KAN_GOGYO[nK];
     [KAN_GOGYO[mP.kan],dShiG_d,...(hUnknown?[]:[hKanG_d])].forEach(g=>{if(g&&g!==nG_d)adjDaiin.add(g);});
     if(!hUnknown&&hShiG_d!==nG_d){if(hKanG_d===nG_d||dShiG_d===nG_d)adjDaiin.add(hShiG_d);}
@@ -1889,51 +1990,65 @@ function calculate(){
     const has2=adjTsuuhen_d.has('zai');
     const has3=adjTsuuhen_d.has('kansat');
     const has4=adjTsuuhen_d.has('insho');
-    const markOf=(t, isKan)=>{
-      if(t==='shokusho') return has4?'〇':'✕';
-      if(t==='insho')    return has1?'〇':'✕';
-      if(t==='kansat')   return has2?'●':'✕';
-      if(t==='zai')      return has3?'●':'✕';
-      if(t==='hikyu'){
-        // 比劫が来たら年柱で判定
-        if(isKan){
-          // 干に比劫→年干の通変で〇✕
-          const yKanT=toTsuuhen_d(KAN_GOGYO[yP.kan]);
-          if(yKanT==='shokusho') return has4?'〇':'✕';
-          if(yKanT==='insho')    return has1?'〇':'✕';
-          return '✕';
-        } else {
-          // 支に比劫→年支の通変で●✕
-          const yShiT=toTsuuhen_d(SHI_GOGYO[yP.shi]);
-          if(yShiT==='kansat') return has2?'●':'✕';
-          if(yShiT==='zai')    return has3?'●':'✕';
-          return '✕';
-        }
-      }
+    // 通変の軸だけで判定する（干・支の位置は無関係）
+    const judge_d=(t)=>{
+      if(t==='shokusho') return has4?'〇':'✕';   // 自分軸：相手は印
+      if(t==='insho')    return has1?'〇':'✕';   // 自分軸：相手は食傷
+      if(t==='kansat')   return has2?'●':'✕';   // 他人軸：相手は財
+      if(t==='zai')      return has3?'●':'✕';   // 他人軸：相手は官殺
       return '';
+    };
+    const rowAge = (r.dispAge!=null?r.dispAge:r.age);
+    const kanataKan = kanataZokan(rowAge);        // この大運時点の彼方の年支の蔵干
+    const markOf=(t, isKan)=>{
+      if(t!=='hikyu') return judge_d(t);
+      // 比劫はペアの相手がいないので、年柱に置き換えて同じ判定をする
+      // 干→年干、支→彼方の年支の蔵干
+      const yt = isKan ? toTsuuhen_d(KAN_GOGYO[yP.kan])
+                       : toTsuuhen_d(kanataKan?KAN_GOGYO[kanataKan]:SHI_GOGYO[yP.shi]);
+      return yt==='hikyu' ? '✕' : judge_d(yt);   // 振替先も比劫なら判定不能→✕
     };
     const kanMark=markOf(kanTsuuhen_d, true);
     const shiMark=markOf(shiTsuuhen_d, false);
     const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
-      '<td style="'+tdSty+'font-size:17px;'+nowSty+ageSty+'">'+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
+      '<td style="'+tdSty+'font-size:17px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
       '<td style="'+tdSty+'font-size:17px;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
       '<td style="'+tdSty+'font-size:22px;'+nowSty+'">'+
         '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+kanMark+'</span>'+
-        r.kan+
+        '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.kan+'</span>'+
         '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
-        r.shi+
-        tags+
+        '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
+        (segZk?'<span style="font-size:14px;color:var(--kin);opacity:.85;margin-left:4px;">('+segZk+')</span>':'')+
+        (isSub?'':tags)+
       '</td>'+
       '</tr>';
-  }).join('');
+  })).join('');
+
+  // 四柱それぞれの採用蔵干（小山内流・簡易蔵干表）
+  const daysAfterSetsu = (mP.startUTC!=null)
+    ? Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000)
+    : null;
+  const ZK_ADOPT={
+    年柱: zokanYearShi(yP.shi, m, d),
+    月柱: zokanMonthShi(mP.shi, daysAfterSetsu),
+    日柱: zokanDayShi(dP.shi, effH),
+    時柱: hUnknown?null:zokanHourShi(hP.shi, effH, shiIdx)
+  };
 
   const pil=(lbl,kan,shi,isDay)=>{
     const ts=isDay?'':getTsuuhensei(nK,kan);
     const juni=getJuni(nK,shi);
+    const zk=ZK_ADOPT[lbl.replace('★','')];
+    const zkG=zk?KAN_GOGYO[zk]:null;
+    const shifted=zk&&zkG!==SHI_GOGYO[shi];   // 支の五行とずれるか
+    // 採用蔵干は八字の下に別行で出す（支の行に足すと横幅がずれるため）
+    const zkTag = zk
+      ? '<div style="font-size:13px;margin-top:4px;letter-spacing:.05em;color:'+(shifted?'#e08a7a':'var(--kin)')+';opacity:'+(shifted?'1':'.8')+';'+(shifted?'font-weight:700;':'')+'">('+zk+')</div>'
+      : '<div style="font-size:13px;margin-top:4px;opacity:0;">(　)</div>';
     const shiJuniCell=
       '<span class="p-juni" style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.5;">'+
-        '<span>'+getTsuuhensei(nK,ZOKAN[shi][0])+'</span>'+
+        '<span>'+(zk?getTsuuhensei(nK,zk):getTsuuhensei(nK,ZOKAN[shi][0]))+'</span>'+
         '<span>'+juni+'</span>'+
       '</span>';
     return '<div class="pillar'+(isDay?' day':'')+'">' +
@@ -1946,7 +2061,8 @@ function calculate(){
         '<span class="p-shi">'+shi+'</span>'+
         shiJuniCell+
       '</div>'+
-      '<div class="p-gogyo">'+KAN_GOGYO[kan]+'・'+SHI_GOGYO[shi]+'</div>'+
+      zkTag+
+      '<div class="p-gogyo">'+KAN_GOGYO[kan]+'・'+(zkG&&shifted?('<span style="color:#e08a7a;font-weight:700;">'+zkG+'</span>'):SHI_GOGYO[shi])+'</div>'+
       '</div>';
   };
 
@@ -2202,9 +2318,9 @@ function calculate(){
     const cnt={木:0,火:0,土:0,金:0,水:0};
     allKanShi2.forEach(x=>cnt[x.g]++);
 
-    const dShiG2=SHI_GOGYO[dP.shi];
+    const dShiG2=KAN_GOGYO[zokanDayShi(dP.shi,effH)]||SHI_GOGYO[dP.shi];
     const hKanG2=hUnknown?null:KAN_GOGYO[hP.kan];
-    const hShiG2=hUnknown?null:SHI_GOGYO[hP.shi];
+    const hShiG2=hUnknown?null:(KAN_GOGYO[zokanHourShi(hP.shi,effH,shiIdx)]||SHI_GOGYO[hP.shi]);
     const adjG2=new Set();
     [KAN_GOGYO[mP.kan],dShiG2,...(hUnknown?[]:[hKanG2])].forEach(g=>{if(g&&g!==nG2)adjG2.add(g);});
     if(!hUnknown&&hShiG2!==nG2){if(hKanG2===nG2||dShiG2===nG2)adjG2.add(hShiG2);}
@@ -2252,9 +2368,9 @@ function calculate(){
 
   // adjG2を事前計算（通変の調和判定用）
   const adjG2=new Set();
-  const dShiG2_pre=SHI_GOGYO[dP.shi];
+  const dShiG2_pre=KAN_GOGYO[zokanDayShi(dP.shi,effH)]||SHI_GOGYO[dP.shi];
   const hKanG2_pre=hUnknown?null:KAN_GOGYO[hP.kan];
-  const hShiG2_pre=hUnknown?null:SHI_GOGYO[hP.shi];
+  const hShiG2_pre=hUnknown?null:(KAN_GOGYO[zokanHourShi(hP.shi,effH,shiIdx)]||SHI_GOGYO[hP.shi]);
   const nG2_pre=KAN_GOGYO[nK];
   [KAN_GOGYO[mP.kan],dShiG2_pre,...(hUnknown?[]:[hKanG2_pre])].forEach(g=>{if(g&&g!==nG2_pre)adjG2.add(g);});
   if(!hUnknown&&hShiG2_pre!==nG2_pre){if(hKanG2_pre===nG2_pre||dShiG2_pre===nG2_pre)adjG2.add(hShiG2_pre);}
@@ -2340,23 +2456,18 @@ function keishaPalace(y,m,d,male){
 <script src="https://codoc.jp/js/cms.js" data-usercode="YhOlOTkM4A" defer></script>
 <script>
 /* 会員判定。無料期間は設けず、購読者だけが使えます。
-   codocの表示の中に合言葉が現れたら開きます。 */
+   作者用の合言葉つきURL（?key=ナラちゃん）で開くと、この端末が覚えます。 */
 (function(){
   const UNLOCK_MARK='開門';
   const OWNER_KEY='ナラちゃん';
   const gate=document.getElementById('member-gate');
-  /* 作者用の合言葉。?key=ナラちゃん を一度つけて開くと、この端末が覚えます。
-     codocに所有者としてログインしていると購読できないため、その回避です。 */
+  const entry=document.getElementById('codoc-entry-4atnND16iw');
+  function open(){ if(gate) gate.classList.remove('on'); }
   try{
     const q=new URLSearchParams(location.search);
     if(q.get('key')===OWNER_KEY) localStorage.setItem('owner_pass',OWNER_KEY);
-    if(localStorage.getItem('owner_pass')===OWNER_KEY){
-      if(gate) gate.classList.remove('on');
-      return;
-    }
+    if(localStorage.getItem('owner_pass')===OWNER_KEY){ open(); return; }
   }catch(e){}
-  const entry=document.getElementById('codoc-entry-4atnND16iw');
-  function open(){ if(gate) gate.classList.remove('on'); }
   function check(){
     if(entry && entry.innerText && entry.innerText.indexOf(UNLOCK_MARK)>=0){ open(); return true; }
     return false;

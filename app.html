@@ -478,6 +478,46 @@ const SHI_GOGYO={子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午
 const ZOKAN={子:['癸'],丑:['己','癸','辛'],寅:['甲','丙'],卯:['乙'],辰:['戊','乙','癸'],巳:['丙','庚'],午:['丁'],未:['己','丁','乙'],申:['庚','壬'],酉:['辛'],戌:['戊','辛','丁'],亥:['壬','甲']};
 // 蔵干の重み（本気1.0・中気0.6・余気0.3）
 const ZOKAN_W=[1,0.6,0.3];
+// ===== 小山内流・簡易蔵干表（隣接五行用）=====
+// 子午卯酉＝余気20%、辰戌未丑＝余気40%、寅巳申亥＝分割なし
+// [余気, 本気, 余気の割合]
+const OZK={
+  子:['壬','癸',0.2], 丑:['癸','己',0.4], 寅:[null,'甲',0],
+  卯:['甲','乙',0.2], 辰:['乙','戊',0.4], 巳:[null,'丙',0],
+  午:['丙','丁',0.2], 未:['丁','己',0.4], 申:[null,'庚',0],
+  酉:['庚','辛',0.2], 戌:['辛','戊',0.4], 亥:[null,'壬',0]
+};
+// 日支の蔵干：その日の時刻で判定（子午卯酉は4:48まで、辰戌未丑は9:36までが余気）
+function zokanDayShi(shi, effH){
+  const z=OZK[shi]; if(!z) return null;
+  if(!z[0]) return z[1];
+  return (effH < 24*z[2]) ? z[0] : z[1];
+}
+// 年支の蔵干：立春からの経過で判定（子午卯酉は4/17ごろ、辰戌未丑は7/1ごろまでが余気）
+function zokanYearShi(shi, mo, dy){
+  const z=OZK[shi]; if(!z) return null;
+  if(!z[0]) return z[1];
+  const md=mo*100+dy;
+  const lim=(z[2]===0.2)?417:701;      // 4月17日 / 7月1日
+  if(md<204) return z[1];              // 立春前は前年の末尾＝本気
+  return (md<lim)?z[0]:z[1];
+}
+// 月支の蔵干：節入りからの日数で判定（子午卯酉は約6日、辰戌未丑は約12日）
+function zokanMonthShi(shi, daysAfterSetsu){
+  const z=OZK[shi]; if(!z) return null;
+  if(!z[0]) return z[1];
+  if(daysAfterSetsu==null) return z[1];
+  return (daysAfterSetsu < 30*z[2]) ? z[0] : z[1];
+}
+// 時支の蔵干：その刻の中の経過時間で判定（刻は2時間＝120分）
+function zokanHourShi(shi, effH, shiIdx){
+  const z=OZK[shi]; if(!z) return null;
+  if(!z[0]) return z[1];
+  const start=((shiIdx*2-1)%24+24)%24;        // その刻の開始時刻
+  const into=((effH-start)%24+24)%24;         // 刻の開始からの経過時間
+  return (into < 2*z[2]) ? z[0] : z[1];
+}
+
 
 // 時支マップ（セレクト値→地支インデックス）
 const HOUR_TO_SHI_IDX={23:0,1:1,3:2,5:3,7:4,9:5,11:6,13:7,15:8,17:9,19:10,21:11};
@@ -1886,9 +1926,9 @@ function calculate(){
     const ageSty=bothKijin?'text-decoration:underline;text-decoration-color:#f0857a;text-underline-offset:3px;':'';
     // 通変の調和：□隣接五行から判定
     const adjDaiin=new Set();
-    const dShiG_d=SHI_GOGYO[dP.shi];
+    const dShiG_d=KAN_GOGYO[zokanDayShi(dP.shi,effH)]||SHI_GOGYO[dP.shi];      // 日支は蔵干の五行
     const hKanG_d=hUnknown?null:KAN_GOGYO[hP.kan];
-    const hShiG_d=hUnknown?null:SHI_GOGYO[hP.shi];
+    const hShiG_d=hUnknown?null:(KAN_GOGYO[zokanHourShi(hP.shi,effH,shiIdx)]||SHI_GOGYO[hP.shi]);  // 時支も蔵干
     const nG_d=KAN_GOGYO[nK];
     [KAN_GOGYO[mP.kan],dShiG_d,...(hUnknown?[]:[hKanG_d])].forEach(g=>{if(g&&g!==nG_d)adjDaiin.add(g);});
     if(!hUnknown&&hShiG_d!==nG_d){if(hKanG_d===nG_d||dShiG_d===nG_d)adjDaiin.add(hShiG_d);}
@@ -1937,12 +1977,30 @@ function calculate(){
       '</tr>';
   }).join('');
 
+  // 四柱それぞれの採用蔵干（小山内流・簡易蔵干表）
+  const daysAfterSetsu = (mP.startUTC!=null)
+    ? Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000)
+    : null;
+  const ZK_ADOPT={
+    年柱: zokanYearShi(yP.shi, m, d),
+    月柱: zokanMonthShi(mP.shi, daysAfterSetsu),
+    日柱: zokanDayShi(dP.shi, effH),
+    時柱: hUnknown?null:zokanHourShi(hP.shi, effH, shiIdx)
+  };
+
   const pil=(lbl,kan,shi,isDay)=>{
     const ts=isDay?'':getTsuuhensei(nK,kan);
     const juni=getJuni(nK,shi);
+    const zk=ZK_ADOPT[lbl.replace('★','')];
+    const zkG=zk?KAN_GOGYO[zk]:null;
+    const shifted=zk&&zkG!==SHI_GOGYO[shi];   // 支の五行とずれるか
+    // 採用蔵干は八字の下に別行で出す（支の行に足すと横幅がずれるため）
+    const zkTag = zk
+      ? '<div style="font-size:13px;margin-top:4px;letter-spacing:.05em;color:'+(shifted?'#e08a7a':'var(--kin)')+';opacity:'+(shifted?'1':'.8')+';'+(shifted?'font-weight:700;':'')+'">【'+zk+'】</div>'
+      : '<div style="font-size:13px;margin-top:4px;opacity:0;">【　】</div>';
     const shiJuniCell=
       '<span class="p-juni" style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.5;">'+
-        '<span>'+getTsuuhensei(nK,ZOKAN[shi][0])+'</span>'+
+        '<span>'+(zk?getTsuuhensei(nK,zk):getTsuuhensei(nK,ZOKAN[shi][0]))+'</span>'+
         '<span>'+juni+'</span>'+
       '</span>';
     return '<div class="pillar'+(isDay?' day':'')+'">' +
@@ -1955,7 +2013,8 @@ function calculate(){
         '<span class="p-shi">'+shi+'</span>'+
         shiJuniCell+
       '</div>'+
-      '<div class="p-gogyo">'+KAN_GOGYO[kan]+'・'+SHI_GOGYO[shi]+'</div>'+
+      zkTag+
+      '<div class="p-gogyo">'+KAN_GOGYO[kan]+'・'+(zkG&&shifted?('<span style="color:#e08a7a;font-weight:700;">'+zkG+'</span>'):SHI_GOGYO[shi])+'</div>'+
       '</div>';
   };
 
@@ -2211,9 +2270,9 @@ function calculate(){
     const cnt={木:0,火:0,土:0,金:0,水:0};
     allKanShi2.forEach(x=>cnt[x.g]++);
 
-    const dShiG2=SHI_GOGYO[dP.shi];
+    const dShiG2=KAN_GOGYO[zokanDayShi(dP.shi,effH)]||SHI_GOGYO[dP.shi];
     const hKanG2=hUnknown?null:KAN_GOGYO[hP.kan];
-    const hShiG2=hUnknown?null:SHI_GOGYO[hP.shi];
+    const hShiG2=hUnknown?null:(KAN_GOGYO[zokanHourShi(hP.shi,effH,shiIdx)]||SHI_GOGYO[hP.shi]);
     const adjG2=new Set();
     [KAN_GOGYO[mP.kan],dShiG2,...(hUnknown?[]:[hKanG2])].forEach(g=>{if(g&&g!==nG2)adjG2.add(g);});
     if(!hUnknown&&hShiG2!==nG2){if(hKanG2===nG2||dShiG2===nG2)adjG2.add(hShiG2);}
@@ -2261,9 +2320,9 @@ function calculate(){
 
   // adjG2を事前計算（通変の調和判定用）
   const adjG2=new Set();
-  const dShiG2_pre=SHI_GOGYO[dP.shi];
+  const dShiG2_pre=KAN_GOGYO[zokanDayShi(dP.shi,effH)]||SHI_GOGYO[dP.shi];
   const hKanG2_pre=hUnknown?null:KAN_GOGYO[hP.kan];
-  const hShiG2_pre=hUnknown?null:SHI_GOGYO[hP.shi];
+  const hShiG2_pre=hUnknown?null:(KAN_GOGYO[zokanHourShi(hP.shi,effH,shiIdx)]||SHI_GOGYO[hP.shi]);
   const nG2_pre=KAN_GOGYO[nK];
   [KAN_GOGYO[mP.kan],dShiG2_pre,...(hUnknown?[]:[hKanG2_pre])].forEach(g=>{if(g&&g!==nG2_pre)adjG2.add(g);});
   if(!hUnknown&&hShiG2_pre!==nG2_pre){if(hKanG2_pre===nG2_pre||dShiG2_pre===nG2_pre)adjG2.add(hShiG2_pre);}

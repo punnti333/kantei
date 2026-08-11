@@ -1795,6 +1795,38 @@ function calculate(){
   }
   daiin.rounds.forEach(r=>allRounds.push(r));
 
+  // ===== 彼方の年支 =====
+  // 周天120年の上を年支の蔵干が遷移する。比劫の振替のときだけ参照する。
+  const KANATA_ZOKAN={  // [本気, 余気]
+    子:['癸','壬'], 丑:['己','癸'], 寅:['甲',null], 卯:['乙','甲'],
+    辰:['戊','乙'], 巳:['丙',null], 午:['丁','丙'], 未:['己','丁'],
+    申:['庚',null], 酉:['辛','庚'], 戌:['戊','辛'], 亥:['壬',null]
+  };
+  // 本気の持ち分（年）。寅巳申亥は分割なし。
+  const KANATA_HONKI={辰:72,戌:72,未:72,丑:72, 子:96,午:96,卯:96,酉:96};
+  // 周天0年の位置：大運支が丑（逆行）・寅（順行）になる年齢
+  const kanataAnchor=(()=>{
+    const first=daiin.rounds&&daiin.rounds[0];
+    if(!first) return null;
+    const i0=SHI12.indexOf(first.shi);
+    const tgt=SHI12.indexOf(daiin.junko?'寅':'丑');
+    if(i0<0||tgt<0) return null;
+    const step=daiin.junko?((tgt-i0)%12+12)%12:((i0-tgt)%12+12)%12;
+    return (first.dispAge!=null?first.dispAge:first.age)+step*10;
+  })();
+  // 年齢→彼方の年支の蔵干
+  const kanataZokan=(age)=>{
+    const z=KANATA_ZOKAN[yP.shi];
+    if(!z) return null;
+    if(!z[1]) return z[0];                       // 寅巳申亥は分割なし
+    if(kanataAnchor==null||age==null) return z[0];
+    const honki=KANATA_HONKI[yP.shi]||72;
+    const yoki=120-honki;
+    const pos=(((age-kanataAnchor)%120)+120)%120;
+    // 逆行：本気が先　順行：余気が先
+    return daiin.junko ? (pos<yoki?z[1]:z[0]) : (pos<honki?z[0]:z[1]);
+  };
+
   const daiinRows=allRounds.filter(r=>!r.pre).map(r=>{
     const nowYear=new Date().getFullYear();
     const nowMonth=new Date().getMonth()+1;
@@ -1871,28 +1903,23 @@ function calculate(){
     const has2=adjTsuuhen_d.has('zai');
     const has3=adjTsuuhen_d.has('kansat');
     const has4=adjTsuuhen_d.has('insho');
-    const markOf=(t, isKan)=>{
-      if(t==='shokusho') return has4?'〇':'✕';
-      if(t==='insho')    return has1?'〇':'✕';
-      if(t==='kansat')   return has2?'●':'✕';
-      if(t==='zai')      return has3?'●':'✕';
-      if(t==='hikyu'){
-        // 比劫が来たら年柱で判定
-        if(isKan){
-          // 干に比劫→年干の通変で〇✕
-          const yKanT=toTsuuhen_d(KAN_GOGYO[yP.kan]);
-          if(yKanT==='shokusho') return has4?'〇':'✕';
-          if(yKanT==='insho')    return has1?'〇':'✕';
-          return '✕';
-        } else {
-          // 支に比劫→年支の通変で●✕
-          const yShiT=toTsuuhen_d(SHI_GOGYO[yP.shi]);
-          if(yShiT==='kansat') return has2?'●':'✕';
-          if(yShiT==='zai')    return has3?'●':'✕';
-          return '✕';
-        }
-      }
+    // 通変の軸だけで判定する（干・支の位置は無関係）
+    const judge_d=(t)=>{
+      if(t==='shokusho') return has4?'〇':'✕';   // 自分軸：相手は印
+      if(t==='insho')    return has1?'〇':'✕';   // 自分軸：相手は食傷
+      if(t==='kansat')   return has2?'●':'✕';   // 他人軸：相手は財
+      if(t==='zai')      return has3?'●':'✕';   // 他人軸：相手は官殺
       return '';
+    };
+    const rowAge = (r.dispAge!=null?r.dispAge:r.age);
+    const kanataKan = kanataZokan(rowAge);        // この大運時点の彼方の年支の蔵干
+    const markOf=(t, isKan)=>{
+      if(t!=='hikyu') return judge_d(t);
+      // 比劫はペアの相手がいないので、年柱に置き換えて同じ判定をする
+      // 干→年干、支→彼方の年支の蔵干
+      const yt = isKan ? toTsuuhen_d(KAN_GOGYO[yP.kan])
+                       : toTsuuhen_d(kanataKan?KAN_GOGYO[kanataKan]:SHI_GOGYO[yP.shi]);
+      return yt==='hikyu' ? '✕' : judge_d(yt);   // 振替先も比劫なら判定不能→✕
     };
     const kanMark=markOf(kanTsuuhen_d, true);
     const shiMark=markOf(shiTsuuhen_d, false);

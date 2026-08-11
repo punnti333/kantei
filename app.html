@@ -1867,11 +1867,40 @@ function calculate(){
     return daiin.junko ? (pos<yoki?z[1]:z[0]) : (pos<honki?z[0]:z[1]);
   };
 
-  const daiinRows=allRounds.filter(r=>!r.pre).map(r=>{
+  // ===== 大運の蔵干による細分 =====
+  // 辰戌未丑は6年/4年、子午卯酉は8年/2年、寅巳申亥は分割なし
+  // 順行は余気→本気、逆行は本気→余気
+  const DAI_ZK={
+    子:['癸','壬'], 丑:['己','癸'], 寅:['甲',null], 卯:['乙','甲'],
+    辰:['戊','乙'], 巳:['丙',null], 午:['丁','丙'], 未:['己','丁'],
+    申:['庚',null], 酉:['辛','庚'], 戌:['戊','辛'], 亥:['壬',null]
+  };
+  const DAI_SPLIT={辰:6,戌:6,未:6,丑:6, 子:8,午:8,卯:8,酉:8};
+  // 1つの大運を[{age, startYear, zokan, seg}] に分ける
+  const splitRound=(r)=>{
+    const base=(r.dispAge!=null?r.dispAge:r.age);
+    const z=DAI_ZK[r.shi]||[null,null];
+    const sp=DAI_SPLIT[r.shi];
+    if(!z[1]||!sp) return [{age:base,startYear:r.startYear,zokan:z[0],seg:0}];
+    // 順行は余気が先（持ち分は10-sp）、逆行は本気が先（持ち分はsp）
+    const firstZk = daiin.junko ? z[1] : z[0];
+    const secondZk= daiin.junko ? z[0] : z[1];
+    const firstLen= daiin.junko ? (10-sp) : sp;
+    return [
+      {age:base,           startYear:r.startYear,           zokan:firstZk, seg:0},
+      {age:base+firstLen,  startYear:r.startYear+firstLen,  zokan:secondZk,seg:1}
+    ];
+  };
+
+  const daiinRows=allRounds.filter(r=>!r.pre).flatMap(R=>splitRound(R).map((SEG,SI,SEGS)=>{
+    const r=Object.assign({},R,{dispAge:SEG.age,startYear:SEG.startYear});
+    const segZk=SEG.zokan;               // この区間の大運蔵干
+    const isSub=(SEG.seg===1);           // 後半の細分行か
+    const segEndYear=(SEGS[SI+1]?SEGS[SI+1].startYear:(R.startYear+10));
     const nowYear=new Date().getFullYear();
     const nowMonth=new Date().getMonth()+1;
     const rStartMonth=r.startMonth||1;
-    const rEndYear=r.startYear+10;
+    const rEndYear=segEndYear;
     const rEndMonth=rStartMonth;
     const afterStart=(nowYear>r.startYear)||(nowYear===r.startYear&&nowMonth>=rStartMonth);
     const beforeEnd=(nowYear<rEndYear)||(nowYear===rEndYear&&nowMonth<rEndMonth);
@@ -1918,7 +1947,7 @@ function calculate(){
     // 大運の赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う
     const effectiveTotal=midType!==null?(midType==='strong'?TH_STRONG:TH_WEAK):daiiTotal;
     const kanGogyo=KAN_GOGYO[r.kan];
-    const shiGogyo=SHI_GOGYO[r.shi];
+    const shiGogyo=segZk?KAN_GOGYO[segZk]:SHI_GOGYO[r.shi];   // 支は区間の蔵干の五行で見る
     const kanYojin=yojinHantei(nK,kanGogyo,effectiveTotal);
     const shiYojin=yojinHantei(nK,shiGogyo,effectiveTotal);
     const bothYojin=(kanYojin==='○'&&shiYojin==='○');
@@ -1965,17 +1994,18 @@ function calculate(){
     const shiMark=markOf(shiTsuuhen_d, false);
     const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
-      '<td style="'+tdSty+'font-size:17px;'+nowSty+ageSty+'">'+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
+      '<td style="'+tdSty+'font-size:17px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
       '<td style="'+tdSty+'font-size:17px;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
       '<td style="'+tdSty+'font-size:22px;'+nowSty+'">'+
         '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+kanMark+'</span>'+
-        r.kan+
+        '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.kan+'</span>'+
         '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
-        r.shi+
-        tags+
+        '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
+        (segZk?'<span style="font-size:14px;color:var(--kin);opacity:.85;margin-left:4px;">('+segZk+')</span>':'')+
+        (isSub?'':tags)+
       '</td>'+
       '</tr>';
-  }).join('');
+  })).join('');
 
   // 四柱それぞれの採用蔵干（小山内流・簡易蔵干表）
   const daysAfterSetsu = (mP.startUTC!=null)
@@ -1996,8 +2026,8 @@ function calculate(){
     const shifted=zk&&zkG!==SHI_GOGYO[shi];   // 支の五行とずれるか
     // 採用蔵干は八字の下に別行で出す（支の行に足すと横幅がずれるため）
     const zkTag = zk
-      ? '<div style="font-size:13px;margin-top:4px;letter-spacing:.05em;color:'+(shifted?'#e08a7a':'var(--kin)')+';opacity:'+(shifted?'1':'.8')+';'+(shifted?'font-weight:700;':'')+'">【'+zk+'】</div>'
-      : '<div style="font-size:13px;margin-top:4px;opacity:0;">【　】</div>';
+      ? '<div style="font-size:13px;margin-top:4px;letter-spacing:.05em;color:'+(shifted?'#e08a7a':'var(--kin)')+';opacity:'+(shifted?'1':'.8')+';'+(shifted?'font-weight:700;':'')+'">('+zk+')</div>'
+      : '<div style="font-size:13px;margin-top:4px;opacity:0;">(　)</div>';
     const shiJuniCell=
       '<span class="p-juni" style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.5;">'+
         '<span>'+(zk?getTsuuhensei(nK,zk):getTsuuhensei(nK,ZOKAN[shi][0]))+'</span>'+

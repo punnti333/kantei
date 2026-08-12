@@ -271,6 +271,16 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
   .type-count{ font-size:12px; letter-spacing:.08em; }
 }
 
+/* 蔵干にある場合（表に出ている場合より控えめに） */
+.k-zk{
+  font-size:11px; letter-spacing:.06em;
+  padding:2px 8px; border-radius:10px;
+  white-space:nowrap;
+  color:#9fb8a8;
+  background:rgba(159,184,168,.10);
+  border:1px solid rgba(159,184,168,.28);
+}
+
 /* ===== 命式タイプ ここまで ===== */
 </style>
 </head>
@@ -1932,7 +1942,7 @@ const ARI = 1;
 const TAIKA_PRIORITY = ['比劫','印星','食傷','財星','官星'];
 
 // ===== 判定 =====
-function judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown){
+function judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, zkAdopt){
   const g    = KAN_GOGYO[nK];
   const tsu  = tsuhenMap(g);
   const cnt  = gogyoCount(yP, mP, dP, hP, hUnknown);
@@ -1947,10 +1957,21 @@ function judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown){
     .filter(k => tcnt[k] >= TAIKA)
     .sort((a,b) => tcnt[b] - tcnt[a] || TAIKA_PRIORITY.indexOf(a) - TAIKA_PRIORITY.indexOf(b));
 
-  const ctx = { g, tsu, cnt, tcnt, band, total, midType,
+  // ---- 採用蔵干（小山内流）----
+  // シートが時刻・経過日数から確定させた4柱の蔵干（ZK_ADOPT）をそのまま使う。
+  // ※大過の判定には一切使わない。喜神・忌神の「あるか無いか」だけに使う。
+  const zk = {};   // 例 { 金:'日支' }
+  if(zkAdopt){
+    for(const k of ['年柱','月柱','日柱','時柱']){
+      const kan = zkAdopt[k];
+      if(kan && KAN_GOGYO[kan] && !zk[KAN_GOGYO[kan]]) zk[KAN_GOGYO[kan]] = k.replace('柱','支');
+    }
+  }
+
+  const ctx = { g, tsu, cnt, tcnt, band, total, midType, zk,
                 taika, taikaTop: taika[0] || null,
-                // ある五行が命式にあるか（通変星名でも五行名でも引ける）
-                ari: x => cnt[tsu[x] || x] >= ARI };
+                // ある五行が「あるか」。表の八字に無ければ採用蔵干も見る。
+                ari: x => { const gg = tsu[x] || x; return cnt[gg] >= ARI || !!zk[gg]; } };
 
   const hit = TYPES.find(t =>
     t.gogyo === g && (typeof t.cond === 'function' ? t.cond(ctx) : false)
@@ -1970,9 +1991,18 @@ function renderType(res){
   if(!res) return '';
   const t = res.type, ctx = res.ctx;
   const show = e => (typeof e.when !== 'function') || e.when(ctx);
-  const mark = g => g.split('・').every(x => ctx.cnt[x] >= ARI)
-    ? '<span class="k-on">命式にあり</span>'
-    : '<span class="k-off">命式になし</span>';
+  // 表に出ていれば「命式にあり」、採用蔵干にあれば「◯支の蔵干にあり」、無ければ「命式になし」
+  const one = x => {
+    if(ctx.cnt[x] >= ARI) return { on:true, txt:'命式にあり' };
+    if(ctx.zk[x])         return { on:true, zk:true, txt:ctx.zk[x]+'の蔵干にあり' };
+    return { on:false, txt:'命式になし' };
+  };
+  const mark = g => {
+    const rs = g.split('・').map(one);
+    if(rs.some(r => !r.on)) return '<span class="k-off">命式になし</span>';
+    const cls = rs.every(r => r.zk) ? 'k-zk' : 'k-on';
+    return '<span class="'+cls+'">' + rs.map(r => r.txt).join('／') + '</span>';
+  };
 
   const rows = list => list.filter(show).map((k,i) => `
     <div class="k-row">
@@ -2940,11 +2970,12 @@ function calculate(){
       '<td style="'+tdSty+'font-size:17px;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
       '<td class="dai-kanshi" style="'+tdSty+'font-size:22px;'+nowSty+'">'+
         '<span class="dai-ks">'+
-          '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+kanMark+'</span>'+
-          '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.kan+'</span>'+
+          // 細分行は干支が上と同じになるので、干は出さず支と（蔵干）だけにする
+          (isSub?'':'<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+kanMark+'</span>')+
+          (isSub?'':'<span>'+r.kan+'</span>')+
           '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
           '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
-          (segZk?'<span style="font-size:14px;color:var(--kin);opacity:.85;margin-left:4px;">('+segZk+')</span>':'')+
+          (segZk?'<span style="font-size:'+(isSub?'22px':'19px')+';color:var(--kin);opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
         '</span>'+
         (isSub?'':'<span class="dai-tags">'+tags+'</span>')+
       '</td>'+
@@ -3039,7 +3070,7 @@ function calculate(){
           '</div>';
       })()}
     </div>
-    ${renderType(judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown))}
+    ${renderType(judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, ZK_ADOPT))}
     <div class="signal-banner ${cls}" style="margin-top:18px;">
       <div class="lamp">身強身弱判断<span style="font-size:.8em;opacity:.7;letter-spacing:.05em;">（得令＋得地の合計点）</span></div>
       <div class="score-num">${sc(total)}</div>

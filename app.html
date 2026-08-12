@@ -281,6 +281,14 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
   border:1px solid rgba(159,184,168,.28);
 }
 
+
+/* 大運の（蔵干）：スマホでは控えめに */
+@media (max-width:600px){
+  .dai-zk{ font-size:15px !important; margin-left:2px !important; }
+}
+@media (max-width:380px){
+  .dai-zk{ font-size:14px !important; }
+}
 /* ===== 命式タイプ ここまで ===== */
 </style>
 </head>
@@ -3022,7 +3030,7 @@ function calculate(){
           '<span style="'+(isSub?'visibility:hidden;':'')+kiimiColor(KAN_GOGYO[r.kan],KIIMI)+'">'+r.kan+'</span>'+
           '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
           '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
-          (segZk?'<span style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI)||'color:var(--kin);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
+          (segZk?'<span class="dai-zk" style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI)||'color:var(--kin);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
         '</span>'+
         (isSub?'':'<span class="dai-tags">'+tags+'</span>')+
       '</td>'+

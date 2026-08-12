@@ -2,6 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>八字鑑定シート</title>
 <style>
@@ -362,6 +365,28 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
   </div>
   <div id="result"></div>
 </div>
+<script>
+/* 開くたびに最新かどうかを確かめる。
+   古いものが表示されていたら、1度だけ自動で読み直す。
+   （iPhoneのSafariは同じURLだと古い版を掴み続けるため） */
+(function(){
+  try{
+    if(location.protocol==='file:') return;              // 手元のファイルは対象外
+    if(sessionStorage.getItem('reloaded_once')) return;  // 二重の読み直しを防ぐ
+    fetch(location.pathname + '?_=' + Date.now(), {cache:'no-store'})
+      .then(function(r){ return r.text(); })
+      .then(function(txt){
+        var now = document.documentElement.outerHTML.length;
+        // 長さが大きく違えば、表示中のものは古い
+        if(Math.abs(txt.length - now) > 500){
+          sessionStorage.setItem('reloaded_once','1');
+          location.reload(true);
+        }
+      })
+      .catch(function(){});
+  }catch(e){}
+})();
+</script>
 <script id="astro-lib">
 /*
  MIT
@@ -3471,10 +3496,10 @@ function keishaPalace(y,m,d,male){
 <script src="https://codoc.jp/js/cms.js" data-usercode="YhOlOTkM4A" defer></script>
 <script>
 /* 会員判定。無料期間は設けず、購読者だけが使えます。
-   作者用の合言葉つきURL（?key=ナラちゃん）で開くと、この端末が覚えます。 */
+   作者用の合言葉つきURL（?key=nara）で開くと、この端末が覚えます。 */
 (function(){
   const UNLOCK_MARK='開門';
-  const OWNER_KEY='ナラちゃん';
+  const OWNER_KEY='nara';
   const gate=document.getElementById('member-gate');
   const entry=document.getElementById('codoc-entry-4atnND16iw');
   function open(){ if(gate) gate.classList.remove('on'); }

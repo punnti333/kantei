@@ -1659,7 +1659,10 @@ function updateNengun(){
     const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
-      '<td style="'+tdSty+'font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+ks.kan+ks.shi+tags+'</td>'+
+      '<td style="'+tdSty+'font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
+         '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
+         '<span>'+ks.shi+'</span>'+
+         tags+'</td>'+
       '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'"><span class="nengun-kaza"><span>'+palace+'</span>'+kaiMark+'</span></td>'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+'">'+age+'歳</td>'+
       '</tr>';
@@ -1984,6 +1987,34 @@ function judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, zkAdopt){
     : null;
 
   return { type: hit, ctx, mismatch };
+}
+
+// ===== 喜神・忌神の五行を取り出す =====
+// 大運・年運の色分けに使う。when 付きの項目は、その命式で成立するものだけ拾う。
+// 「金・水」のように連記されたものは、それぞれ個別に拾う。
+function kishinImijinGogyo(res){
+  const ki = new Set(), imi = new Set();
+  if(!res) return { kishin: ki, imijin: imi };
+  const ctx = res.ctx;
+  const pick = (list, set) => {
+    for(const e of list){
+      if(typeof e.when === 'function' && !e.when(ctx)) continue;
+      for(const g of e.gogyo.split('・')) set.add(g);
+    }
+  };
+  pick(res.type.kishin, ki);
+  pick(res.type.imijin, imi);
+  // 両方に入った五行は喜神を優先する
+  for(const g of ki) imi.delete(g);
+  return { kishin: ki, imijin: imi };
+}
+
+// 五行に応じた色（喜神=青／忌神=赤／どちらでもない=そのまま）
+function kiimiColor(gogyo, sets){
+  if(!sets) return '';
+  if(sets.kishin.has(gogyo)) return 'color:#7fb3e8;';
+  if(sets.imijin.has(gogyo)) return 'color:#e8837f;';
+  return '';
 }
 
 // ===== 表示 =====
@@ -2864,6 +2895,21 @@ function calculate(){
     ];
   };
 
+  // ---- 大運・年運の色分けに使う喜神・忌神 ----
+  // ZK_ADOPT はこの下で作られるので、同じ内容をここで先に求めておく。
+  const _daysAfterSetsuKI = (mP.startUTC!=null)
+    ? Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000)
+    : null;
+  const _zkForKI = {
+    年柱: zokanYearShi(yP.shi, m, d),
+    月柱: zokanMonthShi(mP.shi, _daysAfterSetsuKI),
+    日柱: zokanDayShi(dP.shi, effH),
+    時柱: hUnknown?null:zokanHourShi(hP.shi, effH, shiIdx)
+  };
+  const KIIMI = kishinImijinGogyo(
+    judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, _zkForKI)
+  );
+
   const daiinRows=allRounds.filter(r=>!r.pre).flatMap(R=>splitRound(R).map((SEG,SI,SEGS)=>{
     const r=Object.assign({},R,{dispAge:SEG.age,startYear:SEG.startYear});
     const segZk=SEG.zokan;               // この区間の大運蔵干
@@ -2973,10 +3019,10 @@ function calculate(){
           // 細分行は干支が上と同じになるので干は出さない。
           // ただし場所は空けておき、支の位置が上下でそろうようにする。
           '<span style="color:#e0c478;font-size:13px;margin-right:2px;'+(isSub?'visibility:hidden;':'')+'">'+kanMark+'</span>'+
-          '<span style="'+(isSub?'visibility:hidden;':'')+'">'+r.kan+'</span>'+
+          '<span style="'+(isSub?'visibility:hidden;':'')+kiimiColor(KAN_GOGYO[r.kan],KIIMI)+'">'+r.kan+'</span>'+
           '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
           '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
-          (segZk?'<span style="font-size:19px;color:var(--kin);opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
+          (segZk?'<span style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI)||'color:var(--kin);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
         '</span>'+
         (isSub?'':'<span class="dai-tags">'+tags+'</span>')+
       '</td>'+
@@ -3337,7 +3383,7 @@ function calculate(){
   if(!hUnknown&&hShiG2_pre!==nG2_pre){if(hKanG2_pre===nG2_pre||dShiG2_pre===nG2_pre)adjG2.add(hShiG2_pre);}
 
   // 年運描画
-  window._nengunData={dShi:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, effectiveTotal:effectiveTotalForLuck, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])], mKan:mP.kan, mShi:mP.shi, yKan:yP.kan, yShi:yP.shi};
+  window._nengunData={KIIMI, dShi:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, effectiveTotal:effectiveTotalForLuck, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])], mKan:mP.kan, mShi:mP.shi, yKan:yP.kan, yShi:yP.shi};
   updateNengun();
 
   document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});

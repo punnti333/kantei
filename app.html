@@ -2970,9 +2970,10 @@ function calculate(){
       '<td style="'+tdSty+'font-size:17px;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
       '<td class="dai-kanshi" style="'+tdSty+'font-size:22px;'+nowSty+'">'+
         '<span class="dai-ks">'+
-          // 細分行は干支が上と同じになるので、干は出さず支と（蔵干）だけにする
-          (isSub?'':'<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+kanMark+'</span>')+
-          (isSub?'':'<span>'+r.kan+'</span>')+
+          // 細分行は干支が上と同じになるので干は出さない。
+          // ただし場所は空けておき、支の位置が上下でそろうようにする。
+          '<span style="color:#e0c478;font-size:13px;margin-right:2px;'+(isSub?'visibility:hidden;':'')+'">'+kanMark+'</span>'+
+          '<span style="'+(isSub?'visibility:hidden;':'')+'">'+r.kan+'</span>'+
           '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
           '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
           (segZk?'<span style="font-size:'+(isSub?'22px':'19px')+';color:var(--kin);opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+

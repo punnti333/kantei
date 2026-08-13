@@ -1348,6 +1348,25 @@ const LEGACY_PREF={
  46:"鹿児島（鹿児島市）",
  47:"沖縄（那覇・本島）"
 };
+/* 入力欄まで戻る。中身はそのまま残す。 */
+function backToForm(){
+  const t = document.getElementById('inp-y') || document.querySelector('.card');
+  if(t) t.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+/* 別の人で占う。名前と生年月日時を空にして、入力欄まで戻る。 */
+function newPerson(){
+  ['inp-name','inp-y','inp-m','inp-d','inp-time'].forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  const r = document.getElementById('result');
+  if(r) r.innerHTML = '';
+  backToForm();
+  const n = document.getElementById('inp-name') || document.getElementById('inp-y');
+  if(n) setTimeout(function(){ n.focus(); }, 400);
+}
+
 function goSanmei(){
   const y=+document.getElementById('inp-y').value;
   const m=+document.getElementById('inp-m').value;
@@ -3774,6 +3793,21 @@ function calculate(){
         [{label:'年柱',kan:yP.kan,shi:yP.shi},{label:'月柱',kan:mP.kan,shi:mP.shi},
          {label:'日柱',kan:dP.kan,shi:dP.shi}].concat(hUnknown?[]:[{label:'時柱',kan:hP.kan,shi:hP.shi}]),
         ZK_ADOPT['日柱']))}
+    <div class="card" style="text-align:center;">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+        <button onclick="newPerson()" style="font-family:'Shippori Mincho',serif;font-size:15px;
+          background:rgba(201,164,76,.10);border:1.5px solid var(--kin);color:var(--kin2);
+          border-radius:10px;padding:13px 24px;cursor:pointer;letter-spacing:.08em;">
+          別の人で占う</button>
+        <button onclick="backToForm()" style="font-family:'Shippori Mincho',serif;font-size:15px;
+          background:transparent;border:1.5px solid rgba(201,164,76,.45);color:var(--kin2);
+          border-radius:10px;padding:13px 24px;cursor:pointer;letter-spacing:.08em;">
+          最初の画面に戻る</button>
+      </div>
+      <div style="font-size:12px;color:var(--washi2);margin-top:12px;letter-spacing:.06em;">
+        「別の人で占う」は入力内容を消します。「最初の画面に戻る」は残したまま上へ戻ります
+      </div>
+    </div>
     <div class="card" style="text-align:center;">
       <div class="form-title">別の角度から見る</div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:14px;">

@@ -4005,13 +4005,19 @@ function keishaPalace(y,m,d,male){
 (function(){
   const UNLOCK_MARK='開門';
   const OWNER_KEY='nara';
+  // 以前の合言葉も通す。すでに記録を持っている端末は、入り直さずにそのまま使えます。
+  const OWNER_KEYS=['nara','ナラちゃん'];
   const gate=document.getElementById('member-gate');
   const entry=document.getElementById('codoc-entry-4atnND16iw');
   function open(){ if(gate) gate.classList.remove('on'); }
   try{
     const q=new URLSearchParams(location.search);
-    if(q.get('key')===OWNER_KEY) localStorage.setItem('owner_pass',OWNER_KEY);
-    if(localStorage.getItem('owner_pass')===OWNER_KEY){ open(); return; }
+    if(OWNER_KEYS.includes(q.get('key'))) localStorage.setItem('owner_pass',OWNER_KEY);
+    const saved=localStorage.getItem('owner_pass');
+    if(OWNER_KEYS.includes(saved)){
+      if(saved!==OWNER_KEY) localStorage.setItem('owner_pass',OWNER_KEY);  // 静かに書き換える
+      open(); return;
+    }
   }catch(e){}
   function check(){
     if(entry && entry.innerText && entry.innerText.indexOf(UNLOCK_MARK)>=0){ open(); return true; }

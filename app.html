@@ -293,6 +293,122 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
   .dai-zk{ font-size:14px !important; }
 }
 /* ===== 命式タイプ ここまで ===== */
+
+/* ===== 干合 ここから ===== */
+/* ===== 干合カード ===== */
+.kango-card{ margin-top:18px; }
+
+.kg-item{
+  margin-top:14px; padding-top:14px;
+  border-top:1px solid rgba(201,164,76,.15);
+}
+.kg-item:first-of-type{ border-top:none; padding-top:6px; }
+
+.kg-head{
+  display:flex; align-items:center; flex-wrap:wrap; gap:8px;
+  font-size:19px; font-family:'Shippori Mincho',serif;
+}
+.kg-ka{ color:#c9a44c; font-size:20px; font-weight:700; }
+
+.kg-rank{
+  font-size:12px; letter-spacing:.06em;
+  padding:2px 9px; border-radius:11px; white-space:nowrap;
+}
+.kg-rank.kg-shin { color:#c9a44c; background:rgba(201,164,76,.14); border:1px solid rgba(201,164,76,.45); }
+.kg-rank.kg-jun  { color:#9fb8a8; background:rgba(159,184,168,.12); border:1px solid rgba(159,184,168,.35); }
+.kg-rank.kg-kirau{ color:#e8837f; background:rgba(232,131,127,.10); border:1px solid rgba(232,131,127,.35); }
+.kg-rank.kg-none { opacity:.55; border:1px solid rgba(255,255,255,.18); }
+
+.kg-name{ font-size:14px; color:#c9a44c; opacity:.9; margin-top:6px; letter-spacing:.05em; }
+.kg-sei { font-size:14px; line-height:1.85; margin-top:6px; }
+
+.kg-shis{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.kg-shi{
+  font-size:12px; letter-spacing:.05em;
+  padding:3px 9px; border-radius:6px;
+  border:1px solid rgba(255,255,255,.12);
+}
+.kg-shi.kg-shin { color:#c9a44c; border-color:rgba(201,164,76,.45); background:rgba(201,164,76,.10); }
+.kg-shi.kg-jun  { color:#9fb8a8; border-color:rgba(159,184,168,.35); background:rgba(159,184,168,.08); }
+.kg-shi.kg-kirau{ color:#e8837f; border-color:rgba(232,131,127,.35); background:rgba(232,131,127,.08); }
+.kg-shi.kg-none { opacity:.45; }
+
+.kg-body{ font-size:14px; line-height:1.9; margin-top:10px; opacity:.94; }
+
+.kg-haku{
+  font-size:13px; line-height:1.8; margin-top:10px;
+  padding:8px 10px; border-radius:6px;
+  background:rgba(232,131,127,.07);
+  border-left:2px solid rgba(232,131,127,.45);
+}
+
+@media (max-width:480px){
+  .kg-head{ font-size:17px; }
+  .kg-ka{ font-size:18px; }
+  .kg-sei, .kg-body{ font-size:13.5px; line-height:1.85; }
+}
+
+/* 進化干合・退化干合・寅辰 */
+.kg-extra{
+  margin-top:10px; padding:8px 10px; border-radius:6px;
+  font-size:13px; line-height:1.8;
+}
+.kg-extra-good{ background:rgba(201,164,76,.08);  border-left:2px solid rgba(201,164,76,.5); }
+.kg-extra-bad { background:rgba(232,131,127,.07); border-left:2px solid rgba(232,131,127,.5); }
+.kg-extra-head{ display:flex; align-items:center; gap:8px; }
+.kg-extra-good .kg-extra-head b{ color:#c9a44c; }
+.kg-extra-bad  .kg-extra-head b{ color:#e8837f; }
+.kg-extra-where{ font-size:11px; opacity:.7; }
+.kg-extra-body{ margin-top:4px; }
+
+/* ===== 干合 ここまで ===== */
+
+/* ===== 空亡 ここから ===== */
+/* ===== 空亡カード ===== */
+.kuubou-card{ margin-top:18px; }
+.kb-key{
+  font-family:'Shippori Mincho',serif;
+  font-size:26px; font-weight:800; color:#c9a44c;
+  letter-spacing:.15em; margin-top:6px;
+}
+.kb-sec{
+  font-family:'Shippori Mincho',serif;
+  font-size:15px; font-weight:700; color:#c9a44c;
+  letter-spacing:.15em; margin-top:18px; padding-bottom:6px;
+  border-bottom:1px solid rgba(201,164,76,.25);
+}
+.kb-sec2{ color:#9aa3a8; border-bottom-color:rgba(255,255,255,.14); }
+
+.kb-item, .kb-g{ margin-top:12px; }
+.kb-head, .kb-g-head{
+  display:flex; align-items:center; flex-wrap:wrap; gap:8px;
+  font-size:16px;
+}
+.kb-tsu{
+  font-size:12px; letter-spacing:.05em; padding:2px 9px; border-radius:11px;
+  color:#e8837f; background:rgba(232,131,127,.10);
+  border:1px solid rgba(232,131,127,.35);
+}
+.kb-src{ font-size:11px; opacity:.6; }
+.kb-body{ font-size:14px; line-height:1.9; margin-top:6px; opacity:.94; }
+.kb-add{ font-size:13px; line-height:1.85; margin-top:6px; opacity:.8; }
+.kb-save{
+  font-size:13px; line-height:1.8; margin-top:8px;
+  padding:8px 10px; border-radius:6px;
+  background:rgba(201,164,76,.08);
+  border-left:2px solid rgba(201,164,76,.5);
+}
+.kb-none{ font-size:14px; opacity:.55; margin-top:12px; }
+.kb-note{ font-size:12px; opacity:.65; margin-top:10px; line-height:1.7; }
+
+@media (max-width:480px){
+  .kb-key{ font-size:22px; }
+  .kb-body{ font-size:13.5px; }
+}
+
+/* ===== 空亡 ここまで ===== */
+
+
 </style>
 </head>
 <body>
@@ -1407,7 +1523,10 @@ function analyzeMeishiki(yP, mP, dP, hP, hUnknown, nichiKan, kuubou){
   for(const [i,j] of adjKanPairs){
     if(j>=allKans.length) continue;
     if(KANGO[allKans[i].kan]===allKans[j].kan){
-      kangoList.push(allKans[i].label+''+allKans[i].kan+'×'+allKans[j].label+''+allKans[j].kan);
+      // 化五行（甲己→土 など）まで出す：例「月干乙×日干庚＝金」
+      const _ka=KANGO_KA[allKans[i].kan];
+      kangoList.push(allKans[i].label+''+allKans[i].kan+'×'+allKans[j].label+''+allKans[j].kan
+                     +(_ka?'＝'+_ka:''));
     }
   }
   if(kangoList.length>0) results.push('干合：'+kangoList.join('・'));
@@ -1975,7 +2094,9 @@ const TAIKA = 3;
 // 命式にその五行が「ある」と見なす下限
 const ARI = 1;
 // 大過が重なったときの優先順（左が優先）
-const TAIKA_PRIORITY = ['比劫','印星','食傷','財星','官星'];
+// 比劫を最後に置く。比劫大過は木の頑木しか専用タイプが無く、
+// 他の五行では受け皿が「強○」しかないため、他の大過があればそちらを優先する。
+const TAIKA_PRIORITY = ['印星','食傷','財星','官星','比劫'];
 
 // ===== 判定 =====
 function judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, zkAdopt){
@@ -2727,6 +2848,8 @@ const TYPES = [
     // ※このタイプは本書に該当ページが無く、他四行の「強」タイプの構成に倣って作成した草案。
     //   本書由来の文章ではないため、差し替える場合はこのブロックごと入れ替える。
     name:'強水', yomi:'きょうすい', gogyo:'水', expectBand:['強','中強'], draft:true,
+    // 他の大過（印星・食傷・財星・官星）があれば、そちらのタイプを優先する。
+    // ここに来るのは、大過が無いか、比劫大過だけの場合。
     cond: ctx => ctx.taikaTop === '比劫'
               || (ctx.taika.length === 0 && (ctx.band === '強' || ctx.band === '中強')),
     lead:'水が強い命',
@@ -2771,6 +2894,383 @@ const TYPES = [
     ]
   }
 ];
+
+
+// ===== 干合 ここから =====
+// ===== 干合（化五行）のデータと判定 =====
+// 原典に基づく。判定は「生月か生時の支」で見る（本文どおり）。
+
+const KANGO_DATA = {
+  土: {
+    pair:'甲己化土', ka:'戊', alias:'中正の合',
+    seishitsu:'物事を公平に判断できる性質がある。',
+    shinka:'丑辰未戌',            // 化五行そのものの気（土気）
+    junzuru:'巳午',              // 化した土を助ける火気
+    kirau:'寅卯・亥子',           // 土を剋す木気、土に剋される水気
+    shinkaTxt:'生月か生時に土気（丑辰未戌）があれば真化の命となり、福分厚く中流以上の生活を保持して幸福です。',
+    junzuruTxt:'月柱か時柱の支に、真化の命となる土を助ける火気の巳午があれば、真化の命に準じて幸運。',
+    kirauTxt:'月柱か時柱の支に、真化の土を剋し剋される木気の寅卯か水気の亥子があれば、日頃苦労が多く思慮深い人であっても成功することなし。行運も同じく嫌う。',
+    kangoOnly:[
+      '化土した土を助ける火が命中に多いか月か時柱にあれば名利を得られます。',
+      '化土した土を漏らす金が命中に多いか月か時柱に申酉の支があれば福力弱い。',
+      '化土した土が剋する水が命中に多いか月か時柱にあれば福力弱い。',
+      '化土した土を剋する木気が月か時柱にあれば義理を欠き恥を知らずで自我が強くなって人に嫌われます。'
+    ]
+  },
+  金: {
+    pair:'乙庚化金', ka:'庚', alias:'仁義の合',
+    seishitsu:'義理を大切にする。福分も厚く幸福です。',
+    shinka:'申酉',
+    junzuru:'丑辰未戌',
+    kirau:'巳午・寅卯',
+    shinkaTxt:'月柱か時柱に金気（申酉）があれば真化の命となり、福分も厚く幸福です。',
+    junzuruTxt:'月柱か時柱の支に、真化の命となる金を助ける土気の辰未戌丑があれば真化の命に準じて幸運。',
+    kirauTxt:'月柱か時柱の支に、真化の命となる化金を剋し剋される火気の巳午か木気の寅卯があれば日頃苦労多し。行運も同じく嫌う。',
+    kangoOnly:[
+      '化金と同じ金が命中にあるか、金を助ける土が命中にあれば名利あり。しかし強い火の行運が巡って来た時は、真化の命が成立していても化金した日干を剋しますから、志望の達成が得がたく不運に見舞われる。'
+    ]
+  },
+  水: {
+    pair:'丙辛化水', ka:'壬', alias:'威制の合',
+    seishitsu:'どことなく威厳があって取っつき難い。この干合は偏屈な人が多く、または色欲が旺盛です。',
+    shinka:'亥子',
+    junzuru:'申酉',
+    kirau:'辰未戌丑・巳午',
+    shinkaTxt:'月柱か時柱に水の亥子があれば真化の命となり、中流以上の生活を保持して幸福です。',
+    junzuruTxt:'月柱か時柱の支に、真化の命となる水の代わりに水を助ける金の申酉があれば名利あり。',
+    kirauTxt:'月柱か時柱の支に、真化の命となる化水を剋し剋される土気の辰未戌丑か火気の巳午があれば、真化の命を破って福分が薄く、他にも土があれば貧となる、または一生浮き草の如き漂流の人生となる。行運も同じく嫌う。',
+    kangoOnly:[
+      '命式中に化水と同じ水があるか、水を助ける金があれば幸運。',
+      '命式中に化水の水を制する土が多ければ苦心の人となる。'
+    ]
+  },
+  木: {
+    pair:'丁壬化木', ka:'甲', alias:'淫欲の合',
+    seishitsu:'異性にモテやすい。命中に色情の星があるとそれが過ぎるので「淫欲の合」と言う。要するに男女ともに死・絶・偏官・咸池が命中にある人は、淫乱の傾向がある。',
+    shinka:'寅卯',
+    junzuru:'亥子',
+    kirau:'申酉・辰未戌丑',
+    shinkaTxt:'生月か生時に木気（寅卯）があれば真化の命となって福力厚く中流以上の生活が保障されます。この干合は淫欲の合と称して聊かに異性関係も御盛んとなる。',
+    junzuruTxt:'月柱か時柱の支に、真化の命となる寅卯の代わりに木気を助ける水の亥子があれば真化の命に準じて幸運。',
+    kirauTxt:'月柱か時柱の支に、真化の命となる化木を剋し剋される金気の申酉か土気の辰未戌丑があれば、日頃苦労多し。',
+    kangoOnly:[
+      '命中に化木の木が強ければ、文化的な仕事（作家や作曲・作詞家などの文化芸術）によって名声あり。',
+      '化木の木を助ける水があれば成功のチャンスあり。',
+      '化木を剋する金が多いと苦心苦労が多く目的も達成できない。'
+    ]
+  },
+  火: {
+    pair:'戊癸化火', ka:'丙', alias:'無情の合',
+    seishitsu:'男女共に年の離れた人と所帯を持つ。人情がありそうで薄い（薄情ではない）。',
+    shinka:'巳午',
+    junzuru:'寅卯',
+    kirau:'亥子・申酉',
+    shinkaTxt:'生月か生時に火気（巳午）があれば真化の命となり福力厚く中流以上の生活をする。この干合のある人は年齢よりも若く見られ、若いときは年配者と、老いてからは若い人と結婚します。また人目に立つ華やかさがあり気分の変化が多い。',
+    junzuruTxt:'月柱か時柱の支に、真化の命となる巳午の代わりに火気を助ける木の寅卯があれば真化の命に準じて幸運。',
+    kirauTxt:'月柱か時柱の支に、真化の命となる化火を剋し剋される水気の亥子か金気の申酉があれば、日頃苦労多し。行運も同じく嫌う。',
+    kangoOnly:[
+      '命中に化火の火が強ければ何かと幸運。',
+      '命中に化火の火を剋する水が多ければ、苦心苦労の命。'
+    ]
+  }
+};
+
+// 干合の組（隣接する柱どうしのみ）
+const KANGO_PAIR = {甲:'己',己:'甲',乙:'庚',庚:'乙',丙:'辛',辛:'丙',丁:'壬',壬:'丁',戊:'癸',癸:'戊'};
+const KANGO_TO   = {甲:'土',己:'土',乙:'金',庚:'金',丙:'水',辛:'水',丁:'木',壬:'木',戊:'火',癸:'火'};
+
+// ===== 判定 =====
+// 生月・生時の支を見て、真化 / 準ずる / 嫌う / 干合のみ を決める
+function judgeKango(yP, mP, dP, hP, hUnknown){
+  const kans = [
+    {pos:'年干', kan:yP.kan}, {pos:'月干', kan:mP.kan},
+    {pos:'日干', kan:dP.kan}
+  ];
+  if(!hUnknown) kans.push({pos:'時干', kan:hP.kan});
+
+  // 隣り合う柱どうしだけを見る。日干がからむものを優先。
+  const order = [[1,2],[2,3],[0,1]];
+  const found = [];
+  const used = new Set();
+  for(const [i,j] of order){
+    if(i>=kans.length || j>=kans.length) continue;
+    if(used.has(i) || used.has(j)) continue;
+    if(KANGO_PAIR[kans[i].kan] !== kans[j].kan) continue;
+    used.add(i); used.add(j);
+
+    const g = KANGO_TO[kans[i].kan];
+    const D = KANGO_DATA[g];
+
+    // 生月・生時の支（本文どおり、この2つで見る）
+    const shis = [{label:'月支', shi:mP.shi}];
+    if(!hUnknown) shis.push({label:'時支', shi:hP.shi});
+
+    const hitIn = (list) => shis.filter(s => list.includes(s.shi));
+    const sh  = hitIn(D.shinka);
+    const jz  = hitIn(D.junzuru);
+    const kr  = hitIn(D.kirau.replace('・',''));
+
+    let rank, rankTxt, body;
+    if(sh.length){      rank='真化';   rankTxt='真化の命';        body=D.shinkaTxt; }
+    else if(jz.length){ rank='準';     rankTxt='真化に準ずる';    body=D.junzuruTxt; }
+    else if(kr.length){ rank='嫌';     rankTxt='真化を嫌う形';    body=D.kirauTxt; }
+    else {              rank='合のみ'; rankTxt='干合だけの場合';  body=null; }
+
+    found.push({
+      pos1:kans[i].pos, kan1:kans[i].kan,
+      pos2:kans[j].pos, kan2:kans[j].kan,
+      gogyo:g, data:D, rank, rankTxt, body,
+      shis, hitShinka:sh, hitJunzuru:jz, hitKirau:kr,
+      withDay: kans[i].pos==='日干' || kans[j].pos==='日干'
+    });
+  }
+  // ---- 進化干合・退化干合・寅辰（干合が成立しているときだけ見る）----
+  if(found.length){
+    const dS = dP.shi, hS = hUnknown ? null : hP.shi;
+    const allShi = [yP.shi, mP.shi, dP.shi].concat(hUnknown ? [] : [hP.shi]);
+
+    const extra = [];
+    // 進化干合：生日または生時に辰
+    const shinkaHit = [dS==='辰'?'日支':null, hS==='辰'?'時支':null].filter(Boolean);
+    if(shinkaHit.length){
+      extra.push({
+        name:'進化干合', kind:'good',
+        where:shinkaHit.join('・'),
+        text:'命中の天干同士が干合して、生日または生時に辰ある時は、功名を達成できる命なり。'
+           + (hS==='辰' ? '<br>※特に辰の時間帯に生まれた人は晩年になって有形無形の成功と喜びを得る。' : '')
+      });
+    }
+    // 退化干合：生日または生時に巳
+    const taikaHit = [dS==='巳'?'日支':null, hS==='巳'?'時支':null].filter(Boolean);
+    if(taikaHit.length){
+      extra.push({
+        name:'退化干合', kind:'bad',
+        where:taikaHit.join('・'),
+        text:'命中の天干同士が干合して、生日または生時に巳ある時は、好運中な中にも凶災が発生する。'
+      });
+    }
+    // 寅と辰が揃う
+    if(allShi.includes('寅') && allShi.includes('辰')){
+      extra.push({
+        name:'寅辰あり', kind:'good', where:'命中',
+        text:'干合の有無に関係なく、命中に寅と辰の支があると運も強く幸運です。'
+           + '<br>※比劫大過とか破格などの特異で凶となる命式を除いて。'
+      });
+    }
+    if(extra.length) found[0].extra = extra;
+  }
+
+  return found;
+}
+
+
+// ===== 表示 =====
+function renderKango(list){
+  if(!list || !list.length) return '';
+
+  const cards = list.map(k => {
+    const D = k.data;
+
+    // 生月・生時の支が、どれに当たったか
+    const shiRows = k.shis.map(s => {
+      let mark='', cls='kg-none';
+      if(k.hitShinka.includes(s))   { mark='真化の気'; cls='kg-shin'; }
+      else if(k.hitJunzuru.includes(s)){ mark='助ける気'; cls='kg-jun'; }
+      else if(k.hitKirau.includes(s))  { mark='嫌う気';  cls='kg-kirau'; }
+      else mark='―';
+      return '<span class="kg-shi '+cls+'">'+s.label+' '+s.shi+'　'+mark+'</span>';
+    }).join('');
+
+    const rankCls = k.rank==='真化'?'kg-shin':k.rank==='準'?'kg-jun':k.rank==='嫌'?'kg-kirau':'kg-none';
+
+    const body = k.body
+      ? '<div class="kg-body">'+k.body+'</div>'
+      : '<div class="kg-body">'+D.kangoOnly.map(t=>'・'+t).join('<br>')+'</div>';
+
+    // 真化・準ずるのときは、破格の注意も出す
+    const haku = (k.rank==='真化'||k.rank==='準')
+      ? '<div class="kg-haku">※破格の時期　大運や歳運で'+k.gogyo+'を剋する行運が巡ると、'
+        + '真化の命が破れて一転して不運となります。</div>'
+      : '';
+
+    // 進化干合・退化干合・寅辰
+    const extraHtml = (k.extra||[]).map(e =>
+      '<div class="kg-extra '+(e.kind==='bad'?'kg-extra-bad':'kg-extra-good')+'">'
+      + '<div class="kg-extra-head"><b>'+e.name+'</b>'
+      + '<span class="kg-extra-where">'+e.where+'</span></div>'
+      + '<div class="kg-extra-body">'+e.text+'</div>'
+      + '</div>').join('');
+
+    return '<div class="kg-item">'
+      + '<div class="kg-head">'
+      +   '<b>'+k.pos1+k.kan1+' × '+k.pos2+k.kan2+'</b>'
+      +   '<span class="kg-ka">＝ '+k.gogyo+'</span>'
+      +   '<span class="kg-rank '+rankCls+'">'+k.rankTxt+'</span>'
+      + '</div>'
+      + '<div class="kg-name">'+D.pair+'　「'+D.alias+'」</div>'
+      + '<div class="kg-sei">'+D.seishitsu+'</div>'
+      + '<div class="kg-shis">'+shiRows+'</div>'
+      + body
+      + haku
+      + extraHtml
+      + '</div>';
+  }).join('');
+
+  return '<div class="card kango-card">'
+       + '<div class="lamp">干合</div>'
+       + cards
+       + '</div>';
+}
+
+// ===== 干合 ここまで =====
+
+// ===== 空亡 ここから =====
+// ===== 空亡 =====
+// 主：命式の中に空亡している柱があるか（その柱の通変星を見る）
+// 従：空亡の五行そのものを日干から見た通変星（おまけ）
+
+// 空亡ごとの五行。戌亥・辰巳は真空の別で決まるため一つに定まらない。
+const KUUBOU_GOGYO = {
+  '申酉': ['金'],
+  '午未': ['火'],
+  '寅卯': ['木'],
+  '子丑': ['水'],
+  '戌亥': ['土','水'],   // 戌＝土 / 亥＝水
+  '辰巳': ['土','火']    // 辰＝土 / 巳＝火
+};
+
+// ---- 従：五行そのものの空亡（5種）----
+const KUUBOU_GOGYO_TXT = {
+  比劫:'男女共に兄弟姉妹友人からの協力が得られず、自分もその人たちと意見が合わないとか毛嫌いして孤独となる。',
+  食傷:'男女ともに財星の根の食傷を空亡してるので金運が良くないので商売人には向かない。身体も細身で、女性は子供が頼りにならないか出来ない。',
+  財星:'男女ともに父との縁が薄く、金運が良くなく金銭には希薄となり、男性は結婚運が無い。',
+  官星:'男女ともに希望する仕事に就けず、中には働くのも嫌な人もある。社会的な地位名誉の縁も薄くなる。男性は子供が頼りにならないし、女性は結婚運が良くない。',
+  印星:'社交性が悪く、人の引き立てを受け入れ難い。男女ともに母親との縁が悪くなり、真の信仰心（先祖供養などを怠るなど）が無くなる。※新興宗教に騙されることがあるので要注意です。'
+};
+
+// ---- 主：空亡した柱にある通変星（10種）----
+// txt  … 要点
+// save … 救いの条件（あれば凶意が消えるか転じる）
+const KUUBOU_TSUHEN = {
+  比肩:{
+    txt:'男子は父を剋し妻を剋す。父の生命は長く保ちがたく、若し父が生存していたら貧苦苦難の逆境となる。女性は夫と子供に縁が薄くなる。',
+    add:'比肩は兄弟姉妹星なので、兄弟姉妹があれば同居は愚か交流も疎にしてわが身を守るべし。'
+  },
+  劫財:{
+    txt:'下賎甚だしく、無情・無慈悲・無法・不道徳にして筆舌の蝕す所にあらず、貧汚・猜疑・嫉妬等の性質は本命の特質にして破廉恥罪を犯すは概ね此命である。',
+    save:'四柱中に正官があれば却って大発展を遂ぐ（劫財に隣接してない正官は役に立たない。偏官ではあっても無駄）。',
+    add:'兄弟姉妹との縁もありませんが、もし親密なればその兄弟姉妹の運勢も甚だ下級となる。万が一にも兄弟身内親類にこのような命式の人居らば、早急に交際を疎にして我が身を守る事。'
+  },
+  食神:{
+    txt:'概して本人は短命で若しくは早く母を失うか、幼年時に乳に不足を来すか、成長の後に妻の親と不和を生ずるか、妻の実家に迷惑を及ぼすかする。',
+    save:'四柱中に財星があれば悪運一変して幸運となり開運する。且つ食神となる柱に支合・三合ある場合にも空亡は悄滅す。'
+  },
+  傷官:{
+    txt:'もし年上に傷官があって空亡すれば祖先を剋し（先祖供養もしないで先祖を貶める行為をする）、遺産・遺徳を得ることなく、異郷を彷徨い薄命・薄幸の人となる。',
+    save:'但しこの柱に「合」あれば空亡の災いは消滅する。'
+  },
+  正財:{
+    txt:'福徳薄く、万が一にも一たび幸運に見舞われても久しからずして、運気運勢は衰退に傾き、其多くは中年に発達して晩年に衰微する。男子は妻縁薄く、婦人は夫の縁薄きを免かれず。',
+    add:'本来正財は吉星であるが、惜い哉、空亡のために其稟質（りんしつ）を悪化されて財力を失うことになる。'
+  },
+  偏財:{
+    txt:'空亡に遇えば父の徳を得ること少なく、生家の継続もなさねば遺産も其身に備はらず、本人出生すれば其父多くは死亡するか、又は運を破り不倖に陥るか、若くは父子隔離するか、何れにしても父縁薄き質を分たるを免れない。'
+  },
+  正官:{
+    txt:'身分の高い人物に目をかけられる事もなければ官途の立身も望みがたく、権威を墜し、世人の軽侮を招き、融通つかず、徒に不幸繁くして、行路難を嘲つの人である。女子でこの命は夫を剋す。この様な女性と結婚する者は久しからずして生命を失うか、或は家運の衰滅を来すか、何れかは免れぬ。',
+    save:'四柱中に正財偏財あれば安全にして、又印綬あるも吉。',
+    add:'然し四柱中に正財偏財あれば老後一度は福分を奪われるを免かれぬ。'
+  },
+  偏官:{
+    txt:'目上や上司からの愛顧を受くること少なく、女性は夫縁薄く且つ権威も備わらない。'
+  },
+  印綬:{
+    txt:'男女ともに親伝来の資産を得がたく、本人出生すれば家計の哀頽を招くか、若くは其母が不幸に陥るか。元々印綬は吾を成育する母なるが故に、母子の同居は甚だ宜しくない。若し家産あれば骨肉親縁或は他人に横領せらるゝか、さなくば中年に及んで喪失するか、何れにせよ永遠に保持することは不可能である。'
+  },
+  倒食:{
+    txt:'祖先を剋すること激甚にして、幾代継続する旧家に生れても本人の代に到り零落衰敗に傾き、家計艱難となり不幸のどん底に落ち、住み慣れし祖先の家も他人の手に渡り、終生災禍打続き萌芽開運の春なく、窮途に迷ひ種々の志望悉く水泡に帰し、却って希望のため其痛苦を増し、挙句、毛を吹いて疵（きず）を求むるの類に終り、天地に俯仰して感情するも幸運際会せず、遂に社会の冷鬼となりて幸福を発す、財星なければ開運なし。',
+    save:'但し四柱中に偏財あれば倒食は暴威を逞するを許さず却って幸福を発す。財星なければ開運なし。',
+    tekigyo:'技術家、師範、教師、學者、芸術家等。'
+  }
+};
+
+// ===== 判定 =====
+// kuubou   … ['子','丑'] のような配列
+// pillars  … [{label:'年柱', kan, shi}, ...]（日柱は蔵干で見るので zk を渡す）
+function judgeKuubou(kuubou, nK, pillars, zkDay){
+  const key = kuubou.join('');
+  const gs  = KUUBOU_GOGYO[key] || [];
+
+  // --- 従：空亡の五行が、日干から見て何星か ---
+  const tsu = tsuhenMap(KAN_GOGYO[nK]);
+  const rev = {};
+  for(const k in tsu) rev[tsu[k]] = k;
+  const gogyoSide = gs.map(g => ({
+    gogyo:g, hoshi:rev[g], text:KUUBOU_GOGYO_TXT[rev[g]] || ''
+  }));
+
+  // --- 主：空亡している柱 ---
+  const hit = [];
+  for(const p of pillars){
+    if(!p || !kuubou.includes(p.shi)) continue;
+    // 日柱の天干は日干そのもの（＝自分）なので通変星が無い。採用蔵干で見る。
+    const useKan = (p.label === '日柱') ? zkDay : p.kan;
+    const src    = (p.label === '日柱') ? '蔵干' : '天干';
+    if(!useKan){ hit.push({...p, tsuuhen:null, src, data:null}); continue; }
+    let t = getTsuuhensei(nK, useKan);
+    if(t === '偏印') t = '倒食';        // 本書の呼び方に合わせる
+    hit.push({ label:p.label, kan:p.kan, shi:p.shi, useKan, src,
+               tsuuhen:t, data:KUUBOU_TSUHEN[t] || null });
+  }
+
+  return { key, gogyoSide, hit, uncertain: gs.length > 1 };
+}
+
+// ===== 表示 =====
+function renderKuubou(res){
+  if(!res) return '';
+
+  // --- 主：空亡した柱 ---
+  const hitHtml = res.hit.length ? res.hit.map(h => {
+    const D = h.data;
+    if(!D) return '<div class="kb-item"><div class="kb-head"><b>'
+      + h.label + '（' + h.shi + '）</b></div></div>';
+    return '<div class="kb-item">'
+      + '<div class="kb-head"><b>' + h.label + '（' + h.shi + '）</b>'
+      +   '<span class="kb-tsu">' + h.tsuuhen + ' 空亡</span>'
+      +   '<span class="kb-src">' + h.src + ' ' + h.useKan + '</span>'
+      + '</div>'
+      + '<div class="kb-body">' + D.txt + '</div>'
+      + (D.add  ? '<div class="kb-add">'  + D.add  + '</div>' : '')
+      + (D.save ? '<div class="kb-save">救い　' + D.save + '</div>' : '')
+      + (D.tekigyo ? '<div class="kb-add">適業　' + D.tekigyo + '</div>' : '')
+      + '</div>';
+  }).join('') : '<div class="kb-none">命式に空亡の支はありません。</div>';
+
+  // --- 従：五行としての空亡 ---
+  const gsHtml = res.gogyoSide.map(g =>
+    '<div class="kb-g">'
+    + '<div class="kb-g-head"><b>' + g.hoshi + '空亡</b>'
+    +   '<span class="kb-src">' + res.key + '＝' + g.gogyo + '</span></div>'
+    + '<div class="kb-body">' + g.text + '</div>'
+    + '</div>').join('')
+    + (res.uncertain
+       ? '<div class="kb-note">※' + res.key
+         + 'に決まった五行はありません。何れが真空かでその五行が決まります。</div>'
+       : '');
+
+  return '<div class="card kuubou-card">'
+       + '<div class="lamp">空亡</div>'
+       + '<div class="kb-key">' + res.key + '</div>'
+       + '<div class="kb-sec">空亡した柱</div>'
+       + hitHtml
+       + '<div class="kb-sec kb-sec2">五行としての空亡（参考）</div>'
+       + gsHtml
+       + '</div>';
+}
+
+// ===== 空亡 ここまで =====
+
 
 // ===== 命式タイプ ここまで =====
 
@@ -3269,6 +3769,11 @@ function calculate(){
           '</div>';
       })()}
     </div>
+    ${renderKango(judgeKango(yP, mP, dP, hP, hUnknown))}
+    ${renderKuubou(judgeKuubou(kuubou, nK,
+        [{label:'年柱',kan:yP.kan,shi:yP.shi},{label:'月柱',kan:mP.kan,shi:mP.shi},
+         {label:'日柱',kan:dP.kan,shi:dP.shi}].concat(hUnknown?[]:[{label:'時柱',kan:hP.kan,shi:hP.shi}]),
+        ZK_ADOPT['日柱']))}
     <div class="card" style="text-align:center;">
       <div class="form-title">別の角度から見る</div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:14px;">

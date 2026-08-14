@@ -1732,6 +1732,23 @@ function yojinHantei(nichiKan, targetGogyo, total){
   return ['insho','hikyu'].includes(rel)?'○':'✕';
 }
 
+// ===== 天戦地冲 =====
+// 日柱に対して、干が同じ陰陽で剋し合い、かつ支が冲する組み合わせ。
+// 例：日柱 庚申 に対して 甲寅（庚⇔甲の七殺、申⇔寅の冲）
+// 剋す側 → 剋される側（同じ陰陽どうし＝七殺の関係）
+const TENSEN_KAN = {甲:'戊',乙:'己',丙:'庚',丁:'辛',戊:'壬',己:'癸',庚:'甲',辛:'乙',壬:'丙',癸:'丁'};
+const TENSEN_SHI = {子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',
+                    卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
+
+function isTensenChichu(dayKan, dayShi, kan, shi){
+  if(!dayKan || !dayShi || !kan || !shi) return false;
+  // 干：七殺（同じ陰陽で剋し合う）
+  const kanOk = (TENSEN_KAN[dayKan] === kan) || (TENSEN_KAN[kan] === dayKan);
+  // 支：冲
+  const shiOk = (TENSEN_SHI[dayShi] === shi);
+  return kanOk && shiOk;
+}
+
 // ===== 年運計算 =====
 // 甲子=1984年を基準に60干支を回す
 function getYearKanShi(year){
@@ -2923,23 +2940,6 @@ const TYPES = [
 ];
 
 
-// ===== 天戦地冲 =====
-// 日柱に対して、干が同じ陰陽で剋し合い、かつ支が冲する組み合わせ。
-// 例：日柱 庚申 に対して 甲寅（庚⇔甲の七殺、申⇔寅の冲）
-// 剋す側 → 剋される側（同じ陰陽どうし＝七殺の関係）
-const TENSEN_KAN = {甲:'戊',乙:'己',丙:'庚',丁:'辛',戊:'壬',己:'癸',庚:'甲',辛:'乙',壬:'丙',癸:'丁'};
-const TENSEN_SHI = {子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',
-                    卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
-
-function isTensenChichu(dayKan, dayShi, kan, shi){
-  if(!dayKan || !dayShi || !kan || !shi) return false;
-  // 干：七殺（同じ陰陽で剋し合う）
-  const kanOk = (TENSEN_KAN[dayKan] === kan) || (TENSEN_KAN[kan] === dayKan);
-  // 支：冲
-  const shiOk = (TENSEN_SHI[dayShi] === shi);
-  return kanOk && shiOk;
-}
-
 // ===== 干合 ここから =====
 // ===== 干合（化五行）のデータと判定 =====
 // 原典に基づく。判定は「生月か生時の支」で見る（本文どおり）。
@@ -3536,7 +3536,7 @@ function calculate(){
     ].join('');
     const nowSty=isNow?'color:var(--kin2);font-weight:700;':'';
     const nowBg=isNow?'background:rgba(201,164,76,.12);':'';
-    const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
+    const tdSty='padding:10px 10px;line-height:1.6;border-bottom:1px solid rgba(201,164,76,.1);';
     // 五行の調和：用神判定
     const daiiTotal=total;
     // 大運の赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う
@@ -3589,16 +3589,19 @@ function calculate(){
     const shiMark=markOf(shiTsuuhen_d, false);
     const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
-      '<td style="'+tdSty+'font-size:17px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
-      '<td style="'+tdSty+'font-size:17px;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
-      '<td class="dai-kanshi" style="'+tdSty+'font-size:22px;'+nowSty+'">'+
-        '<span class="dai-ks'+(isTensenChichu(dP.kan,dP.shi,r.kan,r.shi)?' tensen':'')+'">'+
+      '<td style="'+tdSty+'font-size:18px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
+      '<td style="'+tdSty+'font-size:18px;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
+      '<td class="dai-kanshi" style="'+tdSty+'font-size:21px;font-family:Shippori Mincho,serif;'+nowSty+'">'+
+        '<span class="dai-ks">'+
           // 細分行は干支が上と同じになるので干は出さない。
           // ただし場所は空けておき、支の位置が上下でそろうようにする。
           '<span style="color:#e0c478;font-size:13px;margin-right:2px;'+(isSub?'visibility:hidden;':'')+'">'+kanMark+'</span>'+
-          '<span style="'+(isSub?'visibility:hidden;':'')+kiimiColor(KAN_GOGYO[r.kan],KIIMI)+'">'+r.kan+'</span>'+
-          '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
-          '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
+          // 天戦地冲の下線は、干と支の2文字だけに絞る
+          '<span class="'+(isTensenChichu(dP.kan,dP.shi,r.kan,r.shi)?'tensen':'')+'">'+
+            '<span style="'+(isSub?'visibility:hidden;':'')+kiimiColor(KAN_GOGYO[r.kan],KIIMI)+'">'+r.kan+'</span>'+
+            '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
+            '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
+          '</span>'+
           (segZk?'<span class="dai-zk" style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI)||'color:var(--kin);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
         '</span>'+
         (isSub?'':'<span class="dai-tags">'+tags+'</span>')+

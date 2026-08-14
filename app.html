@@ -3589,8 +3589,8 @@ function calculate(){
     const shiMark=markOf(shiTsuuhen_d, false);
     const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
-      '<td style="'+tdSty+'font-size:18px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
-      '<td style="'+tdSty+'font-size:18px;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
+      '<td style="'+tdSty+'font-size:18px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;white-space:nowrap;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
+      '<td style="'+tdSty+'font-size:18px;white-space:nowrap;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
       '<td class="dai-kanshi" style="'+tdSty+'font-size:21px;font-family:Shippori Mincho,serif;'+nowSty+'">'+
         '<span class="dai-ks">'+
           // 細分行は干支が上と同じになるので干は出さない。

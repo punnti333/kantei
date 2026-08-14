@@ -23,14 +23,12 @@ body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--sumi);color:v
   .dai-kanshi .dai-tags{display:block;margin-top:4px;margin-left:0;line-height:1.9;}
   .dai-kanshi .dai-tags > span{margin-left:0 !important;margin-right:4px;display:inline-block;
     white-space:nowrap;margin-bottom:3px;}
-  #daiin-table td{padding:6px 5px !important;font-size:15px !important;}
-  .dai-kanshi{font-size:19px !important;}
+  /* 年運と同じ見え方にするため、大運を縮める指定は置かない */
   /* 細分行の字下げを浅くして、幅を稼ぐ */
   #daiin-table td[style*="padding-left:52px"]{padding-left:16px !important;}
 }
 @media (max-width:380px){
-  #daiin-table td{padding:5px 3px !important;font-size:14px !important;}
-  .dai-kanshi{font-size:18px !important;}
+  /* 年運に合わせるため、ここでも縮めない */
 }
 
 /* ===== 会員ゲート（codoc・月1,000円） ===== */
@@ -287,12 +285,20 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 
 /* 大運の（蔵干）：スマホでは控えめに */
 @media (max-width:600px){
-  .dai-zk{ font-size:15px !important; margin-left:2px !important; }
+  .dai-zk{ font-size:19px !important; margin-left:4px !important; }
 }
 @media (max-width:380px){
-  .dai-zk{ font-size:14px !important; }
+  .dai-zk{ font-size:18px !important; }
 }
 /* ===== 命式タイプ ここまで ===== */
+
+/* 天戦地冲：日柱と干支ともに衝突する巡り */
+.tensen{
+  text-decoration:underline;
+  text-decoration-color:#e0453c;
+  text-decoration-thickness:2.5px;
+  text-underline-offset:4px;
+}
 
 /* ===== 干合 ここから ===== */
 /* ===== 干合カード ===== */
@@ -1831,8 +1837,10 @@ function updateNengun(){
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
       '<td style="'+tdSty+'font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
-         '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
-         '<span>'+ks.shi+'</span>'+
+         '<span class="'+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':'')+'">'+
+           '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
+           '<span>'+ks.shi+'</span>'+
+         '</span>'+
          tags+'</td>'+
       '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'"><span class="nengun-kaza"><span>'+palace+'</span>'+kaiMark+'</span></td>'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+'">'+age+'歳</td>'+
@@ -2915,6 +2923,23 @@ const TYPES = [
 ];
 
 
+// ===== 天戦地冲 =====
+// 日柱に対して、干が同じ陰陽で剋し合い、かつ支が冲する組み合わせ。
+// 例：日柱 庚申 に対して 甲寅（庚⇔甲の七殺、申⇔寅の冲）
+// 剋す側 → 剋される側（同じ陰陽どうし＝七殺の関係）
+const TENSEN_KAN = {甲:'戊',乙:'己',丙:'庚',丁:'辛',戊:'壬',己:'癸',庚:'甲',辛:'乙',壬:'丙',癸:'丁'};
+const TENSEN_SHI = {子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',
+                    卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
+
+function isTensenChichu(dayKan, dayShi, kan, shi){
+  if(!dayKan || !dayShi || !kan || !shi) return false;
+  // 干：七殺（同じ陰陽で剋し合う）
+  const kanOk = (TENSEN_KAN[dayKan] === kan) || (TENSEN_KAN[kan] === dayKan);
+  // 支：冲
+  const shiOk = (TENSEN_SHI[dayShi] === shi);
+  return kanOk && shiOk;
+}
+
 // ===== 干合 ここから =====
 // ===== 干合（化五行）のデータと判定 =====
 // 原典に基づく。判定は「生月か生時の支」で見る（本文どおり）。
@@ -3567,7 +3592,7 @@ function calculate(){
       '<td style="'+tdSty+'font-size:17px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
       '<td style="'+tdSty+'font-size:17px;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
       '<td class="dai-kanshi" style="'+tdSty+'font-size:22px;'+nowSty+'">'+
-        '<span class="dai-ks">'+
+        '<span class="dai-ks'+(isTensenChichu(dP.kan,dP.shi,r.kan,r.shi)?' tensen':'')+'">'+
           // 細分行は干支が上と同じになるので干は出さない。
           // ただし場所は空けておき、支の位置が上下でそろうようにする。
           '<span style="color:#e0c478;font-size:13px;margin-right:2px;'+(isSub?'visibility:hidden;':'')+'">'+kanMark+'</span>'+
@@ -3955,7 +3980,7 @@ function calculate(){
   if(!hUnknown&&hShiG2_pre!==nG2_pre){if(hKanG2_pre===nG2_pre||dShiG2_pre===nG2_pre)adjG2.add(hShiG2_pre);}
 
   // 年運描画
-  window._nengunData={KIIMI, dShi:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, effectiveTotal:effectiveTotalForLuck, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])], mKan:mP.kan, mShi:mP.shi, yKan:yP.kan, yShi:yP.shi};
+  window._nengunData={KIIMI, dKan:dP.kan, dShi:dP.shi, dShi2:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, effectiveTotal:effectiveTotalForLuck, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])], mKan:mP.kan, mShi:mP.shi, yKan:yP.kan, yShi:yP.shi};
   updateNengun();
 
   document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});

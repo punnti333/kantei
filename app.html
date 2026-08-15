@@ -499,7 +499,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608150639';
+var APP_VERSION = '202608150659';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -3428,8 +3428,10 @@ function calculate(){
   const kuubou=getKuubou(dP.num);
   const ryo=getTokuryo(nK,mP,y,m,d);
   const chiShis=hUnknown?[yP.shi,dP.shi]:[yP.shi,dP.shi,hP.shi];
-  const toucans=hUnknown?[yP.kan,mP.kan]:[yP.kan,mP.kan,hP.kan];
-  const chi=getTokuchi(nK,chiShis,toucans);
+  // 身強身弱の合計点は、通根そのものの強さだけで見る。
+  // 「天干に同じ字が出ていれば通根力2倍（透干）」は、通根とは別の技法として扱い、
+  // ここでは使わない（getTokuchi に toucans を渡さなければ2倍処理は働かない）。
+  const chi=getTokuchi(nK,chiShis,null);
   const sei=null; // 得勢廃止（得令＋得地の2本柱に統一）
   const total=Math.round((ryo.score+chi.score)*10)/10;
   const _daysAfterSetsuCB=(mP.startUTC!=null)?Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000):null;

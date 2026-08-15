@@ -505,7 +505,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608151257';
+var APP_VERSION = '202608151308';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1072,7 +1072,7 @@ function getTokuryo(nK,mP,y,m,d){
   // ※試験的に基礎点を半分にしている（一般的には旺+3〜死-3が標準）。
   //   月支1本の評価が強すぎて、他の柱にある比劫の多さを覆してしまう
   //   ケースがあったための調整。教科書どおりに戻す場合は BASE_HALF=false に。
-  const BASE_HALF = true;
+  const BASE_HALF = false;
   const _hw = BASE_HALF ? 0.5 : 1;
   let state,base;
   if(nG===cmdG){state='旺';base=3*_hw;}

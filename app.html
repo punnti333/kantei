@@ -305,7 +305,13 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 /* 天戦地冲：日柱と干支ともに衝突する巡り */
 .tensen{
   text-decoration:underline;
-  text-decoration-color:#e0453c;
+  text-decoration-color:#e0453c;   /* 日柱との天戦地冲：赤 */
+  text-decoration-thickness:2.5px;
+  text-underline-offset:4px;
+}
+.tensen-m{
+  text-decoration:underline;
+  text-decoration-color:#c78fff;   /* 月柱との天戦地冲：干合と同じ紫 */
   text-decoration-thickness:2.5px;
   text-underline-offset:4px;
 }
@@ -499,7 +505,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608150659';
+var APP_VERSION = '202608150816';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1493,8 +1499,10 @@ function getSangouGroup(shi){
   return SANGOU.find(g=>g.includes(shi))||null;
 }
 
-function getRelations(dShi, tShi, meishiki){
+function getRelations(dShi, tShi, meishiki, extra){
   const tags=[];
+  // 月柱併臨：巡ってきた干支が命式の月柱そのものと同じ
+  if(extra && extra.mKan!=null && extra.mShi!=null && extra.tKan===extra.mKan && tShi===extra.mShi) tags.push('月柱併臨');
   if(CHUU[dShi]===tShi) tags.push('沖');
   // 刑：三刑の完成は命式全体で見る。部分刑は日支とのペアのみ（従来仕様）
   {
@@ -1816,7 +1824,13 @@ function updateNengun(){
     const yearLineSty=bothKijin?'text-decoration:underline;text-decoration-color:#f0857a;text-underline-offset:3px;text-decoration-thickness:2px;':'';
 
     // 関係タグ
-    const rels=getRelations(d.dShi,ks.shi,d.meishikiShi);
+    // 歳運併臨：その年に交わっている大運（10年区切り、開始年で判定）と、年運の干支が完全に一致
+    const _sortedRounds=(d.allRounds||[]).slice().sort(function(a,b){return a.startYear-b.startYear;});
+    let _curDaiun=null;
+    for(const r of _sortedRounds){ if(yr>=r.startYear) _curDaiun=r; }
+    const _saiunHeirin = _curDaiun && _curDaiun.kan===ks.kan && _curDaiun.shi===ks.shi;
+    const rels=getRelations(d.dShi,ks.shi,d.meishikiShi,{tKan:ks.kan, mKan:d.mKan, mShi:d.mShi});
+    if(_saiunHeirin) rels.push('歳運併臨');
     const isKuubou=d.kuubou.includes(ks.shi);
     const isKango=d.KANGO[d.nK]===ks.kan;
     const MUJO_KANSAT_N={'乙':['辛'],'丙':['癸'],'丁':['癸'],'戊':['甲'],'辛':['丁'],'壬':['己']};
@@ -1840,7 +1854,7 @@ function updateNengun(){
     const isDaiinKotai=!!nextDaiinData;
     const tags=[
       ...rels.map(t=>{
-        const c=t==='沖'?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':'#9ed687';
+        const c=t==='沖'?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':t==='歳運併臨'?'#e0453c':t==='月柱併臨'?'#c9a44c':'#9ed687';
         return '<span style="font-size:11px;color:'+c+';border:1px solid '+c+';border-radius:4px;padding:1px 5px;margin-left:3px;">'+t+'</span>';
       }),
       isKuubou?'<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>':'',
@@ -1879,7 +1893,7 @@ function updateNengun(){
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
       '<td style="'+tdSty+'font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
-         '<span class="'+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':'')+'">'+
+         '<span class="'+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'">'+
            '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
            '<span>'+ks.shi+'</span>'+
          '</span>'+
@@ -3590,7 +3604,7 @@ function calculate(){
     const isNow=afterStart&&beforeEnd;
     const isPast=false;
     const meishikiShi=[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])];
-    const rels=getRelations(dP.shi,r.shi,meishikiShi);
+    const rels=getRelations(dP.shi,r.shi,meishikiShi,{tKan:r.kan, mKan:mP.kan, mShi:mP.shi});
     const isKuubou2=kuubou.includes(r.shi);
     const isKango=KANGO[nK]===r.kan;
     const MUJO_KANSAT_D={'乙':['辛'],'丙':['癸'],'丁':['癸'],'戊':['甲'],'辛':['丁'],'壬':['己']};
@@ -3608,7 +3622,7 @@ function calculate(){
     const isHeirinYD=(r.kan===yP.kan && r.shi===yP.shi);
     const tags=[
       ...rels.map(t=>{
-        const c=t==='沖'?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':'#9ed687';
+        const c=t==='沖'?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':t==='歳運併臨'?'#e0453c':t==='月柱併臨'?'#c9a44c':'#9ed687';
         return `<span style="font-size:11px;color:${c};border:1px solid ${c};border-radius:4px;padding:1px 5px;margin-left:3px;">${t}</span>`;
       }),
       isKuubou2?`<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>`:'',
@@ -3685,7 +3699,7 @@ function calculate(){
           // ただし場所は空けておき、支の位置が上下でそろうようにする。
           '<span style="color:#e0c478;font-size:13px;margin-right:2px;'+(isSub?'visibility:hidden;':'')+'">'+kanMark+'</span>'+
           // 天戦地冲の下線は、干と支の2文字だけに絞る
-          '<span class="'+(isTensenChichu(dP.kan,dP.shi,r.kan,r.shi)?'tensen':'')+'">'+
+          '<span class="'+(isTensenChichu(dP.kan,dP.shi,r.kan,r.shi)?'tensen':(isTensenChichu(mP.kan,mP.shi,r.kan,r.shi)?'tensen-m':''))+'">'+
             '<span style="'+(isSub?'visibility:hidden;':'')+kiimiColor(KAN_GOGYO[r.kan],KIIMI)+'">'+r.kan+'</span>'+
             '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
             '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+

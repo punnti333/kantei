@@ -119,9 +119,10 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .sig-weak{background:radial-gradient(circle at 50% 0,rgba(42,77,110,.5),var(--sumi2));}
 .sig-weak .score-num,.sig-weak .verdict{color:#7ab4d8;text-shadow:0 0 24px rgba(100,160,210,.5);}
 .score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px;}
+.score-grid-3{grid-template-columns:repeat(3,minmax(0,1fr));}
 @media(max-width:560px){
   .harmony-grid{grid-template-columns:1fr;}
-  .score-grid{grid-template-columns:1fr;gap:12px;margin-top:16px;}
+  .score-grid,.score-grid-3{grid-template-columns:1fr;gap:12px;margin-top:16px;}
   .score-card{padding:15px 14px;text-align:left;}
   .score-card .sc-lab{font-size:12px;margin-bottom:4px;}
   .score-card .sc-val{font-size:28px;line-height:1.1;}
@@ -133,7 +134,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .sc-note{font-size:13px;color:var(--washi2);opacity:.8;margin-top:6px;line-height:1.5;}
 
 @media(max-width:560px){
-  .score-grid{grid-template-columns:1fr;gap:12px;margin-top:16px;}
+  .score-grid,.score-grid-3{grid-template-columns:1fr;gap:12px;margin-top:16px;}
   .score-card{padding:15px 14px;text-align:left;}
   .score-card .sc-lab{font-size:12px;margin-bottom:4px;}
   .score-card .sc-val{font-size:28px;line-height:1.1;}
@@ -505,7 +506,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608151419';
+var APP_VERSION = '202608151455';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -3920,8 +3921,8 @@ function calculate(){
       <div style="margin-top:14px;font-size:13px;color:var(--washi2);letter-spacing:.08em;line-height:1.8;opacity:.9;"></div>
     </div>
     <div class="card" style="margin-top:18px;">
-      <div class="form-title">得令・得地</div>
-      <div class="score-grid" style="margin-bottom:6px;">
+      <div class="form-title">得令・得地・隣接</div>
+      <div class="score-grid score-grid-3" style="margin-bottom:6px;">
       <div class="score-card">
         <div class="sc-lab">得令（月支）</div>
         <div class="sc-val ${vc(ryo.score)}">${sc(ryo.score)}</div>
@@ -3932,6 +3933,14 @@ function calculate(){
         <div class="sc-val ${vc(chi.score)}">${sc(chi.score)}</div>
         <div class="sc-note">${chi.det.slice().reverse().join('　')}<br>${hUnknown?'年支・日支':'年支・日支・時支'}</div>
       </div>
+      <div class="score-card">
+        <div class="sc-lab">隣接（参考）</div>
+        <div class="sc-val ${vc(rin.score)}">${sc(rin.score)}</div>
+        <div class="sc-note">${rin.items.length?rin.items.map(it=>it.label+' '+it.kan+'('+it.state+')').join('　'):'該当なし'}<br>月干・日支・時干（本気）</div>
+      </div>
+      </div>
+      <div style="font-size:11px;color:var(--washi2);opacity:.65;margin-top:6px;letter-spacing:.05em;">
+        ※隣接は参考値です。得令・得地に足して合計点にしています。
       </div>
     </div>
     <div class="card" style="margin-top:18px;">

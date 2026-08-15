@@ -505,7 +505,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608151308';
+var APP_VERSION = '202608151349';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1087,6 +1087,68 @@ function getTokuryo(nK,mP,y,m,d){
     ?`節入${daysElapsed}日 司令：${commander||'?'}(${cmdType})`
     :`${mShi}月支　${state}`;
   return{state,score,desc,commander,cmdType,daysElapsed};
+}
+
+// ===== 隣接五行の判定 =====
+// 得令（月支）・得地（年支日支時支の通根）だけでは、
+// 日干のすぐ両脇にある天干（月干・時干）が計算から抜け落ちる。
+// 小山内先生の「日干に隣接する五行で見る」という考え方を、
+// 旺相休囚死という同じ物差しで、月支以外の隣接する柱にも当てはめる。
+//
+// 対象になる柱：
+//   月干・日支・時干は無条件で見る。月支は「溝がある」として見ない。
+//   時支は、日支か時干のどちらかが日干と同干（比劫）のときだけ見る。
+//   年干・年支は見ない。
+function getRinsetsu(nK, mP, dP, hP, hUnknown, zkDay, zkHour){
+  const nG = KAN_GOGYO[nK];
+
+  // 得令・得地は月支・年日時支の4本で合計点に効くのに対し、
+  // 隣接判定は月干・日支・時干・時支と、最大4本が同時に強く出ることがある
+  // （4本すべて旺なら、これだけで+12点になってしまう）。
+  // 得令・得地とのバランスを取るため、基礎点を半分にして使う。
+  const RIN_W = 0.5;
+  const state = (g) => {
+    if(!g) return null;
+    if(nG===g) return {state:'旺', base:3*RIN_W};
+    if(gen(g,nG)) return {state:'相', base:2*RIN_W};
+    if(gen(nG,g)) return {state:'休', base:-1*RIN_W};
+    if(ove(nG,g)) return {state:'囚', base:-2*RIN_W};
+    return {state:'死', base:-3*RIN_W};
+  };
+
+  const items = [];
+
+  // 月干（無条件）
+  if(mP && mP.kan){
+    const r = state(KAN_GOGYO[mP.kan]);
+    if(r) items.push({label:'月干', kan:mP.kan, ...r});
+  }
+  // 日支（蔵干、無条件）
+  let daySameGogyo = false;
+  if(zkDay){
+    const r = state(KAN_GOGYO[zkDay]);
+    if(r){
+      items.push({label:'日支', kan:zkDay, ...r});
+      daySameGogyo = (r.state === '旺');
+    }
+  }
+  // 時干（無条件）
+  let hourSameGogyo = false;
+  if(!hUnknown && hP && hP.kan){
+    const r = state(KAN_GOGYO[hP.kan]);
+    if(r){
+      items.push({label:'時干', kan:hP.kan, ...r});
+      hourSameGogyo = (r.state === '旺');
+    }
+  }
+  // 時支（日支か時干が同干＝旺のときだけ）
+  if(!hUnknown && zkHour && (daySameGogyo || hourSameGogyo)){
+    const r = state(KAN_GOGYO[zkHour]);
+    if(r) items.push({label:'時支', kan:zkHour, ...r});
+  }
+
+  const score = Math.round(items.reduce((a,it)=>a+it.base,0) * 10) / 10;
+  return { score, items };
 }
 
 function getTokuchi(nK,shis,toucans){
@@ -3452,7 +3514,17 @@ function calculate(){
   // ここでは使わない（getTokuchi に toucans を渡さなければ2倍処理は働かない）。
   const chi=getTokuchi(nK,chiShis,null);
   const sei=null; // 得勢廃止（得令＋得地の2本柱に統一）
-  const total=Math.round((ryo.score+chi.score)*10)/10;
+
+  // ---- 隣接五行（得令・得地では拾えない、月干・日支・時干・時支の勢い）----
+  // ※試験実装。合わないと分かれば RINSETSU_ON=false でいつでも外せる。
+  const RINSETSU_ON = true;
+  const _zkDayForRin  = zokanDayShi(dP.shi, effH);
+  const _zkHourForRin = hUnknown ? null : zokanHourShi(hP.shi, effH, shiIdx);
+  const rin = RINSETSU_ON
+    ? getRinsetsu(nK, mP, dP, hP, hUnknown, _zkDayForRin, _zkHourForRin)
+    : { score: 0, items: [] };
+
+  const total=Math.round((ryo.score+chi.score+rin.score)*10)/10;
   const _daysAfterSetsuCB=(mP.startUTC!=null)?Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000):null;
   const _zkForCB={
     年柱: zokanYearShi(yP.shi, m, d),

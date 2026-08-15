@@ -499,7 +499,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608150533';
+var APP_VERSION = '202608150639';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1016,8 +1016,17 @@ const KAN_INYO={甲:'陽',乙:'陰',丙:'陽',丁:'陰',戊:'陽',己:'陰',庚:
 const SHI_INYO={子:'陽',丑:'陰',寅:'陽',卯:'陰',辰:'陽',巳:'陰',午:'陽',未:'陰',申:'陽',酉:'陰',戌:'陽',亥:'陰'};
 
 // ===== 身強身弱ロジック =====
-// 判定閾値（一元管理）：身強 total≧TH_STRONG ／ 身弱 total≦TH_WEAK ／ その間が中庸
-const TH_STRONG=3, TH_WEAK=-1;
+// 判定閾値（一元管理・5段階）
+//   +5超         … 身旺
+//   +2.1 〜 +5   … 身強
+//   0 〜 +2      … 中庸
+//   -0.1 〜 -3   … 身弱
+//   -3より下     … 超身弱
+// TH_STRONG・TH_WEAK は「中庸の境目」として、既存の用神判定・タイプ判定でも使う。
+const TH_MASTER=5.1;   // これ以上で身旺（5.0は身強の範囲に含める）
+const TH_STRONG=2.1;   // これ以上で身強（中庸の上限は2.0）
+const TH_WEAK=-0.1;    // これ以下で身弱（中庸の下限は0）
+const TH_ZETSU=-3.1;   // これ以下で超身弱（-3.0は身弱の範囲に含める）
 function gen(a,b){return(a==='木'&&b==='火')||(a==='火'&&b==='土')||(a==='土'&&b==='金')||(a==='金'&&b==='水')||(a==='水'&&b==='木');}
 function ove(a,b){return(a==='木'&&b==='土')||(a==='火'&&b==='金')||(a==='土'&&b==='水')||(a==='金'&&b==='木')||(a==='水'&&b==='火');}
 
@@ -3436,11 +3445,17 @@ function calculate(){
   // 赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う
   const effectiveTotalForLuck = midType!==null ? (midType==='strong'?TH_STRONG:TH_WEAK) : total;
 
-  // 判定は3段階：身強（total≧TH_STRONG）／中庸（間、身強寄り・身弱寄りを併記）／身弱（total≦TH_WEAK）
+  // 判定は5段階：身旺／身強／中庸（身強寄り・身弱寄り）／身弱／超身弱
   let cls,verdict,punch,yojin;
-  if(total>=TH_STRONG){
+  if(total>=TH_MASTER){
+    cls='sig-strong';verdict='身　旺';punch='日干が極めて充実した命式。強すぎる力を制御する五行が要る。';
+    yojin='用神：食傷・財・官殺／日干のエネルギーを発散・活用する五行が吉。比劫・印星は忌。';
+  } else if(total>=TH_STRONG){
     cls='sig-strong';verdict='身　強';punch='日干が充実した命式。自力で道を切り開く力がある。';
     yojin='用神：食傷・財・官殺／日干のエネルギーを発散・活用する五行が吉。';
+  } else if(total<=TH_ZETSU){
+    cls='sig-weak';verdict='超身弱';punch='日干が極めて弱い命式。まず日干そのものを支える五行が要る。';
+    yojin='用神：印綬・比劫／日干を生じ・支える五行が吉。消耗する五行は特に忌。';
   } else if(total<=TH_WEAK){
     cls='sig-weak';verdict='身　弱';punch='日干が弱い命式。周囲のサポートを得て力を発揮する。';
     yojin='用神：印綬・比劫／日干を生じ・支える五行が吉。消耗する五行は忌。';

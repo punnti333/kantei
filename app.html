@@ -499,7 +499,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608150452';
+var APP_VERSION = '202608150533';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2047,18 +2047,48 @@ function getMoonSignAlt(y, m, d) {
 
 
 // 中庸の身強寄り/身弱寄り判定（比劫+印 vs 食傷+財+官殺）
-function calcChuoBalance(nK, yP, mP, dP, hP, hUnknown){
+// 中庸のときの「寄り」を判定する。
+// ※以前は蔵干を本気・中気・余気の3つとも均等に近い重みで数えていたが、
+//   それだと月支を特別視しない別の考え方（日干隣接重視）が混ざってしまうため、
+//   合計点（得令＋得地）とまったく同じ重み・同じ蔵干の選び方に統一した。
+//   月支元命（月支を最重視する）という一貫した立場で、強弱の寄りまで判定する。
+//
+// zkAdopted … その4柱で実際に採用された蔵干（小山内流で本気1つに確定済みのもの）
+//             { 年柱, 月柱, 日柱, 時柱 } の形。呼び出し側から渡す。
+function calcChuoBalance(nK, yP, mP, dP, hP, hUnknown, zkAdopted){
   const GOGYO5=['木','火','土','金','水'];
   const nIdx=GOGYO5.indexOf(KAN_GOGYO[nK]);
   const toT=g=>{const df=((GOGYO5.indexOf(g)-nIdx)+5)%5;return['hikyu','shokusho','zai','kansat','insho'][df];};
-  const kanArr=hUnknown?[yP.kan,mP.kan,nK]:[yP.kan,mP.kan,nK,hP.kan];
-  const shiArr=hUnknown?[yP.shi,mP.shi,dP.shi]:[yP.shi,mP.shi,dP.shi,hP.shi];
-  let s=0,w=0;
-  kanArr.forEach(k=>{if(KAN_GOGYO[k]){const t=toT(KAN_GOGYO[k]);(['hikyu','insho'].includes(t))?s++:w++;}});
-  shiArr.forEach(sh=>{(ZOKAN[sh]||[]).forEach((zk,zi)=>{
-    if(KAN_GOGYO[zk]){const wt=ZOKAN_W[zi]||0.3;const t=toT(KAN_GOGYO[zk]);['hikyu','insho'].includes(t)?s+=wt:w+=wt;}
-  });});
-  return s>w?'strong':'weak';
+
+  // 得令・得地と同じ重み：天干は年・月・時が1ずつ（日干は対象外）、
+  // 蔵干（本気1つ）は年支1・月支3・日支2・時支1
+  const items = [
+    {kan: yP.kan, w:1},
+    {kan: mP.kan, w:1},
+  ];
+  if(!hUnknown) items.push({kan: hP.kan, w:1});
+
+  const zk = zkAdopted || {};
+  const zkItems = [
+    {kan: zk['年柱'], w:1},
+    {kan: zk['月柱'], w:3},
+    {kan: zk['日柱'], w:2},
+  ];
+  if(!hUnknown) zkItems.push({kan: zk['時柱'], w:1});
+
+  let s=0, w=0;
+  items.forEach(it=>{
+    if(!it.kan || !KAN_GOGYO[it.kan]) return;
+    const t=toT(KAN_GOGYO[it.kan]);
+    (['hikyu','insho'].includes(t)) ? s+=it.w : w+=it.w;
+  });
+  zkItems.forEach(it=>{
+    if(!it.kan || !KAN_GOGYO[it.kan]) return;
+    const t=toT(KAN_GOGYO[it.kan]);
+    (['hikyu','insho'].includes(t)) ? s+=it.w : w+=it.w;
+  });
+
+  return s>w ? 'strong' : 'weak';
 }
 
 function gogyo_points(nK, yP, mP, dP, hP, hUnknown){
@@ -3393,7 +3423,14 @@ function calculate(){
   const chi=getTokuchi(nK,chiShis,toucans);
   const sei=null; // 得勢廃止（得令＋得地の2本柱に統一）
   const total=Math.round((ryo.score+chi.score)*10)/10;
-  const midType=(total>TH_WEAK&&total<TH_STRONG)?calcChuoBalance(nK,yP,mP,dP,hUnknown?null:hP,hUnknown):null;
+  const _daysAfterSetsuCB=(mP.startUTC!=null)?Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000):null;
+  const _zkForCB={
+    年柱: zokanYearShi(yP.shi, m, d),
+    月柱: zokanMonthShi(mP.shi, _daysAfterSetsuCB),
+    日柱: zokanDayShi(dP.shi, effH),
+    時柱: hUnknown?null:zokanHourShi(hP.shi, effH, shiIdx)
+  };
+  const midType=(total>TH_WEAK&&total<TH_STRONG)?calcChuoBalance(nK,yP,mP,dP,hUnknown?null:hP,hUnknown,_zkForCB):null;
   const gp=gogyo_points(nK,yP,mP,dP,hUnknown?null:hP,hUnknown);
   const daiin=calcDaiin(y,m,d,SEX,mP,yP,hJST);
   // 赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う

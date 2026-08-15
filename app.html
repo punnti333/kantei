@@ -499,7 +499,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608150342';
+var APP_VERSION = '202608150452';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2185,8 +2185,26 @@ function judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, zkAdopt){
     }
   }
 
+  // 大過が2つ以上重なったときは、実際の身強身弱（band）に矛盾しないほうを選ぶ。
+  // 例：比劫大過（本来は身強）と食傷大過（本来は身弱）が同時に立った場合、
+  //     実際に身強と出ていれば比劫側、身弱と出ていれば食傷側を採る。
+  //     どちらとも矛盾しない／どちらとも矛盾する場合は、これまで通り個数の多い順。
+  let taikaTop = taika[0] || null;
+  if(taika.length >= 2){
+    const tryOrder = taika.slice().sort((a,b) => tcnt[b]-tcnt[a] || TAIKA_PRIORITY.indexOf(a)-TAIKA_PRIORITY.indexOf(b));
+    const fitsBand = k => {
+      const testCtx = { g, tsu, cnt, tcnt, band, total, midType, zk, taika, taikaTop:k,
+                         ari: x => { const gg = tsu[x] || x; return cnt[gg] >= ARI || !!zk[gg]; } };
+      const t = TYPES.find(tt => tt.gogyo === g && (typeof tt.cond === 'function' ? tt.cond(testCtx) : false));
+      return t && t.expectBand && t.expectBand.includes(band);
+    };
+    const fit = tryOrder.find(fitsBand);
+    if(fit) taikaTop = fit;   // 身強身弱に合うものが見つかれば、それを優先
+    // 見つからなければ tryOrder[0]（＝これまで通りの個数優先）のまま
+  }
+
   const ctx = { g, tsu, cnt, tcnt, band, total, midType, zk,
-                taika, taikaTop: taika[0] || null,
+                taika, taikaTop,
                 // ある五行が「あるか」。表の八字に無ければ採用蔵干も見る。
                 ari: x => { const gg = tsu[x] || x; return cnt[gg] >= ARI || !!zk[gg]; } };
 

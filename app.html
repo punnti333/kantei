@@ -505,7 +505,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608151349';
+var APP_VERSION = '202608151419';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -3517,9 +3517,18 @@ function calculate(){
 
   // ---- 隣接五行（得令・得地では拾えない、月干・日支・時干・時支の勢い）----
   // ※試験実装。合わないと分かれば RINSETSU_ON=false でいつでも外せる。
+  //
+  // ここで使う日支・時支の蔵干は、小山内流（生まれた時刻で切り替わる）ではなく、
+  // 「本気」（ZOKAN配列の先頭、時刻に左右されない一般的な蔵干）を使う。
+  // 隣接判定は「日干のまわりに、大きく見てどういう五行が並んでいるか」という
+  // おおづかみな配置を見るためのものなので、数分の差で結果が入れ替わる
+  // 精密な時刻切り替えとは、そもそも目的が違う。
+  // （得地の「命式にあり／蔵干にあり」表示や、喜神・忌神の判定は、
+  //   これまで通り小山内流の採用蔵干のまま。変更しない。）
   const RINSETSU_ON = true;
-  const _zkDayForRin  = zokanDayShi(dP.shi, effH);
-  const _zkHourForRin = hUnknown ? null : zokanHourShi(hP.shi, effH, shiIdx);
+  const _honkiOf = (shi) => (ZOKAN[shi] && ZOKAN[shi][0]) || null;
+  const _zkDayForRin  = _honkiOf(dP.shi);
+  const _zkHourForRin = hUnknown ? null : _honkiOf(hP.shi);
   const rin = RINSETSU_ON
     ? getRinsetsu(nK, mP, dP, hP, hUnknown, _zkDayForRin, _zkHourForRin)
     : { score: 0, items: [] };
@@ -3805,9 +3814,16 @@ function calculate(){
     const zk=ZK_ADOPT[lbl.replace('★','')];
     const zkG=zk?KAN_GOGYO[zk]:null;
     const shifted=zk&&zkG!==SHI_GOGYO[shi];   // 支の五行とずれるか
+    // 本気（ZOKAN配列の先頭、時刻に左右されない一般的な蔵干）。
+    // 小山内流の採用蔵干（zk）が、時刻により本気以外（中気・余気）に
+    // 切り替わっている場合だけ、参考として並べて出す。
+    const honki = (ZOKAN[shi] && ZOKAN[shi][0]) || null;
+    const honkiDiffers = zk && honki && zk!==honki;
     // 採用蔵干は八字の下に別行で出す（支の行に足すと横幅がずれるため）
     const zkTag = zk
-      ? '<div style="font-size:13px;margin-top:4px;letter-spacing:.05em;color:'+(shifted?'#e08a7a':'var(--kin)')+';opacity:'+(shifted?'1':'.8')+';'+(shifted?'font-weight:700;':'')+'">('+zk+')</div>'
+      ? '<div style="font-size:13px;margin-top:4px;letter-spacing:.05em;color:'+(shifted?'#e08a7a':'var(--kin)')+';opacity:'+(shifted?'1':'.8')+';'+(shifted?'font-weight:700;':'')+'">('+zk+')'
+        + (honkiDiffers?'<span style="color:var(--washi2);opacity:.7;font-weight:400;margin-left:5px;">〔本気'+honki+'〕</span>':'')
+        + '</div>'
       : '<div style="font-size:13px;margin-top:4px;opacity:0;">(　)</div>';
     const shiJuniCell=
       '<span class="p-juni" style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.5;">'+

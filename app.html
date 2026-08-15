@@ -498,21 +498,27 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
   <div id="result"></div>
 </div>
 <script>
+/* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
+var APP_VERSION = '202608150342';
+</script>
+<script>
 /* 開くたびに最新かどうかを確かめる。
-   古いものが表示されていたら、1度だけ自動で読み直す。
-   （iPhoneのSafariは同じURLだと古い版を掴み続けるため） */
+   ホーム画面に追加したアイコンは、Safariのタブとは保存領域が別扱いになるため、
+   ファイルの長さではなく「版番号」を比べて、確実に新旧を判定する。
+   古ければ、保存データ（合言葉・名簿）はそのままに、表示だけを読み直す。 */
 (function(){
   try{
-    if(location.protocol==='file:') return;              // 手元のファイルは対象外
-    if(sessionStorage.getItem('reloaded_once')) return;  // 二重の読み直しを防ぐ
+    if(location.protocol==='file:') return;                 // 手元のファイルは対象外
+    if(sessionStorage.getItem('checked_version')) return;    // このタブでは1回だけ
+    sessionStorage.setItem('checked_version','1');
+
     fetch(location.pathname + '?_=' + Date.now(), {cache:'no-store'})
       .then(function(r){ return r.text(); })
       .then(function(txt){
-        var now = document.documentElement.outerHTML.length;
-        // 長さが大きく違えば、表示中のものは古い
-        if(Math.abs(txt.length - now) > 500){
-          sessionStorage.setItem('reloaded_once','1');
-          location.reload(true);
+        var m = txt.match(/APP_VERSION\s*=\s*'([^']+)'/);
+        if(!m) return;                        // 版番号が見つからなければ何もしない
+        if(m[1] !== APP_VERSION){
+          location.reload(true);               // 保存データは消えず、表示だけ新しくなる
         }
       })
       .catch(function(){});

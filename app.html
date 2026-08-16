@@ -506,7 +506,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608161812';
+var APP_VERSION = '202608161830';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -3528,10 +3528,10 @@ function calculate(){
     : { score: 0, items: [] };
 
   const total=Math.round((ryo.score+chi.score+rin.score)*10)/10;
-  // 月支は、命式表示・喜神忌神と同じく、得令の司令干（ryo.commander）に揃える。
+  const _daysAfterSetsuCB=(mP.startUTC!=null)?Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000):null;
   const _zkForCB={
     年柱: zokanYearShi(yP.shi, m, d),
-    月柱: ryo.commander,
+    月柱: zokanMonthShi(mP.shi, _daysAfterSetsuCB),
     日柱: zokanDayShi(dP.shi, effH),
     時柱: hUnknown?null:zokanHourShi(hP.shi, effH, shiIdx)
   };
@@ -3656,10 +3656,12 @@ function calculate(){
 
   // ---- 大運・年運の色分けに使う喜神・忌神 ----
   // ZK_ADOPT はこの下で作られるので、同じ内容をここで先に求めておく。
-  // 月支は、命式表示・喜神忌神と同じく、得令の司令干（ryo.commander）に揃える。
+  const _daysAfterSetsuKI = (mP.startUTC!=null)
+    ? Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000)
+    : null;
   const _zkForKI = {
     年柱: zokanYearShi(yP.shi, m, d),
-    月柱: ryo.commander,
+    月柱: zokanMonthShi(mP.shi, _daysAfterSetsuKI),
     日柱: zokanDayShi(dP.shi, effH),
     時柱: hUnknown?null:zokanHourShi(hP.shi, effH, shiIdx)
   };
@@ -3788,15 +3790,16 @@ function calculate(){
       '</tr>';
   })).join('');
 
-  // 四柱それぞれの採用蔵干。
-  // 年支・日支・時支は、小山内流（生まれた時刻・日にちで切り替える簡易表）。
-  // 月支だけは、得令の計算（getTokuryo）と同じ三命通会準拠の司令干（ryo.commander）を使う。
-  // ※以前は月支だけ、小山内流の簡易表（OZK・余気と本気の2区分）を別に使っていたため、
-  //   「命式に表示される蔵干」と「得令の点数の根拠になっている蔵干」が食い違うことがあった。
-  //   ここを揃えて、常に同じ答えが出るようにしている。
+  // 四柱それぞれの採用蔵干（小山内流・簡易蔵干表）。
+  // ※月支をSHILING（三命通会）に揃える変更を試したが、
+  //   月支の赤字判定・大運の●✖判定は、この小山内流の値を土台にしているため、
+  //   ここを変えると判定そのものが崩れてしまう。元の小山内流に戻す。
+  const daysAfterSetsu = (mP.startUTC!=null)
+    ? Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000)
+    : null;
   const ZK_ADOPT={
     年柱: zokanYearShi(yP.shi, m, d),
-    月柱: ryo.commander,
+    月柱: zokanMonthShi(mP.shi, daysAfterSetsu),
     日柱: zokanDayShi(dP.shi, effH),
     時柱: hUnknown?null:zokanHourShi(hP.shi, effH, shiIdx)
   };

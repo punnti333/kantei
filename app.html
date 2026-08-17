@@ -511,7 +511,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608170942';
+var APP_VERSION = '202608170955';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -3272,11 +3272,13 @@ function hakakuAges(kagoGogyo, allRounds){
   const idx = CYCLE.indexOf(kagoGogyo);
   const breakerGogyo = CYCLE[(idx + 3) % 5]; // 例：金なら火（火は金を剋す）
   const hits = [];
-  const sorted = allRounds.filter(r => !r.pre).slice().sort((a,b)=>a.age-b.age);
+  // 表示用の年齢（dispAge）を使う。大運の表と同じ、伝統ルール（四捨五入）の年齢。
+  // ageは内部の暦計算用（切り捨て）で、表に出る年齢とはズレることがある。
+  const sorted = allRounds.filter(r => !r.pre).slice().sort((a,b)=>(a.dispAge??a.age)-(b.dispAge??b.age));
   for(const r of sorted){
     const kanG = KAN_GOGYO[r.kan], shiG = SHI_GOGYO[r.shi];
     if(kanG === breakerGogyo || shiG === breakerGogyo){
-      hits.push({ age: r.age, kan: r.kan, shi: r.shi,
+      hits.push({ age: (r.dispAge??r.age), kan: r.kan, shi: r.shi,
                   byKan: kanG===breakerGogyo, byShi: shiG===breakerGogyo });
     }
   }

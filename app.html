@@ -364,6 +364,11 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
   background:rgba(232,131,127,.07);
   border-left:2px solid rgba(232,131,127,.45);
 }
+.kg-haku-list{
+  margin-top:8px; padding-top:8px;
+  border-top:1px dashed rgba(232,131,127,.3);
+  font-size:12.5px; opacity:.9;
+}
 
 @media (max-width:480px){
   .kg-head{ font-size:17px; }
@@ -506,7 +511,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608170919';
+var APP_VERSION = '202608170942';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -3259,7 +3264,26 @@ function judgeKango(yP, mP, dP, hP, hUnknown){
 
 
 // ===== 表示 =====
-function renderKango(list){
+// 干合の破格：化五行を剋す五行が、大運のどこに巡るかを調べる。
+// 大過している五行の関係を利用（gen=生じる、ove=剋す）。CYCLEは既存のもの。
+function hakakuAges(kagoGogyo, allRounds){
+  if(!allRounds || !allRounds.length) return [];
+  // kagoGogyoを剋す五行を求める（CYCLE上で2つ先の五行が、剋す側）
+  const idx = CYCLE.indexOf(kagoGogyo);
+  const breakerGogyo = CYCLE[(idx + 3) % 5]; // 例：金なら火（火は金を剋す）
+  const hits = [];
+  const sorted = allRounds.filter(r => !r.pre).slice().sort((a,b)=>a.age-b.age);
+  for(const r of sorted){
+    const kanG = KAN_GOGYO[r.kan], shiG = SHI_GOGYO[r.shi];
+    if(kanG === breakerGogyo || shiG === breakerGogyo){
+      hits.push({ age: r.age, kan: r.kan, shi: r.shi,
+                  byKan: kanG===breakerGogyo, byShi: shiG===breakerGogyo });
+    }
+  }
+  return { breakerGogyo, hits };
+}
+
+function renderKango(list, allRounds){
   if(!list || !list.length) return '';
 
   const cards = list.map(k => {
@@ -3281,11 +3305,21 @@ function renderKango(list){
       ? '<div class="kg-body">'+k.body+'</div>'
       : '<div class="kg-body">'+D.kangoOnly.map(t=>'・'+t).join('<br>')+'</div>';
 
-    // 真化・準ずるのときは、破格の注意も出す
-    const haku = (k.rank==='真化'||k.rank==='準')
-      ? '<div class="kg-haku">※破格の時期　大運や歳運で'+k.gogyo+'を剋する行運が巡ると、'
-        + '真化の命が破れて一転して不運となります。</div>'
-      : '';
+    // 真化・準ずるのときは、破格の注意も出す。
+    // 大運の実データがあれば、実際に該当する年齢まで具体的に示す。
+    let haku = '';
+    if(k.rank==='真化' || k.rank==='準'){
+      const hk = (typeof hakakuAges==='function' && allRounds) ? hakakuAges(k.gogyo, allRounds) : null;
+      const ageList = (hk && hk.hits && hk.hits.length)
+        ? hk.hits.map(h => h.age+'歳〜（'+h.kan+h.shi+'の大運）……'
+            + (h.byKan&&h.byShi?'干支ともに':h.byKan?'干に':'支に')
+            + hk.breakerGogyo+'があり、該当します').join('<br>')
+        : '';
+      haku = '<div class="kg-haku">※破格の時期　大運や歳運で'+k.gogyo+'を剋する行運が巡ると、'
+        + '真化の命が破れて一転して不運となります。'
+        + (ageList ? '<div class="kg-haku-list">'+ageList+'</div>' : '')
+        + '</div>';
+    }
 
     // 進化干合・退化干合・寅辰
     const extraHtml = (k.extra||[]).map(e =>
@@ -4019,7 +4053,7 @@ function calculate(){
           '</div>';
       })()}
     </div>
-    ${renderKango(judgeKango(yP, mP, dP, hP, hUnknown))}
+    ${renderKango(judgeKango(yP, mP, dP, hP, hUnknown), allRounds)}
     ${renderKuubou(judgeKuubou(kuubou, nK,
         [{label:'年柱',kan:yP.kan,shi:yP.shi},{label:'月柱',kan:mP.kan,shi:mP.shi},
          {label:'日柱',kan:dP.kan,shi:dP.shi}].concat(hUnknown?[]:[{label:'時柱',kan:hP.kan,shi:hP.shi}]),

@@ -506,7 +506,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608170902';
+var APP_VERSION = '202608170919';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1944,11 +1944,13 @@ function updateNengun(){
       (ankenMark?'<span class="nengun-kaza-mark red" title="'+(honmeiAnken&&keishaAnken?'本命・傾斜暗剣殺':keishaAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+ankenMark+'</span>':'')+
       (hasKeishaGoou?'<span class="nengun-kaza-mark blue" title="傾斜五黄殺">●</span>':'');
 
-    // 色分け：中心年=赤、現在年=金
+    // 色分け：中心年・現在年、どちらも背景の強調と太字だけにする。
+    // 文字色は、ここでは固定しない（喜神=青／忌神=赤／どちらでもない=白、の
+    // 色分けを、干支セルの中の kiimiColor が個別に決める。そちらを優先する）。
     let bgSty='', txtSty='';
-    if(isCenter&&isNow){ bgSty='background:rgba(192,57,43,.2);border-left:3px solid var(--kin);'; txtSty='color:#f0857a;font-weight:700;'; }
-    else if(isCenter){ bgSty='background:rgba(192,57,43,.15);border-left:3px solid var(--shu);'; txtSty='color:#f0857a;font-weight:700;'; }
-    else if(isNow){ bgSty='background:rgba(201,164,76,.15);'; txtSty='color:var(--kin2);font-weight:700;'; }
+    if(isCenter&&isNow){ bgSty='background:rgba(192,57,43,.2);border-left:3px solid var(--kin);'; txtSty='font-weight:700;'; }
+    else if(isCenter){ bgSty='background:rgba(192,57,43,.15);border-left:3px solid var(--shu);'; txtSty='font-weight:700;'; }
+    else if(isNow){ bgSty='background:rgba(201,164,76,.15);'; txtSty='font-weight:700;'; }
 
     const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
     rows+='<tr style="'+bgSty+'">'+
@@ -3715,7 +3717,9 @@ function calculate(){
       isHeirinD?`<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>`:'',
       isHeirinMD?`<span style="font-size:11px;color:#a0d8a0;border:1px solid #a0d8a0;border-radius:4px;padding:1px 5px;margin-left:3px;">🔶月柱併臨</span>`:'',
     ].join('');
-    const nowSty=isNow?'color:var(--kin2);font-weight:700;':'';
+    // 「今」の行は、背景の金色ハイライトと太字だけで強調する。
+    // 文字色は固定しない（喜神=青／忌神=赤／どちらでもない=白、の色分けを優先するため）。
+    const nowSty=isNow?'font-weight:700;':'';
     const nowBg=isNow?'background:rgba(201,164,76,.12);':'';
     const tdSty='padding:10px 10px;line-height:1.6;border-bottom:1px solid rgba(201,164,76,.1);';
     // 五行の調和：用神判定
@@ -3783,7 +3787,7 @@ function calculate(){
             '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
             '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
           '</span>'+
-          (segZk?'<span class="dai-zk" style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI)||'color:var(--washi);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
+          (segZk?'<span class="dai-zk" style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI)||'color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,.5);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
         '</span>'+
         (isSub?'':'<span class="dai-tags">'+tags+'</span>')+
       '</td>'+

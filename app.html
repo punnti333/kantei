@@ -2138,48 +2138,60 @@ function getMoonSignAlt(y, m, d) {
 
 
 // 中庸の身強寄り/身弱寄り判定（比劫+印 vs 食傷+財+官殺）
-// 中庸のときの「寄り」を判定する。
-// ※以前は蔵干を本気・中気・余気の3つとも均等に近い重みで数えていたが、
-//   それだと月支を特別視しない別の考え方（日干隣接重視）が混ざってしまうため、
-//   合計点（得令＋得地）とまったく同じ重み・同じ蔵干の選び方に統一した。
-//   月支元命（月支を最重視する）という一貫した立場で、強弱の寄りまで判定する。
+// 2026-08-18 全面改訂。旧版は重み 年支1・月支3・日支2・時支1 で加重合計し、
+// 同点は暗黙に弱寄りへ落としていた（中庸の約24%が同点＝根拠のない振り分け）。
 //
-// zkAdopted … その4柱で実際に採用された蔵干（小山内流で本気1つに確定済みのもの）
-//             { 年柱, 月柱, 日柱, 時柱 } の形。呼び出し側から渡す。
+// 新方式：日干から見て7か所を「味方か敵か」で数え上げるだけ。重みは付けない。
+//   ・月支の強さは得令で、通根は得地で、日干まわりの勢いは隣接で、すでに三度測り終えている。
+//     そのうえで中庸に落ち着いたのだから、四度目に同じ物差し（度合い）を使っても迷いが増えるだけ。
+//     最後は度合いではなく「敵と味方のどちらが多いか」という別の物差しで決める、という役割分担。
+//   ・7か所は奇数なので、味方と敵が同数になることが構造的に起こらない＝同点が消える。
+//     時柱不明のときも5か所で奇数のまま。
+//
+// 蔵干は【本気固定】（ZOKAN[支][0]）を使う。小山内流の時刻切替は使わない。
+//   小山内流の採用蔵干は、命式の表示・赤字・大運年運の●✖のためのもの。
+//   ここで時刻切替を混ぜると、数分の差で寄りが入れ替わってしまう。
+//   隣接判定を本気固定にしているのと同じ理由。
+//   ※引数 zkAdopted は互換のため残してあるが、この関数では使わない。
+//
+// 検証：京都1965-01-22 11:30女（丙）＝味方4:敵3→強寄り。先生の実感と一致（旧版は弱寄りで外れ）。
+//       広島1959-12-04 14:38男（庚）＝味方3:敵4→弱寄り。
 function calcChuoBalance(nK, yP, mP, dP, hP, hUnknown, zkAdopted){
   const GOGYO5=['木','火','土','金','水'];
   const nIdx=GOGYO5.indexOf(KAN_GOGYO[nK]);
   const toT=g=>{const df=((GOGYO5.indexOf(g)-nIdx)+5)%5;return['hikyu','shokusho','zai','kansat','insho'][df];};
 
-  // 得令・得地と同じ重み：天干は年・月・時が1ずつ（日干は対象外）、
-  // 蔵干（本気1つ）は年支1・月支3・日支2・時支1
-  const items = [
-    {kan: yP.kan, w:1},
-    {kan: mP.kan, w:1},
-  ];
-  if(!hUnknown) items.push({kan: hP.kan, w:1});
+  // 地支は本気（蔵干表の先頭）を見る
+  const honki = shi => (ZOKAN[shi] && ZOKAN[shi][0]) || null;
 
-  const zk = zkAdopted || {};
-  const zkItems = [
-    {kan: zk['年柱'], w:1},
-    {kan: zk['月柱'], w:3},
-    {kan: zk['日柱'], w:2},
+  // 見る7か所。日干そのものは数えない（自分は自分の味方に決まっているため）
+  const slots = [
+    {lab:'年干', kan: yP.kan},
+    {lab:'月干', kan: mP.kan},
+    {lab:'年支', kan: honki(yP.shi)},
+    {lab:'月支', kan: honki(mP.shi)},
+    {lab:'日支', kan: honki(dP.shi)},
   ];
-  if(!hUnknown) zkItems.push({kan: zk['時柱'], w:1});
+  if(!hUnknown){
+    slots.push({lab:'時干', kan: hP.kan});
+    slots.push({lab:'時支', kan: honki(hP.shi)});
+  }
 
-  let s=0, w=0;
-  items.forEach(it=>{
+  let ally=0, enemy=0;
+  const detail=[];
+  slots.forEach(it=>{
     if(!it.kan || !KAN_GOGYO[it.kan]) return;
-    const t=toT(KAN_GOGYO[it.kan]);
-    (['hikyu','insho'].includes(t)) ? s+=it.w : w+=it.w;
-  });
-  zkItems.forEach(it=>{
-    if(!it.kan || !KAN_GOGYO[it.kan]) return;
-    const t=toT(KAN_GOGYO[it.kan]);
-    (['hikyu','insho'].includes(t)) ? s+=it.w : w+=it.w;
+    const t = toT(KAN_GOGYO[it.kan]);
+    const isAlly = (t==='hikyu' || t==='insho');   // 比劫・印星＝味方
+    isAlly ? ally++ : enemy++;
+    detail.push({lab:it.lab, kan:it.kan, gogyo:KAN_GOGYO[it.kan], tsuhen:t, ally:isAlly});
   });
 
-  return s>w ? 'strong' : 'weak';
+  // 参照用に内訳を残す（表示や検証で使えるように）
+  window._chuoDetail = {ally, enemy, detail};
+
+  // 7か所（時柱不明なら5か所）は奇数なので、ally===enemy にはならない
+  return ally>enemy ? 'strong' : 'weak';
 }
 
 function gogyo_points(nK, yP, mP, dP, hP, hUnknown){

@@ -1963,7 +1963,10 @@ function updateNengun(){
       '<td style="'+tdSty+'font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
          '<span class="'+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'">'+
            '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
-           '<span>'+ks.shi+'</span>'+
+           // 地支は「本気の蔵干」の五行で喜忌の色を付ける（2026-08-19 追加）。
+           // 支そのものの五行ではなく本気を見るのは、支の中身＝蔵干で判断するため。
+           // 時刻による切替は使わない（年運に生まれ時刻は関係しないため常に本気）。
+           '<span style="'+kiimiColor(KAN_GOGYO[(ZOKAN[ks.shi]||[])[0]],d.KIIMI)+'">'+ks.shi+'</span>'+
          '</span>'+
          tags+'</td>'+
       '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'"><span class="nengun-kaza"><span>'+palace+'</span>'+kaiMark+'</span></td>'+

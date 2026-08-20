@@ -855,6 +855,14 @@ function zokanHourShi(shi, effH, shiIdx){
 }
 
 
+// ===== 魁罡（かいごう）=====
+// 日柱がこの4つの干支のとき。日柱のみで見る（月柱は見ない）。
+// 2026-08-19 追加。表示は名前のみ。読み方の文言は未設定。
+const KAIGOU=['庚辰','庚戌','壬辰','戊戌'];
+function isKaigou(dayKan, dayShi){
+  return KAIGOU.includes(String(dayKan)+String(dayShi));
+}
+
 // 時支マップ（セレクト値→地支インデックス）
 const HOUR_TO_SHI_IDX={23:0,1:1,3:2,5:3,7:4,9:5,11:6,13:7,15:8,17:9,19:10,21:11};
 
@@ -3916,6 +3924,10 @@ function calculate(){
         <div style="font-size:14px;color:var(--kin);letter-spacing:.15em;">
           今年の年齢：<span style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${new Date().getFullYear()-y}歳</span>
         </div>
+        ${isKaigou(dP.kan,dP.shi)?`<div style="font-size:14px;color:var(--kin);letter-spacing:.15em;">
+          <span style="font-family:'Shippori Mincho',serif;font-size:17px;font-weight:700;color:#f0a0a0;border:1px solid rgba(240,160,160,.55);background:rgba(192,57,43,.14);border-radius:6px;padding:2px 10px;">魁罡</span>
+          <span style="font-family:'Shippori Mincho',serif;font-size:16px;color:var(--kin2);margin-left:6px;">${dP.kan}${dP.shi}</span>
+        </div>`:''}
       </div>
       ${(()=>{
         const solar=getSolarSign(y,m,d,hJST);
@@ -3943,6 +3955,8 @@ function calculate(){
           '</div>';
       })()}
     </div>
+    <!-- 干合カード：命式のすぐ下に置く（2026-08-19 移動）-->
+    ${renderKango(judgeKango(yP, mP, dP, hP, hUnknown), allRounds)}
     ${renderType(judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, ZK_ADOPT))}
     <div class="signal-banner ${cls}" style="margin-top:18px;">
       <div class="lamp">身強身弱判断<span style="font-size:.8em;opacity:.7;letter-spacing:.05em;">（得令＋得地の合計点）</span></div>
@@ -4043,6 +4057,10 @@ function calculate(){
         <div style="font-size:14px;color:var(--kin);letter-spacing:.15em;">
           今年の年齢：<span style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${new Date().getFullYear()-y}歳</span>
         </div>
+        ${isKaigou(dP.kan,dP.shi)?`<div style="font-size:14px;color:var(--kin);letter-spacing:.15em;">
+          <span style="font-family:'Shippori Mincho',serif;font-size:17px;font-weight:700;color:#f0a0a0;border:1px solid rgba(240,160,160,.55);background:rgba(192,57,43,.14);border-radius:6px;padding:2px 10px;">魁罡</span>
+          <span style="font-family:'Shippori Mincho',serif;font-size:16px;color:var(--kin2);margin-left:6px;">${dP.kan}${dP.shi}</span>
+        </div>`:''}
       </div>
       ${(()=>{
         const solar=getSolarSign(y,m,d,hJST);
@@ -4070,7 +4088,6 @@ function calculate(){
           '</div>';
       })()}
     </div>
-    ${renderKango(judgeKango(yP, mP, dP, hP, hUnknown), allRounds)}
     ${renderKuubou(judgeKuubou(kuubou, nK,
         [{label:'年柱',kan:yP.kan,shi:yP.shi},{label:'月柱',kan:mP.kan,shi:mP.shi},
          {label:'日柱',kan:dP.kan,shi:dP.shi}].concat(hUnknown?[]:[{label:'時柱',kan:hP.kan,shi:hP.shi}]),

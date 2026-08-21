@@ -4352,13 +4352,32 @@ function keishaPalace(y,m,d,male){
       open(); return;
     }
   }catch(e){}
+  // 2026-08-21 修正。三命クロス法で、購読者が締め出される不具合が出たため、
+  // こちらも同じ弱点を先に潰しておく。
+  //   ・innerText → textContent（ゲートが隠れていても読める）
+  //   ・30秒で見切っていたのを120秒に延長（回線が遅い場合）
+  //   ・codocの描画を MutationObserver でも見張る
+  //   ・別タブでログインして戻ってきたときにも確かめる
+  let unlocked=false;
   function check(){
-    if(entry && entry.innerText && entry.innerText.indexOf(UNLOCK_MARK)>=0){ open(); return true; }
+    if(unlocked) return true;
+    if(!entry) return false;
+    const txt=(entry.textContent||'')+(entry.innerText||'');
+    if(txt.indexOf(UNLOCK_MARK)>=0){ unlocked=true; open(); return true; }
     return false;
   }
   if(!check()){
+    let mo=null;
+    if(entry && window.MutationObserver){
+      mo=new MutationObserver(function(){ if(check() && mo) mo.disconnect(); });
+      mo.observe(entry,{childList:true,subtree:true,characterData:true});
+    }
     let n=0;
-    const t=setInterval(function(){ if(check()||++n>60) clearInterval(t); },500);
+    const t=setInterval(function(){
+      if(check()||++n>240){ clearInterval(t); try{ if(mo) mo.disconnect(); }catch(e){} }
+    },500);
+    document.addEventListener('visibilitychange',function(){ if(!document.hidden) check(); });
+    window.addEventListener('focus',check);
   }
 })();
 </script>

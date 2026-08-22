@@ -1326,7 +1326,7 @@ function setTimeMode(mode){
 
 // ===== 鑑定した人の保存（この端末のブラウザにだけ残ります）=====
 const PEOPLE_KEY='hachiji_people';
-const PEOPLE_MAX=50;
+const PEOPLE_MAX=100;
 function escHTML(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;')
   .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function loadPeople(){
@@ -1391,7 +1391,13 @@ function renderPeople(){
   const box=document.getElementById('people'); if(!box) return;
   const list=loadPeople();
   if(!list.length){ box.innerHTML='<span class="people-empty">まだ保存された方はいません</span>'; return; }
-  box.innerHTML=list.map(function(e,i){
+  // 表示はあいうえお順（日本語の並び替え）。ただし usePerson/delPerson は
+  // 保存された生データ（loadPeople()）の位置を直接参照する作りのため、
+  // 並び替えても元のインデックスがずれないよう、ペアにしてからソートする。
+  const indexed=list.map(function(e,i){return {e:e, i:i};});
+  indexed.sort(function(a,b){return (a.e.name||'').localeCompare(b.e.name||'','ja');});
+  box.innerHTML=indexed.map(function(o){
+    const e=o.e, i=o.i;
     const t=e.hUnknown?'時刻不明':(e.time||'');
     return '<span class="pchip" onclick="usePerson('+i+')">'+
       '<span class="pname">'+escHTML(e.name)+'</span>'+

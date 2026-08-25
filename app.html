@@ -565,7 +565,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608260135';
+var APP_VERSION = '202608260206';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4514,6 +4514,12 @@ function sjTsquares(natal,date,natOpp){
   natOpp.forEach(({a,b,orb})=>{
     SJ_TRANS.forEach(t=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(a)&&SJ_OUTER.includes(b)) return;
+      // T火星はN土星と組むときだけ拾う、という他の凶角判定と同じ制限を
+      // ここでも適用する（2026-08-26 追加。抜けていたバグ）。
+      if(t==='Mars'&&a!=='Saturn'&&b!=='Saturn') return;
+      // Tスクエア・グランドクロスは、太陽か月を巻き込むものだけを扱う（2026-08-26 追加）。
+      // 外惑星どうしだけで組むものは頻度が高く個人差が出にくいため対象外にする、という判断。
+      if(a!=='Sun'&&a!=='Moon'&&b!=='Sun'&&b!=='Moon') return;
       const s1=Math.abs(sjSep(tr[t],natal[a])-90), s2=Math.abs(sjSep(tr[t],natal[b])-90);
       if(s1<=6&&s2<=6) res.push({apex:'T'+SJ_NAME[t],base:'N'+SJ_NAME[a]+'☍N'+SJ_NAME[b],
         slow:SJ_SLOW.includes(t), orb:Math.max(s1,s2,orb)});
@@ -4522,9 +4528,12 @@ function sjTsquares(natal,date,natOpp){
   SJ_TRANS.forEach(t=>{
     SJ_NATAL.forEach(a=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(a)) return;
+      if(t==='Mars'&&a!=='Saturn') return;   // 同上（2026-08-26 追加）
       if(Math.abs(sjSep(tr[t],natal[a])-180)>8) return;
       SJ_NATAL.forEach(c=>{
         if(c===a) return;
+        // 同上：太陽か月が絡むものだけ（2026-08-26 追加）
+        if(c!=='Sun'&&c!=='Moon'&&a!=='Sun'&&a!=='Moon') return;
         const s1=Math.abs(sjSep(natal[c],tr[t])-90), s2=Math.abs(sjSep(natal[c],natal[a])-90);
         if(s1<=6&&s2<=6) res.push({apex:'N'+SJ_NAME[c],base:'T'+SJ_NAME[t]+'☍N'+SJ_NAME[a],
           slow:SJ_SLOW.includes(t), orb:Math.max(s1,s2)});
@@ -4542,6 +4551,7 @@ function sjGrandCross(natal,date,natOpp){
   const axes=natOpp.map(o=>({a:'N'+o.a,b:'N'+o.b,orb:o.orb}));
   SJ_TRANS.forEach(t=>SJ_NATAL.forEach(n=>{
     if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(n)) return;
+    if(t==='Mars'&&n!=='Saturn') return;   // 同上（2026-08-26 追加。抜けていたバグ）
     const o=Math.abs(sjSep(tr[t],natal[n])-180);
     if(o<=8) axes.push({a:'T'+t,b:'N'+n,orb:o});
   }));
@@ -4549,6 +4559,8 @@ function sjGrandCross(natal,date,natOpp){
   for(let i=0;i<axes.length;i++) for(let j=i+1;j<axes.length;j++){
     const A=axes[i], B=axes[j];
     if([A.a,A.b].some(x=>x===B.a||x===B.b)) continue;   // 同じ天体の使い回しは除く
+    // 太陽か月が4点のどこかに入っているものだけ扱う（2026-08-26 追加）
+    if(![A.a,A.b,B.a,B.b].some(x=>x==='NSun'||x==='NMoon')) continue;
     const s1=Math.abs(sjSep(pos(A.a),pos(B.a))-90);
     const s2=Math.abs(sjSep(pos(A.a),pos(B.b))-90);
     if(s1<=6&&s2<=6){

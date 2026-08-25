@@ -318,14 +318,20 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 
 /* 三重殺・準備段階：東洋10要素のうち2つが重なった年（2026-08-25 追加）
    ★（3つ以上）とは別枠。判定基準は3つ以上のまま変えず、
-   目で強弱が分かるよう薄い印だけ足す。クリック不可（西洋盤は3つ以上でのみ意味を持つ）。 */
+   目で強弱が分かるよう色を変えて出す。クリック不可（西洋盤は3つ以上でのみ意味を持つ）。
+   ※最初は赤のopacity .4で出していたが、背景(#1d1916系)が暗いため実質見えなかった。
+   2026-08-25 修正：白い☆を、赤い枠の小さな丸バッジで囲む形に変更。 */
 .sanju-star-weak{
-  position:absolute; left:-3px; top:50%; transform:translateY(-50%);
-  color:#e0453c;
-  opacity:.4;
-  font-size:12px;
-  cursor:default;
+  position:absolute; left:-4px; top:50%; transform:translateY(-50%);
+  width:15px; height:15px;
+  display:flex; align-items:center; justify-content:center;
+  box-sizing:border-box;
+  border:1px solid var(--shu);
+  border-radius:50%;
+  color:var(--washi);
+  font-size:10px;
   line-height:1;
+  cursor:default;
 }
 
 /* 三重殺トランジット盤 */
@@ -559,7 +565,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608251702';
+var APP_VERSION = '202608251744';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。

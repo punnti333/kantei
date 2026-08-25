@@ -318,16 +318,21 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 
 /* 三重殺・準備段階：東洋12要素のうち2つが重なった年（2026-08-25 追加）
    ★（3つ以上）とは別枠。判定基準は3つ以上のまま変えず、
-   目で強弱が分かるよう色を変えて出す。クリック不可（西洋盤は3つ以上でのみ意味を持つ）。
+   目で強弱が分かるよう色を変えて出す。
    ※最初は赤のopacity .4で出していたが、背景(#1d1916系)が暗いため実質見えなかった。
-   丸枠バッジも試したが、星だけでよいとのことで撤去（2026-08-25 再修正）。 */
+   丸枠バッジも試したが、星だけでよいとのことで撤去（2026-08-25 再修正）。
+   ※盤は当初クリック不可にしていた（西洋の凶角は東洋3つ以上の年でのみ「意味を持つ」
+   という判定ロジック上の理由）。2026-08-25 23:06、参考として盤自体は見られるように
+   変更。三重殺の成立判定（3つ以上）や★との違いには一切触れていない。 */
 .sanju-star-weak{
   position:absolute; left:-3px; top:50%; transform:translateY(-50%);
   color:var(--washi);
   font-size:14px;
   line-height:1;
-  cursor:default;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
 }
+.sanju-star-weak:active{ opacity:.5; }
 
 /* 三重殺トランジット盤 */
 #sanju-modal{
@@ -560,7 +565,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608252131';
+var APP_VERSION = '202608252306';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2064,7 +2069,7 @@ function updateNengun(){
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
       '<td style="'+tdSty+'position:relative;padding-left:20px;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
          (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三重殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':
-          isSanjuWeak?'<span class="sanju-star-weak" title="要素2つ：'+_sanju.join('・')+'（参考。三重殺の成立には3つ以上が必要）">☆</span>':'')+
+          isSanjuWeak?'<span class="sanju-star-weak" onclick="openSanjuChart('+yr+',true)" title="要素2つ：'+_sanju.join('・')+'（参考。三重殺の成立には3つ以上が必要。押すとトランジットを表示）">☆</span>':'')+
          '<span class="'+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'">'+
            '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
            // 地支は「本気の蔵干」の五行で喜忌の色を付ける（2026-08-19 追加）。
@@ -4659,7 +4664,7 @@ function sjBuildChart(natal,year){
 }
 
 // ★を押したときに開く
-function openSanjuChart(year){
+function openSanjuChart(year,weak){
   const d=window._nengunData; if(!d) return;
   const natal=sjNatal(d.y,d.bm,d.bd);
   const {svg,list,date,main}=sjBuildChart(natal,year);
@@ -4741,7 +4746,9 @@ function openSanjuChart(year){
       +tsqHtml
       ;
   }
-  document.getElementById('sanju-title').textContent=year+'年　三重殺';
+  // weak=true は☆（要素2つ）からの参考表示。三重殺（★・3つ以上）そのものではないため
+  // タイトルで区別する（2026-08-25 23:06 追加）。
+  document.getElementById('sanju-title').textContent=year+'年　'+(weak?'三重殺・参考（2要素）':'三重殺');
   box.classList.add('on');
 }
 function closeSanjuChart(){

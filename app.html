@@ -565,7 +565,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608260000';
+var APP_VERSION = '202608260025';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4647,12 +4647,14 @@ function sjBuildChart(natal,year){
     const [x1,y1]=pt(ang(tr[a.t]),R_ASP), [x2,y2]=pt(ang(natal[a.n]),R_ASP);
     const isMain=(a.t===main.t&&a.n===main.n&&a.nm===main.nm);
     const aColor=SJ_ASPECT_COLOR[a.mark]||'#e0453c';
+    // 主役以外の線が細く・薄くて見えづらいとの指摘（2026-08-26）。
+    // メインラインほどではないが、はっきり見える太さ・不透明度に引き上げた。
     g+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" `
-      +`stroke="${aColor}" stroke-width="${isMain?2.4:1.1}" opacity="${isMain?0.95:0.55}"/>`;
+      +`stroke="${aColor}" stroke-width="${isMain?2.4:1.8}" opacity="${isMain?0.95:0.75}"/>`;
     // 線の中点に凶角の記号（☌／□／☍）を添えて、色だけでなく記号でも角度の種類が分かるようにする（2026-08-25 追加）
     const mx=(x1+x2)/2, my=(y1+y2)/2;
     g+=`<text x="${mx.toFixed(1)}" y="${(my+4).toFixed(1)}" text-anchor="middle" `
-      +`font-size="${isMain?13:10}" fill="${aColor}" ${isMain?'font-weight="700"':''} `
+      +`font-size="${isMain?13:12}" fill="${aColor}" ${isMain?'font-weight="700"':''} `
       +`paint-order="stroke" stroke="#1d1916" stroke-width="3">${a.mark}</text>`;
   });
   // 天体を置く（重なりをずらす）
@@ -4749,15 +4751,10 @@ function openSanjuChart(year,weak){
         +'</div>'
       : '';
 
+    // 2026-08-26：上部の説明文＋凡例は、最下部の日付要約と内容が重複してスペースの無駄との
+    // 指摘があったため撤去。図と記号（☌／□／☍・線の色）だけで読ませる形にした。
     body.innerHTML=
-      '<div style="text-align:center;">'+svg+'</div>'
-      +'<p style="font-size:12px;color:rgba(236,227,208,.5);margin:6px 0 4px;text-align:center;">'
-      +'ソーラーサイン／外＝トランジット　内＝ネイタル<br>'
-      +'盤面は '+(date.getUTCMonth()+1)+'/'+date.getUTCDate()+'（凶角がいちばん重なる日）の配置</p>'
-      // 凶角の色分け凡例（2026-08-25 追加）。線の色・記号だけで角度の種類が分かるようにするため。
-      +'<p style="font-size:11.5px;color:rgba(236,227,208,.6);margin:0 0 12px;text-align:center;">'
-      +'<span style="color:'+SJ_ASPECT_COLOR['☌']+';">●合(☌・0°)</span>　'
-      +'<span style="color:'+SJ_ASPECT_COLOR['□']+';">●スクエア／オポジション(□☍・90°/180°)</span></p>'
+      '<div style="text-align:center;margin-bottom:8px;">'+svg+'</div>'
       +'<table style="width:100%;border-collapse:collapse;">'+rows+'</table>'
       +gcHtml
       +tsqHtml

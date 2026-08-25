@@ -305,13 +305,14 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 
 /* 三重殺：東洋の6要素のうち2つ以上が重なった年（2026-08-21 追加） */
 .sanju-star{
+  /* 絶対配置。行の幅を取らないので干支の位置がずれない（2026-08-24 修正） */
+  position:absolute; left:1px; top:50%; transform:translateY(-50%);
   color:#e0453c;
-  font-size:17px;
-  margin-right:3px;
+  font-size:15px;
   text-shadow:0 0 6px rgba(224,69,60,.55);
-  vertical-align:1px;
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
+  line-height:1;
 }
 .sanju-star:active{ opacity:.5; }
 
@@ -1996,17 +1997,21 @@ function updateNengun(){
     const ankenMark=honmeiAnken&&keishaAnken?'◎':keishaAnken?'●':honmeiAnken?'○':'';
 
     // ===== 三重殺（2026-08-21 追加）=====
-    // 東洋の6要素のうち2つ以上が重なった年。
-    //   四柱推命 … 冲（日支と年運の支）／日柱併臨／空亡
+    // 東洋の7要素のうち2つ以上が重なった年。
+    //   四柱推命 … 冲（日支と年運の支）／日柱併臨／空亡／天戦地冲（日柱）
     //   九星気学 … 本命暗剣殺／傾斜暗剣殺／傾斜五黄殺
+    // ※天戦地冲は日柱のみ。月柱の天戦地冲は紫の下線で表示するが★の判定には入れない。
+    //   他の6要素がすべて日柱・本命星から出ているため、月柱を混ぜると土台が揃わない。
     // ここで判定するのは東洋側だけ。何が起きるかは西洋（★を押すと開く盤）で見る。
     // ※冲は「日支との冲」に限る。四柱のどこかとの冲まで広げると
     //   約3.5年に1回まで頻度が上がり、意味が薄れる。
     const _chuNichi = (CHUU[d.dShi]===ks.shi);
+    const _tensenN  = isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi);   // 日柱との天戦地冲
     const _sanju=[];
     if(_chuNichi)     _sanju.push('冲');
     if(isHeirinN)     _sanju.push('日柱併臨');
     if(isKuubou)      _sanju.push('空亡');
+    if(_tensenN)      _sanju.push('天戦地冲');
     if(honmeiAnken)   _sanju.push('本命暗剣殺');
     if(keishaAnken)   _sanju.push('傾斜暗剣殺');
     if(hasKeishaGoou) _sanju.push('傾斜五黄殺');
@@ -2026,7 +2031,7 @@ function updateNengun(){
     const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
-      '<td style="'+tdSty+'font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
+      '<td style="'+tdSty+'position:relative;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
          (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三重殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':'')+
          '<span class="'+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'">'+
            '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
@@ -4382,6 +4387,9 @@ function keishaPalace(y,m,d,male){
 // ===================================================================
 
 const SJ_BODIES=['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
+// N側で凶角を見ない天体。水星・金星・木星は吉星ないし軽い天体として外す（2026-08-24）
+const SJ_NSKIP=['Mercury','Venus','Jupiter'];
+const SJ_NATAL=SJ_BODIES.filter(b=>!SJ_NSKIP.includes(b));
 const SJ_TRANS =['Mars','Saturn','Uranus','Neptune','Pluto'];
 const SJ_OUTER =['Uranus','Neptune','Pluto'];       // トランス同士の除外用
 const SJ_SLOW  =['Saturn','Uranus','Neptune','Pluto'];
@@ -4408,10 +4416,13 @@ function sjNatal(y,mo,d){
 function sjFindAspects(natal,year){
   const ev=[];
   SJ_TRANS.forEach(t=>{
-    SJ_BODIES.forEach(n=>{
+    SJ_NATAL.forEach(n=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(n)) return;   // トランス同士は除外
       SJ_HARD.forEach(([ang,nm,mark,orb])=>{
-        let inOrb=false, enter=null, best=null;
+        // 前年の大晦日に既にオーブ内なら「継続」。元旦から入っていても新規ではない。
+        const prev=new Date(Date.UTC(year-1,11,31,3,0));
+        const carryIn=(Math.abs(sjSep(sjLon(t,prev),natal[n])-ang)<=orb);
+        let inOrb=false, enter=null, best=null, first=true;
         for(let i=0;i<366;i++){
           const dt=new Date(Date.UTC(year,0,1+i,3,0));
           if(dt.getUTCFullYear()!==year) break;
@@ -4420,11 +4431,11 @@ function sjFindAspects(natal,year){
             if(!inOrb){ inOrb=true; enter=dt; best={o,dt}; }
             else if(o<best.o) best={o,dt};
           }else if(inOrb){
-            ev.push({t,n,nm,mark,orb:best.o,date:best.dt,enter,slow:SJ_SLOW.includes(t)});
-            inOrb=false; best=null;
+            ev.push({t,n,nm,mark,orb:best.o,date:best.dt,enter,carry:(first&&carryIn),slow:SJ_SLOW.includes(t)});
+            inOrb=false; best=null; first=false;
           }
         }
-        if(inOrb) ev.push({t,n,nm,mark,orb:best.o,date:best.dt,enter,slow:SJ_SLOW.includes(t)});
+        if(inOrb) ev.push({t,n,nm,mark,orb:best.o,date:best.dt,enter,carry:(first&&carryIn),slow:SJ_SLOW.includes(t)});
       });
     });
   });
@@ -4438,8 +4449,8 @@ function sjFindAspects(natal,year){
 // ネイタルどうしのオポジション（Tスクエアの土台になる軸）
 function sjNatalOpp(natal){
   const r=[];
-  for(let i=0;i<SJ_BODIES.length;i++) for(let j=i+1;j<SJ_BODIES.length;j++){
-    const a=SJ_BODIES[i], b=SJ_BODIES[j];
+  for(let i=0;i<SJ_NATAL.length;i++) for(let j=i+1;j<SJ_NATAL.length;j++){
+    const a=SJ_NATAL[i], b=SJ_NATAL[j];
     const o=Math.abs(sjSep(natal[a],natal[b])-180);
     if(o<=8) r.push({a,b,orb:o});
   }
@@ -4461,10 +4472,10 @@ function sjTsquares(natal,date,natOpp){
     });
   });
   SJ_TRANS.forEach(t=>{
-    SJ_BODIES.forEach(a=>{
+    SJ_NATAL.forEach(a=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(a)) return;
       if(Math.abs(sjSep(tr[t],natal[a])-180)>8) return;
-      SJ_BODIES.forEach(c=>{
+      SJ_NATAL.forEach(c=>{
         if(c===a) return;
         const s1=Math.abs(sjSep(natal[c],tr[t])-90), s2=Math.abs(sjSep(natal[c],natal[a])-90);
         if(s1<=6&&s2<=6) res.push({apex:'N'+SJ_NAME[c],base:'T'+SJ_NAME[t]+'☍N'+SJ_NAME[a],
@@ -4475,15 +4486,43 @@ function sjTsquares(natal,date,natOpp){
   return res;
 }
 
-// その年、月ごとにTスクエアを拾う
+// グランドクロス：オポジション2本が互いに90°で組む（4点）
+function sjGrandCross(natal,date,natOpp){
+  const tr={}; SJ_TRANS.forEach(b=>tr[b]=sjLon(b,date));
+  const pos=n=>n.startsWith('T')?tr[n.slice(1)]:natal[n.slice(1)];
+  // オポジションの軸をすべて集める（N☍N と T☍N）
+  const axes=natOpp.map(o=>({a:'N'+o.a,b:'N'+o.b,orb:o.orb}));
+  SJ_TRANS.forEach(t=>SJ_NATAL.forEach(n=>{
+    if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(n)) return;
+    const o=Math.abs(sjSep(tr[t],natal[n])-180);
+    if(o<=8) axes.push({a:'T'+t,b:'N'+n,orb:o});
+  }));
+  const res=[];
+  for(let i=0;i<axes.length;i++) for(let j=i+1;j<axes.length;j++){
+    const A=axes[i], B=axes[j];
+    if([A.a,A.b].some(x=>x===B.a||x===B.b)) continue;   // 同じ天体の使い回しは除く
+    const s1=Math.abs(sjSep(pos(A.a),pos(B.a))-90);
+    const s2=Math.abs(sjSep(pos(A.a),pos(B.b))-90);
+    if(s1<=6&&s2<=6){
+      const nm=x=>(x[0]==='T'?'T':'N')+SJ_NAME[x.slice(1)];
+      res.push({label:nm(A.a)+'☍'+nm(A.b)+' × '+nm(B.a)+'☍'+nm(B.b),
+        orb:Math.max(A.orb,B.orb,s1,s2),
+        slow:[A.a,A.b,B.a,B.b].some(x=>x[0]==='T'&&SJ_SLOW.includes(x.slice(1)))});
+    }
+  }
+  return res;
+}
+
+// その年、月ごとにTスクエアとグランドクロスを拾う
 function sjTsquareYear(natal,year){
   const natOpp=sjNatalOpp(natal);
-  const out=[];
+  const out=[], gc=[];
   for(let m=0;m<12;m++){
     const d=new Date(Date.UTC(year,m,15,3,0));
     sjTsquares(natal,d,natOpp).forEach(x=>out.push(Object.assign({month:m+1},x)));
+    sjGrandCross(natal,d,natOpp).forEach(x=>gc.push(Object.assign({month:m+1},x)));
   }
-  return {natOpp,list:out};
+  return {natOpp,list:out,cross:gc};
 }
 
 // SVGを組み立てる
@@ -4526,7 +4565,7 @@ function sjBuildChart(natal,year){
   //   年間のどこかで成立するものを全部引くと、角度が合わない線になってしまう。
   const onChart=[];
   SJ_TRANS.forEach(t=>{
-    SJ_BODIES.forEach(n=>{
+    SJ_NATAL.forEach(n=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(n)) return;
       const sp=sjSep(tr[t],natal[n]);
       SJ_HARD.forEach(([a2,nm,mark,orb])=>{
@@ -4573,35 +4612,42 @@ function openSanjuChart(year){
   if(!list.length){
     body.innerHTML='<p style="color:var(--washi2);font-size:14px;">この年、条件に合う凶角は見つかりませんでした。</p>';
   }else{
-    // 一覧は「オーブに入った順」。逆行で二度来るものは2行に出る。
+    // 一覧は ◆（土星以遠）を先に、・（火星）を後ろに。
+    // ◆の中では「その年に新しく入った順」。前年からの継続は下にまとめる。
+    // 火星は一年で何十本も組むため、時系列で混ぜると◆が埋もれてしまう。
     const _fmt=d=>(d.getUTCMonth()+1)+'/'+d.getUTCDate();
-    const _byTime=list.slice().sort((a,b)=>a.enter-b.enter);
+    const _slow=list.filter(a=>a.slow).sort((a,b)=>a.enter-b.enter);
+    const _fast=list.filter(a=>!a.slow).sort((a,b)=>a.enter-b.enter);
+    const _hdr=t=>'<tr><td colspan="4" style="padding:9px 6px 3px;font-size:11.5px;'
+      +'color:var(--kin);letter-spacing:.08em;border-bottom:1px solid rgba(201,164,76,.16);">'+t+'</td></tr>';
+    const _row=(a,dim)=>{
+      const isMain=(a.t===main.t&&a.n===main.n&&a.nm===main.nm);
+      const c=isMain?'#f0a0a0':(dim?'rgba(236,227,208,.55)':'var(--washi2)');
+      const fs=dim?'11.5px':'12.5px';
+      return '<tr style="'+(isMain?'background:rgba(192,57,43,.16);':'')+'">'
+        +'<td style="padding:3px 6px;color:'+c+';font-size:'+fs+';white-space:nowrap;">'+_fmt(a.enter)+'</td>'
+        +'<td style="padding:3px 6px;color:'+c+';font-size:'+fs+';white-space:nowrap;">'+_fmt(a.date)+'</td>'
+        +'<td style="padding:3px 6px;color:'+c+';font-size:'+fs+';">'
+          +(a.slow?'◆':'・')+' T'+SJ_NAME[a.t]+' '+a.mark+' N'+SJ_NAME[a.n]+'</td>'
+        +'<td style="padding:3px 6px;color:rgba(236,227,208,.42);font-size:11.5px;text-align:right;">'
+          +a.orb.toFixed(1)+'°</td></tr>';
+    };
     const rows='<tr>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:left;">入り</th>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:left;">正確</th>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:left;">凶角</th>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:right;">誤差</th></tr>'
-      +_byTime.map(a=>{
-        const isMain=(a.t===main.t&&a.n===main.n&&a.nm===main.nm);
-        const c=isMain?'#f0a0a0':'var(--washi2)';
-        return '<tr style="'+(isMain?'background:rgba(192,57,43,.16);':'')+'">'
-          +'<td style="padding:4px 6px;color:'+c+';font-size:12.5px;white-space:nowrap;">'+_fmt(a.enter)+'</td>'
-          +'<td style="padding:4px 6px;color:'+c+';font-size:12.5px;white-space:nowrap;">'+_fmt(a.date)+'</td>'
-          +'<td style="padding:4px 6px;color:'+c+';font-size:12.5px;">'
-            +(a.slow?'◆':'・')+' T'+SJ_NAME[a.t]+' '+a.mark+' N'+SJ_NAME[a.n]+'</td>'
-          +'<td style="padding:4px 6px;color:rgba(236,227,208,.45);font-size:12px;text-align:right;">'
-            +a.orb.toFixed(1)+'°</td></tr>';
-      }).join('');
-    // ── A：同じ出生天体に複数のトランジットが集まっているか
-    // ※火星は一年で全天体を回るため、火星を数に入れるとどの天体も2〜3本になり
-    //   区別がつかなくなる。土星以遠だけで数える。
+      +(_slow.length?_hdr('◆ 土星以遠')+_slow.map(a=>_row(a,false)).join(''):'')
+      +(_fast.length?_hdr('・ 火星（短期）'+_fast.length+'件')+_fast.map(a=>_row(a,true)).join(''):'');
+    // ── 複数打たれている天体（◆が2本以上当たっている出生天体）
+    // 火星は一年で全天体を回るため数に入れない。土星以遠だけで数える。
     const hitCount={};
-    list.filter(a=>SJ_SLOW.includes(a.t)).forEach(a=>{ (hitCount[a.n]=hitCount[a.n]||[]).push(a); });
+    list.filter(a=>a.slow).forEach(a=>{ (hitCount[a.n]=hitCount[a.n]||[]).push(a); });
     const focus=Object.keys(hitCount).filter(n=>hitCount[n].length>=2)
       .sort((a,b)=>hitCount[b].length-hitCount[a].length);
     const focusHtml = focus.length
       ? '<div style="margin-top:14px;border-top:1px solid rgba(201,164,76,.2);padding-top:10px;">'
-        +'<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;color:var(--kin2);letter-spacing:.1em;margin-bottom:6px;">打たれている点</div>'
+        +'<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;color:var(--kin2);letter-spacing:.1em;margin-bottom:6px;">複数打たれている天体</div>'
         +focus.map(n=>'<div style="font-size:13px;color:var(--washi2);margin-bottom:3px;">'
           +'<span style="color:#f0a0a0;font-weight:700;">N'+SJ_NAME[n]+'</span>　'
           +hitCount[n].map(a=>'T'+SJ_NAME[a.t]+a.mark).join('　')
@@ -4617,8 +4663,19 @@ function openSanjuChart(year){
     // ◆（土星以遠）は全部、・（火星）は誤差の小さい上位3つまで。
     // 火星は一年で何本も組むため、全部並べると重いものが埋もれる。
     const _all=Object.values(byMonth).sort((a,b)=>a.orb-b.orb);
-    const _fast=_all.filter(x=>!x.slow).slice(0,3);
-    const tlist=_all.filter(x=>x.slow).concat(_fast);
+    const _tsqFast=_all.filter(x=>!x.slow).slice(0,3);
+    const tlist=_all.filter(x=>x.slow).concat(_tsqFast);
+    const gcMap={}; (tsq.cross||[]).forEach(x=>{ if(!gcMap[x.label]||x.orb<gcMap[x.label].orb) gcMap[x.label]=x; });
+    const gcList=Object.values(gcMap).sort((a,b)=>(a.slow===b.slow)?a.orb-b.orb:(a.slow?-1:1));
+    const gcHtml = gcList.length
+      ? '<div style="margin-top:14px;border-top:1px solid rgba(224,69,60,.35);padding-top:10px;">'
+        +'<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;color:#f0a0a0;letter-spacing:.1em;margin-bottom:6px;">グランドクロス</div>'
+        +gcList.map(x=>'<div style="font-size:13px;color:'+(x.slow?'#f0a0a0':'var(--washi2)')+';margin-bottom:3px;">'
+          +(x.slow?'◆':'・')+' '+x.label
+          +'　<span style="color:rgba(236,227,208,.45);">'+x.month+'月ごろ　'+x.orb.toFixed(1)+'°</span></div>').join('')
+        +'</div>'
+      : '';
+
     const tsqHtml = tlist.length
       ? '<div style="margin-top:14px;border-top:1px solid rgba(201,164,76,.2);padding-top:10px;">'
         +'<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;color:var(--kin2);letter-spacing:.1em;margin-bottom:6px;">Tスクエア</div>'
@@ -4639,13 +4696,9 @@ function openSanjuChart(year){
       +'盤面は '+(date.getUTCMonth()+1)+'月（いちばん重い凶角が最も締まる時期）の配置</p>'
       +'<table style="width:100%;border-collapse:collapse;">'+rows+'</table>'
       +focusHtml
+      +gcHtml
       +tsqHtml
-      +'<p style="font-size:11.5px;color:rgba(236,227,208,.42);margin-top:12px;line-height:1.9;">'
-      +'◆＝土星以遠（数か月効く）　・＝火星（短期）<br>'
-      +'T側＝火星・土星・天王星・海王星・冥王星／N側＝全天体<br>'
-      +'合・スクエア・オポジションのみ。トランス同士は除外<br>'
-      +'Tスクエアはスクエア6°・オポジション8°で判定<br>'
-      +'一覧はオーブに入った順。逆行で年に二度来るものは2行に出る</p>';
+      ;
   }
   document.getElementById('sanju-title').textContent=year+'年　三重殺';
   box.classList.add('on');

@@ -306,7 +306,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 /* 三重殺：東洋の6要素のうち2つ以上が重なった年（2026-08-21 追加） */
 .sanju-star{
   /* 絶対配置。行の幅を取らないので干支の位置がずれない（2026-08-24 修正） */
-  position:absolute; left:1px; top:50%; transform:translateY(-50%);
+  position:absolute; left:-3px; top:50%; transform:translateY(-50%);
   color:#e0453c;
   font-size:15px;
   text-shadow:0 0 6px rgba(224,69,60,.55);
@@ -1993,20 +1993,25 @@ function updateNengun(){
     const keisha=keishaPalace(d.y,d.bm,d.bd,SEX==='male');
     const honmeiAnken=goouPalace!=='中宮'&&palace===OPP_PAL_K[goouPalace];
     const keishaAnken=goouPalace!=='中宮'&&keisha===OPP_PAL_K[goouPalace];
-    const hasKeishaGoou=goouPalace!=='中宮'&&keisha===goouPalace;
+    // 五黄土星の人には五黄殺は成立しない。五黄は本人の星なので、
+    // それが傾斜宮に回座しても「自分の星がそこに来た」だけで殺ではない。
+    // 青い●の表示と★の判定、両方に効かせる（2026-08-24）。
+    const hasKeishaGoou=goouPalace!=='中宮'&&keisha===goouPalace&&honmei!==5;
     const ankenMark=honmeiAnken&&keishaAnken?'◎':keishaAnken?'●':honmeiAnken?'○':'';
 
     // ===== 三重殺（2026-08-21 追加）=====
-    // 東洋の7要素のうち2つ以上が重なった年。
+    // 東洋の10要素のうち【3つ以上】が重なった年。約18.5年に1回、生涯4回ほど。
     //   四柱推命 … 冲（日支と年運の支）／日柱併臨／空亡／天戦地冲（日柱）
-    //   九星気学 … 本命暗剣殺／傾斜暗剣殺／傾斜五黄殺
+    //   九星気学 … 本命暗剣殺／傾斜暗剣殺／傾斜五黄殺／本命中宮／本命艮宮／本命坎宮
     // ※天戦地冲は日柱のみ。月柱の天戦地冲は紫の下線で表示するが★の判定には入れない。
-    //   他の6要素がすべて日柱・本命星から出ているため、月柱を混ぜると土台が揃わない。
+    //   他の要素がすべて日柱・本命星から出ているため、月柱を混ぜると土台が揃わない。
+    // ※五黄土星の人には傾斜五黄殺を立てない（2026-08-24）。
     // ここで判定するのは東洋側だけ。何が起きるかは西洋（★を押すと開く盤）で見る。
     // ※冲は「日支との冲」に限る。四柱のどこかとの冲まで広げると
     //   約3.5年に1回まで頻度が上がり、意味が薄れる。
     const _chuNichi = (CHUU[d.dShi]===ks.shi);
     const _tensenN  = isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi);   // 日柱との天戦地冲
+    // ※本命暗剣殺も、五黄の人には構造上ありえない（本命の位置＝五黄の位置のため）
     const _sanju=[];
     if(_chuNichi)     _sanju.push('冲');
     if(isHeirinN)     _sanju.push('日柱併臨');
@@ -2015,7 +2020,10 @@ function updateNengun(){
     if(honmeiAnken)   _sanju.push('本命暗剣殺');
     if(keishaAnken)   _sanju.push('傾斜暗剣殺');
     if(hasKeishaGoou) _sanju.push('傾斜五黄殺');
-    const isSanjusatsu = _sanju.length>=2;
+    if(palace==='中宮') _sanju.push('本命中宮');
+    if(palace==='艮')   _sanju.push('本命艮宮');
+    if(palace==='坎')   _sanju.push('本命坎宮');
+    const isSanjusatsu = _sanju.length>=3;
     const kaiMark=
       (ankenMark?'<span class="nengun-kaza-mark red" title="'+(honmeiAnken&&keishaAnken?'本命・傾斜暗剣殺':keishaAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+ankenMark+'</span>':'')+
       (hasKeishaGoou?'<span class="nengun-kaza-mark blue" title="傾斜五黄殺">●</span>':'');
@@ -2031,7 +2039,7 @@ function updateNengun(){
     const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
-      '<td style="'+tdSty+'position:relative;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
+      '<td style="'+tdSty+'position:relative;padding-left:20px;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
          (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三重殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':'')+
          '<span class="'+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'">'+
            '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
@@ -4662,8 +4670,9 @@ function openSanjuChart(year){
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:left;">正確</th>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:left;">凶角</th>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:right;">誤差</th></tr>'
-      +(_slow.length?_hdr('◆ 土星以遠')+_slow.map(a=>_row(a,false)).join(''):'')
-      +(_fast.length?_hdr('・ 火星（短期）'+_fast.length+'件')+_fast.map(a=>_row(a,true)).join(''):'');
+      +(_slow.length?_slow.map(a=>_row(a,false)).join(''):'');
+    // 火星（T火星×N土星）は一覧に出さない。主役ではないため（2026-08-24）。
+    // 判定にも図の日付にも影響しない。盤の線とTスクエアには引き続き反映される。
     // ── B：Tスクエア
     const tsq=sjTsquareYear(natal,year);
     const byMonth={};

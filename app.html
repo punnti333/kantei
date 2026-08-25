@@ -303,7 +303,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 }
 /* ===== 命式タイプ ここまで ===== */
 
-/* 三重殺：東洋10要素のうち3つ以上が重なった年（2026-08-21 追加） */
+/* 三重殺：東洋12要素のうち3つ以上が重なった年（2026-08-21 追加、2026-08-25 12要素へ拡張） */
 .sanju-star{
   /* 絶対配置。行の幅を取らないので干支の位置がずれない（2026-08-24 修正） */
   position:absolute; left:-3px; top:50%; transform:translateY(-50%);
@@ -316,20 +316,15 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 }
 .sanju-star:active{ opacity:.5; }
 
-/* 三重殺・準備段階：東洋10要素のうち2つが重なった年（2026-08-25 追加）
+/* 三重殺・準備段階：東洋12要素のうち2つが重なった年（2026-08-25 追加）
    ★（3つ以上）とは別枠。判定基準は3つ以上のまま変えず、
    目で強弱が分かるよう色を変えて出す。クリック不可（西洋盤は3つ以上でのみ意味を持つ）。
    ※最初は赤のopacity .4で出していたが、背景(#1d1916系)が暗いため実質見えなかった。
-   2026-08-25 修正：白い☆を、赤い枠の小さな丸バッジで囲む形に変更。 */
+   丸枠バッジも試したが、星だけでよいとのことで撤去（2026-08-25 再修正）。 */
 .sanju-star-weak{
-  position:absolute; left:-4px; top:50%; transform:translateY(-50%);
-  width:15px; height:15px;
-  display:flex; align-items:center; justify-content:center;
-  box-sizing:border-box;
-  border:1px solid var(--shu);
-  border-radius:50%;
+  position:absolute; left:-3px; top:50%; transform:translateY(-50%);
   color:var(--washi);
-  font-size:10px;
+  font-size:14px;
   line-height:1;
   cursor:default;
 }
@@ -565,7 +560,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608251744';
+var APP_VERSION = '202608252131';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2017,24 +2012,30 @@ function updateNengun(){
     const hasKeishaGoou=goouPalace!=='中宮'&&keisha===goouPalace&&honmei!==5;
     const ankenMark=honmeiAnken&&keishaAnken?'◎':keishaAnken?'●':honmeiAnken?'○':'';
 
-    // ===== 三重殺（2026-08-21 追加）=====
-    // 東洋の10要素のうち【3つ以上】が重なった年。約18.5年に1回、生涯4回ほど。
-    //   四柱推命 … 冲（日支と年運の支）／日柱併臨／空亡／天戦地冲（日柱）
+    // ===== 三重殺（2026-08-21 追加、2026-08-25 12要素へ拡張）=====
+    // 東洋の12要素のうち【3つ以上】が重なった年。
+    //   四柱推命 … 冲（日支と年運の支）／日柱併臨／空亡／天戦地冲（日柱）／
+    //             月柱併臨／天戦地冲（月柱）
     //   九星気学 … 本命暗剣殺／傾斜暗剣殺／傾斜五黄殺／本命中宮／本命艮宮／本命坎宮
-    // ※天戦地冲は日柱のみ。月柱の天戦地冲は紫の下線で表示するが★の判定には入れない。
-    //   他の要素がすべて日柱・本命星から出ているため、月柱を混ぜると土台が揃わない。
+    // ※月柱の併臨・天戦地冲は、当初「土台が揃わない」という理由で除外していたが、
+    //   2026-08-25、先生の実感（併臨と天戦地冲は空亡・冲より別格に事件が起きる）に
+    //   基づき追加。10→12要素化で「3つ以上」の出現率は約5.21%→約6.10%
+    //   （約19年に1回→約16.4年に1回）に上がる。大殺界の25%とはまだ大きな差がある。
     // ※五黄土星の人には傾斜五黄殺を立てない（2026-08-24）。
     // ここで判定するのは東洋側だけ。何が起きるかは西洋（★を押すと開く盤）で見る。
     // ※冲は「日支との冲」に限る。四柱のどこかとの冲まで広げると
     //   約3.5年に1回まで頻度が上がり、意味が薄れる。
     const _chuNichi = (CHUU[d.dShi]===ks.shi);
     const _tensenN  = isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi);   // 日柱との天戦地冲
+    const _tensenM  = isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi);   // 月柱との天戦地冲（2026-08-25 追加）
     // ※本命暗剣殺も、五黄の人には構造上ありえない（本命の位置＝五黄の位置のため）
     const _sanju=[];
     if(_chuNichi)     _sanju.push('冲');
     if(isHeirinN)     _sanju.push('日柱併臨');
     if(isKuubou)      _sanju.push('空亡');
-    if(_tensenN)      _sanju.push('天戦地冲');
+    if(_tensenN)      _sanju.push('天戦地冲（日柱）');
+    if(isHeirinM)     _sanju.push('月柱併臨');
+    if(_tensenM)      _sanju.push('天戦地冲（月柱）');
     if(honmeiAnken)   _sanju.push('本命暗剣殺');
     if(keishaAnken)   _sanju.push('傾斜暗剣殺');
     if(hasKeishaGoou) _sanju.push('傾斜五黄殺');
@@ -2044,7 +2045,7 @@ function updateNengun(){
     const isSanjusatsu = _sanju.length>=3;
     // 2026-08-25 追加：2つ重なった年を薄い印（☆）で出す。判定基準は3つ以上のまま変更しない。
     // ★との二値ではなく強弱を目で追えるようにするための表示上の追加で、
-    // 三重殺そのものの定義（東洋10要素・3つ以上）には触れていない。
+    // 三重殺そのものの定義（東洋12要素・3つ以上）には触れていない。
     const isSanjuWeak = _sanju.length===2;
     const kaiMark=
       (ankenMark?'<span class="nengun-kaza-mark red" title="'+(honmeiAnken&&keishaAnken?'本命・傾斜暗剣殺':keishaAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+ankenMark+'</span>':'')+

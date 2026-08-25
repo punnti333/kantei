@@ -303,7 +303,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 }
 /* ===== 命式タイプ ここまで ===== */
 
-/* 三重殺：東洋の6要素のうち2つ以上が重なった年（2026-08-21 追加） */
+/* 三重殺：東洋10要素のうち3つ以上が重なった年（2026-08-21 追加） */
 .sanju-star{
   /* 絶対配置。行の幅を取らないので干支の位置がずれない（2026-08-24 修正） */
   position:absolute; left:-3px; top:50%; transform:translateY(-50%);
@@ -315,6 +315,18 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
   line-height:1;
 }
 .sanju-star:active{ opacity:.5; }
+
+/* 三重殺・準備段階：東洋10要素のうち2つが重なった年（2026-08-25 追加）
+   ★（3つ以上）とは別枠。判定基準は3つ以上のまま変えず、
+   目で強弱が分かるよう薄い印だけ足す。クリック不可（西洋盤は3つ以上でのみ意味を持つ）。 */
+.sanju-star-weak{
+  position:absolute; left:-3px; top:50%; transform:translateY(-50%);
+  color:#e0453c;
+  opacity:.4;
+  font-size:12px;
+  cursor:default;
+  line-height:1;
+}
 
 /* 三重殺トランジット盤 */
 #sanju-modal{
@@ -2024,6 +2036,10 @@ function updateNengun(){
     if(palace==='艮')   _sanju.push('本命艮宮');
     if(palace==='坎')   _sanju.push('本命坎宮');
     const isSanjusatsu = _sanju.length>=3;
+    // 2026-08-25 追加：2つ重なった年を薄い印（☆）で出す。判定基準は3つ以上のまま変更しない。
+    // ★との二値ではなく強弱を目で追えるようにするための表示上の追加で、
+    // 三重殺そのものの定義（東洋10要素・3つ以上）には触れていない。
+    const isSanjuWeak = _sanju.length===2;
     const kaiMark=
       (ankenMark?'<span class="nengun-kaza-mark red" title="'+(honmeiAnken&&keishaAnken?'本命・傾斜暗剣殺':keishaAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+ankenMark+'</span>':'')+
       (hasKeishaGoou?'<span class="nengun-kaza-mark blue" title="傾斜五黄殺">●</span>':'');
@@ -2040,7 +2056,8 @@ function updateNengun(){
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
       '<td style="'+tdSty+'position:relative;padding-left:20px;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
-         (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三重殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':'')+
+         (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三重殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':
+          isSanjuWeak?'<span class="sanju-star-weak" title="要素2つ：'+_sanju.join('・')+'（参考。三重殺の成立には3つ以上が必要）">☆</span>':'')+
          '<span class="'+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'">'+
            '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
            // 地支は「本気の蔵干」の五行で喜忌の色を付ける（2026-08-19 追加）。

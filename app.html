@@ -565,7 +565,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608252352';
+var APP_VERSION = '202608260000';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4437,7 +4437,10 @@ const SJ_SIGNJP=['牡羊','牡牛','双子','蟹','獅子','乙女','天秤','�
 const SJ_HARD =[[0,'合','☌',8],[90,'スクエア','□',6],[180,'オポジション','☍',8]];
 // 凶角の種類ごとに線の色を分ける（2026-08-25 追加）。
 // 「N土星がTの何と90度なのか」が色だけで分かるように、角度の種類で固定の色を割り当てる。
-const SJ_ASPECT_COLOR={'☌':'#c9a44c','□':'#e0453c','☍':'#c78fff'};
+// オポジション(☍)は当初、月柱天戦地冲と同じ紫(#c78fff)にしていたが、
+// 暗い背景では見えづらい(先生の実機で確認)との指摘のため、スクエアと同じ赤に統一（2026-08-26）。
+// 合(☌)だけ金で区別し、90度・180度の「ハードな角度」はどちらも赤とする。
+const SJ_ASPECT_COLOR={'☌':'#c9a44c','□':'#e0453c','☍':'#e0453c'};
 
 function sjLon(body,date){
   return Astronomy.Ecliptic(Astronomy.GeoVector(Astronomy.Body[body],date,true)).elon;
@@ -4754,8 +4757,7 @@ function openSanjuChart(year,weak){
       // 凶角の色分け凡例（2026-08-25 追加）。線の色・記号だけで角度の種類が分かるようにするため。
       +'<p style="font-size:11.5px;color:rgba(236,227,208,.6);margin:0 0 12px;text-align:center;">'
       +'<span style="color:'+SJ_ASPECT_COLOR['☌']+';">●合(☌・0°)</span>　'
-      +'<span style="color:'+SJ_ASPECT_COLOR['□']+';">●スクエア(□・90°)</span>　'
-      +'<span style="color:'+SJ_ASPECT_COLOR['☍']+';">●オポジション(☍・180°)</span></p>'
+      +'<span style="color:'+SJ_ASPECT_COLOR['□']+';">●スクエア／オポジション(□☍・90°/180°)</span></p>'
       +'<table style="width:100%;border-collapse:collapse;">'+rows+'</table>'
       +gcHtml
       +tsqHtml

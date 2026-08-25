@@ -4418,6 +4418,7 @@ function sjFindAspects(natal,year){
   SJ_TRANS.forEach(t=>{
     SJ_NATAL.forEach(n=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(n)) return;   // トランス同士は除外
+      if(t==='Mars'&&n!=='Saturn') return;   // T火星は N土星 と組むときだけ拾う（2026-08-24）
       SJ_HARD.forEach(([ang,nm,mark,orb])=>{
         // 前年の大晦日に既にオーブ内なら「継続」。元旦から入っていても新規ではない。
         const prev=new Date(Date.UTC(year-1,11,31,3,0));
@@ -4529,8 +4530,31 @@ function sjTsquareYear(natal,year){
 function sjBuildChart(natal,year){
   const list=sjFindAspects(natal,year);
   if(!list.length) return {svg:'',list:[],date:null};
-  const main=list[0];                       // いちばん重いもの
-  const date=main.date;
+
+  // 盤に描く日付＝その年で「凶角がいちばん重なる日」。
+  // 一本の主役で日を決めると、同じ日に複数が締まっていても一本しか見えない。
+  // 力が集中する日を描くほうが、その年の意味が読める。
+  //   ・◆（土星以遠）の本数が最も多い日を採る
+  //   ・同数なら、その日の誤差の合計が小さいほうを採る
+  let date=list[0].date, bestN=-1, bestSum=1e9;
+  for(let i=0;i<366;i++){
+    const dt=new Date(Date.UTC(year,0,1+i,3,0));
+    if(dt.getUTCFullYear()!==year) break;
+    let n=0, sum=0;
+    SJ_TRANS.forEach(t=>{
+      if(!SJ_SLOW.includes(t)) return;
+      SJ_NATAL.forEach(nb=>{
+        if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(nb)) return;
+        const sp=sjSep(sjLon(t,dt),natal[nb]);
+        SJ_HARD.forEach(([ang,nm,mk,orb])=>{
+          const o=Math.abs(sp-ang);
+          if(o<=orb){ n++; sum+=o; }
+        });
+      });
+    });
+    if(n>bestN || (n===bestN && sum<bestSum)){ bestN=n; bestSum=sum; date=dt; }
+  }
+  const main=list[0];                       // 一覧で赤く示す一本（土星以遠優先＋誤差最小）
   const tr={}; SJ_TRANS.forEach(b=>tr[b]=sjLon(b,date));
 
   // ソーラーサイン：出生太陽のサインの先頭を左（180°の位置）に置く
@@ -4567,6 +4591,7 @@ function sjBuildChart(natal,year){
   SJ_TRANS.forEach(t=>{
     SJ_NATAL.forEach(n=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(n)) return;
+      if(t==='Mars'&&n!=='Saturn') return;   // T火星は N土星 と組むときだけ
       const sp=sjSep(tr[t],natal[n]);
       SJ_HARD.forEach(([a2,nm,mark,orb])=>{
         const o=Math.abs(sp-a2);
@@ -4639,22 +4664,6 @@ function openSanjuChart(year){
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:right;">誤差</th></tr>'
       +(_slow.length?_hdr('◆ 土星以遠')+_slow.map(a=>_row(a,false)).join(''):'')
       +(_fast.length?_hdr('・ 火星（短期）'+_fast.length+'件')+_fast.map(a=>_row(a,true)).join(''):'');
-    // ── 複数打たれている天体（◆が2本以上当たっている出生天体）
-    // 火星は一年で全天体を回るため数に入れない。土星以遠だけで数える。
-    const hitCount={};
-    list.filter(a=>a.slow).forEach(a=>{ (hitCount[a.n]=hitCount[a.n]||[]).push(a); });
-    const focus=Object.keys(hitCount).filter(n=>hitCount[n].length>=2)
-      .sort((a,b)=>hitCount[b].length-hitCount[a].length);
-    const focusHtml = focus.length
-      ? '<div style="margin-top:14px;border-top:1px solid rgba(201,164,76,.2);padding-top:10px;">'
-        +'<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;color:var(--kin2);letter-spacing:.1em;margin-bottom:6px;">複数打たれている天体</div>'
-        +focus.map(n=>'<div style="font-size:13px;color:var(--washi2);margin-bottom:3px;">'
-          +'<span style="color:#f0a0a0;font-weight:700;">N'+SJ_NAME[n]+'</span>　'
-          +hitCount[n].map(a=>'T'+SJ_NAME[a.t]+a.mark).join('　')
-          +'　<span style="color:rgba(236,227,208,.45);">'+hitCount[n].length+'本</span></div>').join('')
-        +'</div>'
-      : '';
-
     // ── B：Tスクエア
     const tsq=sjTsquareYear(natal,year);
     const byMonth={};
@@ -4693,9 +4702,8 @@ function openSanjuChart(year){
       '<div style="text-align:center;">'+svg+'</div>'
       +'<p style="font-size:12px;color:rgba(236,227,208,.5);margin:6px 0 12px;text-align:center;">'
       +'ソーラーサイン／外＝トランジット　内＝ネイタル　赤線＝条件に合う凶角<br>'
-      +'盤面は '+(date.getUTCMonth()+1)+'月（いちばん重い凶角が最も締まる時期）の配置</p>'
+      +'盤面は '+(date.getUTCMonth()+1)+'/'+date.getUTCDate()+'（凶角がいちばん重なる日）の配置</p>'
       +'<table style="width:100%;border-collapse:collapse;">'+rows+'</table>'
-      +focusHtml
       +gcHtml
       +tsqHtml
       ;

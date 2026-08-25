@@ -565,7 +565,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608260025';
+var APP_VERSION = '202608260116';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4441,6 +4441,10 @@ const SJ_HARD =[[0,'合','☌',8],[90,'スクエア','□',6],[180,'オポジシ
 // 暗い背景では見えづらい(先生の実機で確認)との指摘のため、スクエアと同じ赤に統一（2026-08-26）。
 // 合(☌)だけ金で区別し、90度・180度の「ハードな角度」はどちらも赤とする。
 const SJ_ASPECT_COLOR={'☌':'#c9a44c','□':'#e0453c','☍':'#e0453c'};
+// スクエアとオポジションは同じ赤なので、線種（実線／破線）でも区別できるようにする（2026-08-26）。
+// 先生が見せてくれた他ソフトの盤（実線・破線・点線で角度を描き分ける方式）を参考にした。
+// 合=実線、スクエア=実線、オポジション=破線。
+const SJ_ASPECT_DASH={'☌':'','□':'','☍':'7,5'};
 
 function sjLon(body,date){
   return Astronomy.Ecliptic(Astronomy.GeoVector(Astronomy.Body[body],date,true)).elon;
@@ -4643,36 +4647,49 @@ function sjBuildChart(natal,year){
       });
     });
   });
-  onChart.forEach(a=>{
-    const [x1,y1]=pt(ang(tr[a.t]),R_ASP), [x2,y2]=pt(ang(natal[a.n]),R_ASP);
-    const isMain=(a.t===main.t&&a.n===main.n&&a.nm===main.nm);
-    const aColor=SJ_ASPECT_COLOR[a.mark]||'#e0453c';
-    // 主役以外の線が細く・薄くて見えづらいとの指摘（2026-08-26）。
-    // メインラインほどではないが、はっきり見える太さ・不透明度に引き上げた。
-    g+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" `
-      +`stroke="${aColor}" stroke-width="${isMain?2.4:1.8}" opacity="${isMain?0.95:0.75}"/>`;
-    // 線の中点に凶角の記号（☌／□／☍）を添えて、色だけでなく記号でも角度の種類が分かるようにする（2026-08-25 追加）
-    const mx=(x1+x2)/2, my=(y1+y2)/2;
-    g+=`<text x="${mx.toFixed(1)}" y="${(my+4).toFixed(1)}" text-anchor="middle" `
-      +`font-size="${isMain?13:12}" fill="${aColor}" ${isMain?'font-weight="700"':''} `
-      +`paint-order="stroke" stroke="#1d1916" stroke-width="3">${a.mark}</text>`;
-  });
-  // 天体を置く（重なりをずらす）
-  const place=(obj,keys,r,cls,glyphColor)=>{
-    const used=[];
+  // 天体の位置を先に計算する（2026-08-26：以前は線を先に引いてから天体を置いていたため、
+  // 線が実際の天体記号ではなく固定半径R_ASPの点同士を結んでいた。
+  // 「天体と天体を直接結んでいないから分かりにくい」との指摘のとおりで、
+  // 先に位置を確定させ、線もその位置にそのまま繋ぐように直した）。
+  const calcPlacement=(obj,keys,r)=>{
+    const used=[], placed={};
     keys.forEach(b=>{
       let a=ang(obj[b]);
       let rr=r;
       while(used.some(u=>Math.abs(((a-u.a+540)%360)-180)>170.5 && Math.abs(u.r-rr)<13)) rr-=15;
       used.push({a,r:rr});
       const [x,y]=pt(a,rr);
+      placed[b]={x,y};
+    });
+    return placed;
+  };
+  const trPlaced=calcPlacement(tr,SJ_TRANS,R_TR);
+  const naPlaced=calcPlacement(natal,SJ_BODIES,R_NA);
+  onChart.forEach(a=>{
+    const {x:x1,y:y1}=trPlaced[a.t], {x:x2,y:y2}=naPlaced[a.n];
+    const isMain=(a.t===main.t&&a.n===main.n&&a.nm===main.nm);
+    const aColor=SJ_ASPECT_COLOR[a.mark]||'#e0453c';
+    const aDash=SJ_ASPECT_DASH[a.mark]||'';
+    // 主役以外の線が細く・薄くて見えづらいとの指摘（2026-08-26）。
+    // メインラインほどではないが、はっきり見える太さ・不透明度に引き上げた。
+    // オポジションだけ破線にして、記号なしでもスクエアと見分けられるようにした（2026-08-26）。
+    g+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" `
+      +`stroke="${aColor}" stroke-width="${isMain?2.4:1.8}" opacity="${isMain?0.95:0.75}" `
+      +(aDash?`stroke-dasharray="${aDash}"`:'')+`/>`;
+    // 線の中点の記号（☌／□／☍）は「見えない」「角度は一覧を見ればわかるので不要」との
+    // 指摘により撤去（2026-08-26）。色分け（線そのもの）だけ残す。
+  });
+  // 天体を描く（位置は上で計算済みのものをそのまま使う）
+  const renderGlyphs=(placed,keys,cls,glyphColor)=>{
+    keys.forEach(b=>{
+      const {x,y}=placed[b];
       const hit=onChart.some(v=> (cls==='tr'? v.t===b : v.n===b));
       g+=`<text x="${x.toFixed(1)}" y="${(y+6).toFixed(1)}" text-anchor="middle" font-size="17" `
         +`fill="${hit?'#e0453c':glyphColor}" ${hit?'font-weight="700"':''}>${SJ_GLYPH[b]}</text>`;
     });
   };
-  place(tr,SJ_TRANS,R_TR,'tr','#e0c478');
-  place(natal,SJ_BODIES,R_NA,'na','#ece3d0');
+  renderGlyphs(trPlaced,SJ_TRANS,'tr','#e0c478');
+  renderGlyphs(naPlaced,SJ_BODIES,'na','#ece3d0');
 
   const svg=`<svg viewBox="0 0 420 420" style="width:100%;max-width:420px;height:auto;">${g}</svg>`;
   return {svg,list,date,main,onChart,overlapN};

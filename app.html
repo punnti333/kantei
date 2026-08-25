@@ -565,7 +565,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608252306';
+var APP_VERSION = '202608252339';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4591,6 +4591,7 @@ function sjBuildChart(natal,year){
     });
     if(n>bestN || (n===bestN && sum<bestSum)){ bestN=n; bestSum=sum; date=dt; }
   }
+  const overlapN=bestN;                     // その日、同時にオーブ内だった◆の本数（2026-08-25 追加：下部の説明文用）
   const main=list[0];                       // 一覧で赤く示す一本（土星以遠優先＋誤差最小）
   const tr={}; SJ_TRANS.forEach(b=>tr[b]=sjLon(b,date));
 
@@ -4660,14 +4661,14 @@ function sjBuildChart(natal,year){
   place(natal,SJ_BODIES,R_NA,'na','#ece3d0');
 
   const svg=`<svg viewBox="0 0 420 420" style="width:100%;max-width:420px;height:auto;">${g}</svg>`;
-  return {svg,list,date,main,onChart};
+  return {svg,list,date,main,onChart,overlapN};
 }
 
 // ★を押したときに開く
 function openSanjuChart(year,weak){
   const d=window._nengunData; if(!d) return;
   const natal=sjNatal(d.y,d.bm,d.bd);
-  const {svg,list,date,main}=sjBuildChart(natal,year);
+  const {svg,list,date,main,overlapN}=sjBuildChart(natal,year);
   const box=document.getElementById('sanju-modal');
   const body=document.getElementById('sanju-body');
   if(!box||!body) return;
@@ -4744,6 +4745,11 @@ function openSanjuChart(year,weak){
       +'<table style="width:100%;border-collapse:collapse;">'+rows+'</table>'
       +gcHtml
       +tsqHtml
+      // 最下部に、日付とその意味を簡単な一文で（2026-08-25 追加）
+      +'<p style="font-size:12.5px;color:var(--washi2);text-align:center;margin-top:14px;'
+        +'border-top:1px solid rgba(201,164,76,.2);padding-top:10px;">'
+        +(date.getUTCMonth()+1)+'月'+date.getUTCDate()+'日 — '
+        +'この一年でいちばん凶角が重なっている日（'+overlapN+'本が同時にオーブ内）</p>'
       ;
   }
   // weak=true は☆（要素2つ）からの参考表示。三重殺（★・3つ以上）そのものではないため

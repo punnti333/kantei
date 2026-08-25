@@ -565,7 +565,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608260206';
+var APP_VERSION = '202608260236';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4496,11 +4496,16 @@ function sjFindAspects(natal,year){
 
 // ネイタルどうしのオポジション（Tスクエアの土台になる軸）
 function sjNatalOpp(natal){
+  // Tスクエアの土台になる出生図オポジションのオーブは9度（2026-08-26 8→9に拡大）。
+  // 太陽か月が絡む「ほぼ180度だがオーブ8度には僅かに届かない」ケースを拾うため。
+  // Tスクエア／グランドクロス自体が太陽・月がらみに限定済みなので、
+  // 全体の出現頻度への影響は小さい（検証：20件の生年月日×2000-2050年で
+  // Tスクエア数+1.7%、グランドクロス数は変化なし）。
   const r=[];
   for(let i=0;i<SJ_NATAL.length;i++) for(let j=i+1;j<SJ_NATAL.length;j++){
     const a=SJ_NATAL[i], b=SJ_NATAL[j];
     const o=Math.abs(sjSep(natal[a],natal[b])-180);
-    if(o<=8) r.push({a,b,orb:o});
+    if(o<=9) r.push({a,b,orb:o});
   }
   return r;
 }

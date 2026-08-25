@@ -565,7 +565,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608260116';
+var APP_VERSION = '202608260135';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4651,12 +4651,19 @@ function sjBuildChart(natal,year){
   // 線が実際の天体記号ではなく固定半径R_ASPの点同士を結んでいた。
   // 「天体と天体を直接結んでいないから分かりにくい」との指摘のとおりで、
   // 先に位置を確定させ、線もその位置にそのまま繋ぐように直した）。
+  // 重なり回避の判定式が壊れていた（2026-08-26 発見・修正）。
+  // 角度が近い（=重なる）ときにずらしたいのに、元の式は角度がほぼ正反対（180°付近）の
+  // ときにしか反応しない書き方になっていた。そのため、実際に角度が近い天体（例：太陽と
+  // 木星が1.3°差、火星と水星が6.6°差、など）が重ならずに素通りし、同じ場所に重なって
+  // 描かれていた。「天体が重なっているとき見えづらい」の直接の原因。
+  // 角度差を素直に円環距離（0〜180°）で測る式に直し、近い（<9.5°）ときにずらすよう修正。
   const calcPlacement=(obj,keys,r)=>{
     const used=[], placed={};
     keys.forEach(b=>{
       let a=ang(obj[b]);
       let rr=r;
-      while(used.some(u=>Math.abs(((a-u.a+540)%360)-180)>170.5 && Math.abs(u.r-rr)<13)) rr-=15;
+      const angDiff=(x,y)=>{ const d=Math.abs(x-y)%360; return d>180?360-d:d; };
+      while(used.some(u=>angDiff(a,u.a)<9.5 && Math.abs(u.r-rr)<13)) rr-=15;
       used.push({a,r:rr});
       const [x,y]=pt(a,rr);
       placed[b]={x,y};

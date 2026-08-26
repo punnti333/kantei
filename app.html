@@ -574,7 +574,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
           <button type="button" class="save-btn" style="flex:1;min-width:100px;" onclick="savePerson()">保存する</button>
         </div>
         <div style="margin-top:6px;font-size:12px;color:var(--washi);opacity:.55;line-height:1.6;">
-          ふりがなを入れておくと、一覧の並び順が正しくなります（省略しても保存できます）。
+          名前を入力すると、ふりがなは自動で入ります（違っていれば書き換えてください）。
         </div>
         <input type="text" id="inp-people-filter" placeholder="一覧をさがす（名前かふりがな）" oninput="renderPeople()" style="margin-top:10px;width:100%;box-sizing:border-box;padding:10px 12px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:14px;">
         <div id="people" class="people-wrap" style="max-height:220px;overflow-y:auto;padding-right:2px;"></div>
@@ -599,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608262000';
+var APP_VERSION = '202608262100';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1471,6 +1471,28 @@ function importPeople(ev){
   };
   reader.readAsText(file);
 }
+/* ===== ふりがなの自動入力 =====
+   名前欄に日本語入力（IME）で漢字を入力するとき、変換前は必ずひらがなの
+   状態を経由する。その「変換される直前のひらがな」を composition イベントで
+   拾っておき、確定した瞬間にふりがな欄が空であれば自動でそこに入れる。
+   これにより、わざわざふりがなを別に打ち直さなくても、名前を普通に入力する
+   だけでたいてい正しい読みが入る（うまく拾えなかった場合や違っていた場合は、
+   ふりがな欄を直接書き換えれば良い）。 */
+(function(){
+  const nameEl=document.getElementById('inp-name');
+  const kanaEl=document.getElementById('inp-kana');
+  if(!nameEl||!kanaEl) return;
+  let bestReading='';
+  function isHiragana(s){ return /^[ぁ-んー]+$/.test(s); }
+  nameEl.addEventListener('compositionstart',function(){ bestReading=''; });
+  nameEl.addEventListener('compositionupdate',function(e){
+    const d=e.data||'';
+    if(isHiragana(d)) bestReading=d;
+  });
+  nameEl.addEventListener('compositionend',function(){
+    if(!kanaEl.value && bestReading) kanaEl.value=bestReading;
+  });
+})();
 function savePerson(){
   const nameEl=document.getElementById('inp-name');
   const kanaEl=document.getElementById('inp-kana');

@@ -568,11 +568,16 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
       </div>
       <div class="field field-full">
         <label>名前をつけて保存（この端末にだけ残ります）</label>
-        <div class="save-row">
-          <input type="text" id="inp-name" placeholder="例：山田さん" maxlength="20">
-          <button type="button" class="save-btn" onclick="savePerson()">保存する</button>
+        <div class="save-row" style="flex-wrap:wrap;">
+          <input type="text" id="inp-name" placeholder="例：山田さん" maxlength="20" style="flex:2;min-width:130px;">
+          <input type="text" id="inp-kana" placeholder="ふりがな（例：やまださん）" maxlength="30" style="flex:2;min-width:130px;">
+          <button type="button" class="save-btn" style="flex:1;min-width:100px;" onclick="savePerson()">保存する</button>
         </div>
-        <div id="people" class="people-wrap"></div>
+        <div style="margin-top:6px;font-size:12px;color:var(--washi);opacity:.55;line-height:1.6;">
+          ふりがなを入れておくと、一覧の並び順が正しくなります（省略しても保存できます）。
+        </div>
+        <input type="text" id="inp-people-filter" placeholder="一覧をさがす（名前かふりがな）" oninput="renderPeople()" style="margin-top:10px;width:100%;box-sizing:border-box;padding:10px 12px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:14px;">
+        <div id="people" class="people-wrap" style="max-height:220px;overflow-y:auto;padding-right:2px;"></div>
       </div>
       <div class="field field-full">
         <label>保存データをスマホなど別の端末でも見る</label>
@@ -594,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608261900';
+var APP_VERSION = '202608262000';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1468,13 +1473,15 @@ function importPeople(ev){
 }
 function savePerson(){
   const nameEl=document.getElementById('inp-name');
+  const kanaEl=document.getElementById('inp-kana');
   const name=(nameEl.value||'').trim();
+  const kana=((kanaEl&&kanaEl.value)||'').trim();
   if(!name){ alert('名前を入れてください。'); nameEl.focus(); return; }
   const y=+document.getElementById('inp-y').value;
   const m=+document.getElementById('inp-m').value;
   const d=+document.getElementById('inp-d').value;
   if(!y||y<1930||y>2030||!d||d<1||d>31){ alert('1930〜2030年の正しい日付を入力してください。'); return; }
-  const rec={ name:name, y:y, m:m, d:d,
+  const rec={ name:name, kana:kana, y:y, m:m, d:d,
     time:document.getElementById('inp-time').value||'12:00',
     hUnknown:H_UNKNOWN,
     pref:document.getElementById('inp-pref').value||NO_PLACE,
@@ -1490,6 +1497,7 @@ function savePerson(){
   }
   savePeopleList(list);
   nameEl.value='';
+  if(kanaEl) kanaEl.value='';
 }
 /* 保存された出生地を、いまの地名に直して返す。
    古いデータは番号で入っているので LEGACY_PREF で読み替える。 */
@@ -1506,6 +1514,8 @@ function usePerson(i){
   document.getElementById('inp-time').value=p.time||'12:00';
   document.getElementById('inp-pref').value=placeNameOf(p.pref);
   document.getElementById('inp-name').value=p.name;
+  const kanaEl=document.getElementById('inp-kana');
+  if(kanaEl) kanaEl.value=p.kana||'';
   setHUnknown(!!p.hUnknown);
   setSex(p.sex==='female'?'female':'male');
   calculate();
@@ -1520,12 +1530,22 @@ function renderPeople(){
   const box=document.getElementById('people'); if(!box) return;
   const list=loadPeople();
   if(!list.length){ box.innerHTML='<span class="people-empty">まだ保存された方はいません</span>'; return; }
-  // 表示はあいうえお順（日本語の並び替え）。ただし usePerson/delPerson は
-  // 保存された生データ（loadPeople()）の位置を直接参照する作りのため、
-  // 並び替えても元のインデックスがずれないよう、ペアにしてからソートする。
+  // 表示はふりがな優先の並び順（無ければ名前そのものを代わりに使う）。
+  // ただし usePerson/delPerson は保存された生データ（loadPeople()）の位置を
+  // 直接参照する作りのため、並び替えても元のインデックスがずれないよう、
+  // ペアにしてからソートする。
+  const filterEl=document.getElementById('inp-people-filter');
+  const q=(filterEl&&filterEl.value||'').trim();
   const indexed=list.map(function(e,i){return {e:e, i:i};});
-  indexed.sort(function(a,b){return (a.e.name||'').localeCompare(b.e.name||'','ja');});
-  box.innerHTML=indexed.map(function(o){
+  indexed.sort(function(a,b){
+    const ka=(a.e.kana||a.e.name||''), kb=(b.e.kana||b.e.name||'');
+    return ka.localeCompare(kb,'ja');
+  });
+  const shown=q?indexed.filter(function(o){
+    return (o.e.name||'').indexOf(q)>=0 || (o.e.kana||'').indexOf(q)>=0;
+  }):indexed;
+  if(!shown.length){ box.innerHTML='<span class="people-empty">見つかりませんでした</span>'; return; }
+  box.innerHTML=shown.map(function(o){
     const e=o.e, i=o.i;
     const t=e.hUnknown?'時刻不明':(e.time||'');
     return '<span class="pchip" onclick="usePerson('+i+')">'+

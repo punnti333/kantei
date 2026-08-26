@@ -368,6 +368,12 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
   background:rgba(255,255,255,.04); border:1px solid rgba(201,164,76,.35); border-radius:8px;
   color:var(--washi2); font-size:12px; padding:4px 8px; color-scheme:dark;
 }
+/* プルダウンを開いたときの選択肢一覧が、環境によって白背景に白文字で
+   見えづらくなることがあるため、option側にも直接、はっきりした配色を指定する
+   （2026-08-26 再修正）。 */
+#sanju-modal .sj-date-input option{
+  background:#191512; color:var(--washi2);
+}
 
 /* 天戦地冲：日柱と干支ともに衝突する巡り */
 .tensen{
@@ -577,7 +583,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608261439';
+var APP_VERSION = '202608261455';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。

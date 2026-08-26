@@ -576,9 +576,9 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
       </div>
       <div class="field field-full">
         <label>保存データをスマホなど別の端末でも見る</label>
-        <div class="save-row">
-          <button type="button" class="save-btn" style="flex:1;" onclick="exportPeople()">書き出す（ファイル保存）</button>
-          <button type="button" class="save-btn" style="flex:1;" onclick="document.getElementById('import-file-input').click()">読み込む（ファイルを選ぶ）</button>
+        <div class="save-row" style="flex-wrap:wrap;">
+          <button type="button" class="save-btn" style="flex:1;min-width:120px;white-space:normal;line-height:1.4;" onclick="exportPeople()">書き出す</button>
+          <button type="button" class="save-btn" style="flex:1;min-width:120px;white-space:normal;line-height:1.4;" onclick="document.getElementById('import-file-input').click()">読み込む</button>
           <input type="file" id="import-file-input" accept="application/json,.json" style="display:none" onchange="importPeople(event)">
         </div>
         <div style="margin-top:8px;font-size:12px;color:var(--washi);opacity:.55;line-height:1.7;">
@@ -594,7 +594,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608261800';
+var APP_VERSION = '202608261900';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。

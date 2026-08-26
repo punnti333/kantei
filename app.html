@@ -577,7 +577,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608261328';
+var APP_VERSION = '202608261410';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4458,6 +4458,20 @@ const SJ_ASPECT_COLOR={'☌':'#c9a44c','□':'#e0453c','☍':'#e0453c'};
 // 合=実線、スクエア=実線、オポジション=破線。
 const SJ_ASPECT_DASH={'☌':'','□':'','☍':'7,5'};
 
+// ===== プログレス（セカンダリ・プログレッション）＝「西洋側の大運・歳運」（2026-08-26 追加）=====
+// 東洋12要素の★カウントにも、T-N判定（一覧表・main・Tスクエア等）にも一切影響しない、
+// 盤（SVG）の中だけの独立した第三の層。プログレス太陽＝大運（10年で約1度しか動かない
+// 大きな器）、プログレス月＝歳運（1年で12〜13度動く、年単位の変化）に相当する、
+// という先生の位置づけに基づく。
+// ハード（合・スクエア・オポジション）に加え、ここではソフト（セクスタイル・トライン）
+// も見る（メインのT-N判定は一貫してハードのみだが、プログレスはこの層だけの例外）。
+const PROG_BODIES=['Sun','Moon'];
+const PROG_ASPECTS=[[0,'合','☌','hard'],[60,'セクスタイル','⚹','soft'],[90,'スクエア','□','hard'],[120,'トライン','△','soft'],[180,'オポジション','☍','hard']];
+// オーブは天体ごと（動きの遅さに応じて）。角度の種類では変えない。
+const PROG_ORB={Sun:1,Moon:2};
+const PROG_COLOR={hard:'#e0453c',soft:'#7ab4d8'};
+const PROG_GLYPH_COLOR='#9ed687';   // 緑。トランジット（金）・ネイタル（生成り）と区別する
+
 function sjLon(body,date){
   return Astronomy.Ecliptic(Astronomy.GeoVector(Astronomy.Body[body],date,true)).elon;
 }
@@ -4466,7 +4480,19 @@ function sjSep(a,b){ let d=Math.abs(a-b)%360; return d>180?360-d:d; }
 // 出生図（正午で出す。ソーラーサインなので時刻は使わない）
 function sjNatal(y,mo,d){
   const dt=new Date(Date.UTC(y,mo-1,d,3,0));
-  const o={}; SJ_BODIES.forEach(b=>o[b]=sjLon(b,dt)); return o;
+  const o={}; SJ_BODIES.forEach(b=>o[b]=sjLon(b,dt));
+  o._birthY=y; o._birthM=mo; o._birthD=d;   // プログレス計算用（2026-08-26 追加）
+  return o;
+}
+
+// プログレス（セカンダリ・プログレッション、「1日＝1年」法）の天体位置（2026-08-26 追加）。
+// 出生日からの経過年数（端数含む）ぶんの日数を、出生日に足した日の位置を使う。
+// ネイタルと同じく時刻は使わずUTC3:00で統一する。
+function sjProgressedLon(body,birthY,birthM,birthD,forDate){
+  const birthDt=new Date(Date.UTC(birthY,birthM-1,birthD,3,0));
+  const ageYears=(forDate-birthDt)/(365.2425*86400000);
+  const progDt=new Date(birthDt.getTime()+ageYears*86400000);
+  return sjLon(body,progDt);
 }
 
 // その年の、条件に合う凶角をすべて拾う。
@@ -4627,6 +4653,10 @@ function sjCountOverlap(natal,date){
 // （2026-08-26、元々sjBuildChart内にあった描画部分を分離）。
 function sjRenderChartSVG(natal,date,main){
   const tr={}; SJ_TRANS.forEach(b=>tr[b]=sjLon(b,date));
+  // プログレス太陽・月（2026-08-26 追加）。トランジット側の輪に緑の点として置く。
+  // trに直接足すが、SJ_TRANSを回すループには含まれないので既存の判定には影響しない。
+  const progLon={};
+  PROG_BODIES.forEach(b=>{ progLon[b]=sjProgressedLon(b,natal._birthY,natal._birthM,natal._birthD,date); tr[b]=progLon[b]; });
 
   // ソーラーサイン：出生太陽のサインの先頭を左（180°の位置）に置く
   const asc=Math.floor(natal.Sun/30)*30;
@@ -4693,7 +4723,9 @@ function sjRenderChartSVG(natal,date,main){
     });
     return placed;
   };
-  const trPlaced=calcPlacement(tr,SJ_TRANS,R_TR);
+  // プログレス太陽・月も、実トランジット5天体と同じ輪（R_TR）に置くので、
+  // 重なり回避のためキー一覧に加えて一緒にcalcPlacementする（2026-08-26 追加）。
+  const trPlaced=calcPlacement(tr,SJ_TRANS.concat(PROG_BODIES),R_TR);
   const naPlaced=calcPlacement(natal,SJ_BODIES,R_NA);
   onChart.forEach(a=>{
     const {x:x1,y:y1}=trPlaced[a.t], {x:x2,y:y2}=naPlaced[a.n];
@@ -4709,6 +4741,25 @@ function sjRenderChartSVG(natal,date,main){
     // 線の中点の記号（☌／□／☍）は「見えない」「角度は一覧を見ればわかるので不要」との
     // 指摘により撤去（2026-08-26）。色分け（線そのもの）だけ残す。
   });
+  // プログレス太陽・月×ネイタルのアスペクト（2026-08-26 追加）。
+  // 東洋12要素・T-N判定（一覧表・main・Tスクエア等）には一切影響しない、盤だけの層。
+  // ハードだけでなくソフト（セクスタイル・トライン）も見る。線は細い破線にして、
+  // メインのT-N判定（実線／オポジションのみ7,5破線）と紛れないようにした。
+  const onChartProg=[];
+  PROG_BODIES.forEach(t=>{
+    SJ_NATAL.forEach(n=>{
+      const sp=sjSep(progLon[t],natal[n]);
+      PROG_ASPECTS.forEach(([a2,nm,mark,kind])=>{
+        const o=Math.abs(sp-a2);
+        if(o<=PROG_ORB[t]) onChartProg.push({t,n,nm,mark,kind,orb:o});
+      });
+    });
+  });
+  onChartProg.forEach(a=>{
+    const {x:x1,y:y1}=trPlaced[a.t], {x:x2,y:y2}=naPlaced[a.n];
+    g+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" `
+      +`stroke="${PROG_COLOR[a.kind]}" stroke-width="1.4" opacity="0.75" stroke-dasharray="2,3"/>`;
+  });
   // 天体を描く（位置は上で計算済みのものをそのまま使う）
   const renderGlyphs=(placed,keys,cls,glyphColor)=>{
     keys.forEach(b=>{
@@ -4720,6 +4771,13 @@ function sjRenderChartSVG(natal,date,main){
   };
   renderGlyphs(trPlaced,SJ_TRANS,'tr','#e0c478');
   renderGlyphs(naPlaced,SJ_BODIES,'na','#ece3d0');
+  // プログレス太陽・月の点（緑）を最後に描き、線の上に載せて隠れないようにする（2026-08-26 追加）。
+  PROG_BODIES.forEach(b=>{
+    const {x,y}=trPlaced[b];
+    const hit=onChartProg.some(v=>v.t===b);
+    g+=`<text x="${x.toFixed(1)}" y="${(y+6).toFixed(1)}" text-anchor="middle" font-size="17" `
+      +`fill="${PROG_GLYPH_COLOR}" ${hit?'font-weight="700"':''}>${SJ_GLYPH[b]}</text>`;
+  });
 
   const svg=`<svg viewBox="0 0 420 420" style="width:100%;max-width:420px;height:auto;">${g}</svg>`;
   return {svg,onChart};

@@ -356,6 +356,18 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
   background:none; border:1px solid rgba(201,164,76,.4); border-radius:8px;
   color:var(--washi); font-size:13px; padding:5px 14px; cursor:pointer;
 }
+/* 盤を月単位で前後させるナビゲーションボタン（2026-08-26 追加） */
+#sanju-modal .sj-nav-btn{
+  background:none; border:1px solid rgba(201,164,76,.35); border-radius:8px;
+  color:var(--washi2); font-size:12px; padding:5px 10px; cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+#sanju-modal .sj-nav-btn:active{ opacity:.5; }
+/* 盤の日付を直接指定する入力欄（2026-08-26 追加） */
+#sanju-modal .sj-date-input{
+  background:rgba(255,255,255,.04); border:1px solid rgba(201,164,76,.35); border-radius:8px;
+  color:var(--washi2); font-size:12px; padding:4px 8px; color-scheme:dark;
+}
 
 /* 天戦地冲：日柱と干支ともに衝突する巡り */
 .tensen{
@@ -565,7 +577,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608260236';
+var APP_VERSION = '202608261328';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4591,35 +4603,29 @@ function sjTsquareYear(natal,year){
 }
 
 // SVGを組み立てる
-function sjBuildChart(natal,year){
-  const list=sjFindAspects(natal,year);
-  if(!list.length) return {svg:'',list:[],date:null};
-
-  // 盤に描く日付＝その年で「凶角がいちばん重なる日」。
-  // 一本の主役で日を決めると、同じ日に複数が締まっていても一本しか見えない。
-  // 力が集中する日を描くほうが、その年の意味が読める。
-  //   ・◆（土星以遠）の本数が最も多い日を採る
-  //   ・同数なら、その日の誤差の合計が小さいほうを採る
-  let date=list[0].date, bestN=-1, bestSum=1e9;
-  for(let i=0;i<366;i++){
-    const dt=new Date(Date.UTC(year,0,1+i,3,0));
-    if(dt.getUTCFullYear()!==year) break;
-    let n=0, sum=0;
-    SJ_TRANS.forEach(t=>{
-      if(!SJ_SLOW.includes(t)) return;
-      SJ_NATAL.forEach(nb=>{
-        if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(nb)) return;
-        const sp=sjSep(sjLon(t,dt),natal[nb]);
-        SJ_HARD.forEach(([ang,nm,mk,orb])=>{
-          const o=Math.abs(sp-ang);
-          if(o<=orb){ n++; sum+=o; }
-        });
+// その日、同時にオーブ内だった◆（土星以遠）の本数と誤差合計を数える。
+// 「いちばん重なる日」を探す処理と、ナビゲーションボタンで移動した先の日の
+// 説明文の両方で使う共通ロジック（2026-08-26、sjBuildChartから分離）。
+function sjCountOverlap(natal,date){
+  let n=0, sum=0;
+  SJ_TRANS.forEach(t=>{
+    if(!SJ_SLOW.includes(t)) return;
+    SJ_NATAL.forEach(nb=>{
+      if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(nb)) return;
+      const sp=sjSep(sjLon(t,date),natal[nb]);
+      SJ_HARD.forEach(([ang,nm,mk,orb])=>{
+        const o=Math.abs(sp-ang);
+        if(o<=orb){ n++; sum+=o; }
       });
     });
-    if(n>bestN || (n===bestN && sum<bestSum)){ bestN=n; bestSum=sum; date=dt; }
-  }
-  const overlapN=bestN;                     // その日、同時にオーブ内だった◆の本数（2026-08-25 追加：下部の説明文用）
-  const main=list[0];                       // 一覧で赤く示す一本（土星以遠優先＋誤差最小）
+  });
+  return {n,sum};
+}
+
+// 指定した1日の盤（SVG）を描く。sjBuildChart（初回表示）と、
+// 月送りナビゲーションボタン（sjMoveChart）の両方から呼ばれる
+// （2026-08-26、元々sjBuildChart内にあった描画部分を分離）。
+function sjRenderChartSVG(natal,date,main){
   const tr={}; SJ_TRANS.forEach(b=>tr[b]=sjLon(b,date));
 
   // ソーラーサイン：出生太陽のサインの先頭を左（180°の位置）に置く
@@ -4691,7 +4697,7 @@ function sjBuildChart(natal,year){
   const naPlaced=calcPlacement(natal,SJ_BODIES,R_NA);
   onChart.forEach(a=>{
     const {x:x1,y:y1}=trPlaced[a.t], {x:x2,y:y2}=naPlaced[a.n];
-    const isMain=(a.t===main.t&&a.n===main.n&&a.nm===main.nm);
+    const isMain=(main && a.t===main.t&&a.n===main.n&&a.nm===main.nm);
     const aColor=SJ_ASPECT_COLOR[a.mark]||'#e0453c';
     const aDash=SJ_ASPECT_DASH[a.mark]||'';
     // 主役以外の線が細く・薄くて見えづらいとの指摘（2026-08-26）。
@@ -4716,7 +4722,100 @@ function sjBuildChart(natal,year){
   renderGlyphs(naPlaced,SJ_BODIES,'na','#ece3d0');
 
   const svg=`<svg viewBox="0 0 420 420" style="width:100%;max-width:420px;height:auto;">${g}</svg>`;
+  return {svg,onChart};
+}
+
+function sjBuildChart(natal,year){
+  const list=sjFindAspects(natal,year);
+  if(!list.length) return {svg:'',list:[],date:null};
+
+  // 盤に描く日付＝その年で「凶角がいちばん重なる日」。
+  // 一本の主役で日を決めると、同じ日に複数が締まっていても一本しか見えない。
+  // 力が集中する日を描くほうが、その年の意味が読める。
+  //   ・◆（土星以遠）の本数が最も多い日を採る
+  //   ・同数なら、その日の誤差の合計が小さいほうを採る
+  let date=list[0].date, bestN=-1, bestSum=1e9;
+  for(let i=0;i<366;i++){
+    const dt=new Date(Date.UTC(year,0,1+i,3,0));
+    if(dt.getUTCFullYear()!==year) break;
+    const {n,sum}=sjCountOverlap(natal,dt);
+    if(n>bestN || (n===bestN && sum<bestSum)){ bestN=n; bestSum=sum; date=dt; }
+  }
+  const overlapN=bestN;                     // その日、同時にオーブ内だった◆の本数（2026-08-25 追加：下部の説明文用）
+  const main=list[0];                       // 一覧で赤く示す一本（土星以遠優先＋誤差最小）
+  const {svg,onChart}=sjRenderChartSVG(natal,date,main);
   return {svg,list,date,main,onChart,overlapN};
+}
+
+// 月を足す（月末日のずれを吸収する）。いったん移動先の月の1日に飛んでから、
+// 「元の日」と「移動先の月の末日」の小さいほうを日として採用する（2026-08-26 追加）。
+// 例：1/31に+1ヶ月しても3/3にならず、2/28（or 29）に止まる。
+function sjAddMonthsClamped(date,months){
+  const y=date.getUTCFullYear(), m=date.getUTCMonth(), d=date.getUTCDate();
+  const nd=new Date(Date.UTC(y,m+months,1,3,0));
+  const lastDay=new Date(Date.UTC(nd.getUTCFullYear(),nd.getUTCMonth()+1,0)).getUTCDate();
+  nd.setUTCDate(Math.min(d,lastDay));
+  return nd;
+}
+
+// ★の盤を1・3ヶ月単位で前後に動かすナビゲーション（2026-08-26 追加）。
+// 「盤面はこの日の写真」という原則そのものは変えず、写真を撮る日を
+// その年の中で自由に選び直せるようにしたもの。年をまたぐ移動はしない。
+function sjMoveChart(months){
+  const st=window._sanjuChartState; if(!st) return;
+  let nd=sjAddMonthsClamped(st.date,months);
+  const yStart=new Date(Date.UTC(st.year,0,1,3,0));
+  const yEnd=new Date(Date.UTC(st.year,11,31,3,0));
+  if(nd<yStart) nd=yStart;
+  if(nd>yEnd) nd=yEnd;
+  st.date=nd;
+  sjUpdateChartView();
+}
+// 「いちばん重なる日」に戻すボタン用
+function sjResetChartDate(){
+  const st=window._sanjuChartState; if(!st) return;
+  st.date=new Date(st.bestDate);
+  sjUpdateChartView();
+}
+// Date→'YYYY-MM-DD'（<input type="date">の値の形式に合わせる、2026-08-26 追加）
+function sjDateToISO(d){
+  const mm=String(d.getUTCMonth()+1).padStart(2,'0');
+  const dd=String(d.getUTCDate()).padStart(2,'0');
+  return d.getUTCFullYear()+'-'+mm+'-'+dd;
+}
+// 日付入力欄で直接指定されたとき（2026-08-26 追加）。
+// 年はその年の盤であることを優先し、入力欄のmin/maxで基本は制限されるが、
+// 念のためコード側でもその年の1/1〜12/31にクランプする。
+function sjJumpToInput(value){
+  const st=window._sanjuChartState; if(!st||!value) return;
+  const parts=value.split('-').map(Number);
+  if(parts.length!==3||parts.some(isNaN)) return;
+  let nd=new Date(Date.UTC(st.year,parts[1]-1,parts[2],3,0));
+  const yStart=new Date(Date.UTC(st.year,0,1,3,0));
+  const yEnd=new Date(Date.UTC(st.year,11,31,3,0));
+  if(nd<yStart) nd=yStart;
+  if(nd>yEnd) nd=yEnd;
+  st.date=nd;
+  sjUpdateChartView();
+}
+// 盤（SVG）と最下部の日付キャプション・日付入力欄を差し替える。
+// 一覧表・Tスクエア・グランドクロスはその年全体の情報なので、
+// 日付を動かしても変わらない（意図的に据え置き）。
+function sjUpdateChartView(){
+  const st=window._sanjuChartState; if(!st) return;
+  const {svg}=sjRenderChartSVG(st.natal,st.date,st.main);
+  const svgBox=document.getElementById('sanju-svg-box');
+  if(svgBox) svgBox.innerHTML=svg;
+  const {n}=sjCountOverlap(st.natal,st.date);
+  const cap=document.getElementById('sanju-date-caption');
+  const isBest=st.date.getTime()===st.bestDate.getTime();
+  if(cap){
+    cap.innerHTML=(st.date.getUTCMonth()+1)+'月'+st.date.getUTCDate()+'日 — '
+      +(isBest?'この一年でいちばん凶角が重なっている日（'+n+'本が同時にオーブ内）'
+               :'この日（'+n+'本が同時にオーブ内）');
+  }
+  const inp=document.getElementById('sanju-date-input');
+  if(inp) inp.value=sjDateToISO(st.date);
 }
 
 // ★を押したときに開く
@@ -4729,6 +4828,7 @@ function openSanjuChart(year,weak){
   if(!box||!body) return;
   if(!list.length){
     body.innerHTML='<p style="color:var(--washi2);font-size:14px;">この年、条件に合う凶角は見つかりませんでした。</p>';
+    window._sanjuChartState=null;   // ナビゲーション状態をクリア（2026-08-26 追加）
   }else{
     // 一覧は ◆（土星以遠）を先に、・（火星）を後ろに。
     // ◆の中では「その年に新しく入った順」。前年からの継続は下にまとめる。
@@ -4794,17 +4894,36 @@ function openSanjuChart(year,weak){
 
     // 2026-08-26：上部の説明文＋凡例は、最下部の日付要約と内容が重複してスペースの無駄との
     // 指摘があったため撤去。図と記号（☌／□／☍・線の色）だけで読ませる形にした。
+    // 2026-08-26：盤を1・3ヶ月単位で前後させるナビゲーションボタン＋日付を直接指定できる
+    // 入力欄を追加。SVGと最下部キャプション・日付欄はid付きの器に入れ、
+    // sjUpdateChartViewから差し替えられるようにした。
+    const navHtml=
+      '<div style="display:flex;justify-content:center;gap:6px;margin:2px 0 6px;flex-wrap:wrap;">'
+        +'<button type="button" class="sj-nav-btn" onclick="sjMoveChart(-3)">◀3ヶ月</button>'
+        +'<button type="button" class="sj-nav-btn" onclick="sjMoveChart(-1)">◀1ヶ月</button>'
+        +'<button type="button" class="sj-nav-btn" onclick="sjResetChartDate()">いちばんの日</button>'
+        +'<button type="button" class="sj-nav-btn" onclick="sjMoveChart(1)">1ヶ月▶</button>'
+        +'<button type="button" class="sj-nav-btn" onclick="sjMoveChart(3)">3ヶ月▶</button>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:center;margin:0 0 10px;">'
+        +'<input type="date" id="sanju-date-input" class="sj-date-input" '
+          +'value="'+sjDateToISO(date)+'" min="'+year+'-01-01" max="'+year+'-12-31" '
+          +'onchange="sjJumpToInput(this.value)">'
+      +'</div>';
     body.innerHTML=
-      '<div style="text-align:center;margin-bottom:8px;">'+svg+'</div>'
+      '<div style="text-align:center;margin-bottom:8px;" id="sanju-svg-box">'+svg+'</div>'
+      +navHtml
       +'<table style="width:100%;border-collapse:collapse;">'+rows+'</table>'
       +gcHtml
       +tsqHtml
       // 最下部に、日付とその意味を簡単な一文で（2026-08-25 追加）
       +'<p style="font-size:12.5px;color:var(--washi2);text-align:center;margin-top:14px;'
-        +'border-top:1px solid rgba(201,164,76,.2);padding-top:10px;">'
+        +'border-top:1px solid rgba(201,164,76,.2);padding-top:10px;" id="sanju-date-caption">'
         +(date.getUTCMonth()+1)+'月'+date.getUTCDate()+'日 — '
         +'この一年でいちばん凶角が重なっている日（'+overlapN+'本が同時にオーブ内）</p>'
       ;
+    // ナビゲーション用の状態を保存（2026-08-26 追加）。年をまたいだ移動はしない。
+    window._sanjuChartState={natal,year,main,date:new Date(date),bestDate:new Date(date)};
   }
   // weak=true は☆（要素2つ）からの参考表示。三重殺（★・3つ以上）そのものではないため
   // タイトルで区別する（2026-08-25 23:06 追加）。

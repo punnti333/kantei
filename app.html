@@ -583,7 +583,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608261455';
+var APP_VERSION = '202608261503';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -5102,7 +5102,9 @@ function closeSanjuChart(){
 })();
 </script>
 <!-- 三重殺トランジット盤 -->
-<div id="sanju-modal" onclick="if(event.target===this)closeSanjuChart()">
+<!-- カード外クリックで閉じると誤操作で年運に戻ってしまうとの指摘のため、
+     背景クリックでの自動クローズは撤去。閉じるボタンでのみ閉じる（2026-08-26 再修正）。 -->
+<div id="sanju-modal">
   <div class="sj-inner">
     <div class="sj-head">
       <div class="sj-title" id="sanju-title">三重殺</div>

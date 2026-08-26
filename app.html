@@ -575,6 +575,17 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
         <div id="people" class="people-wrap"></div>
       </div>
       <div class="field field-full">
+        <label>保存データをスマホなど別の端末でも見る</label>
+        <div class="save-row">
+          <button type="button" class="save-btn" style="flex:1;" onclick="exportPeople()">書き出す（ファイル保存）</button>
+          <button type="button" class="save-btn" style="flex:1;" onclick="document.getElementById('import-file-input').click()">読み込む（ファイルを選ぶ）</button>
+          <input type="file" id="import-file-input" accept="application/json,.json" style="display:none" onchange="importPeople(event)">
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--washi);opacity:.55;line-height:1.7;">
+          保存データはこの端末だけに残る仕組みです。「書き出す」でこの端末のデータをファイルにできます。そのファイルをスマホなど別の端末に送り、同じアプリを開いて「読み込む」で選ぶと、同じ内容が反映されます。
+        </div>
+      </div>
+      <div class="field field-full">
         <button class="divine-btn" onclick="calculate()">判　断</button>
       </div>
     </div>
@@ -583,7 +594,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608261503';
+var APP_VERSION = '202608261800';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1408,6 +1419,52 @@ function loadPeople(){
 function savePeopleList(list){
   try{ localStorage.setItem(PEOPLE_KEY,JSON.stringify(list)); }catch(e){}
   renderPeople();
+}
+/* ===== 保存データの書き出し・読み込み（端末をまたいで使うため）=====
+   この端末のlocalStorageに入っている「鑑定した人」の一覧をファイルに書き出し、
+   別の端末（スマホなど）で同じアプリを開いてそのファイルを読み込むと、
+   同じ内容が反映される。自動同期ではなく、手動でファイルを受け渡す方式。 */
+function exportPeople(){
+  const list=loadPeople();
+  if(!list.length){ alert('書き出せる保存データがありません。'); return; }
+  const payload={ app:'hachiji_people', version:1, exportedAt:new Date().toISOString(), people:list };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const ymd=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const a=document.createElement('a');
+  a.href=url; a.download='kanteisheet_hozon_'+ymd+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },1000);
+}
+function importPeople(ev){
+  const file=ev.target.files&&ev.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    try{
+      const data=JSON.parse(reader.result);
+      const imported=Array.isArray(data)?data:(data&&Array.isArray(data.people)?data.people:null);
+      if(!imported) throw new Error('bad format');
+      const valid=imported.filter(function(p){ return p&&typeof p==='object'&&p.name&&p.y&&p.m&&p.d; });
+      if(!valid.length){ alert('読み込めるデータが見つかりませんでした。「書き出す」で作ったファイルを選んでください。'); return; }
+      const current=loadPeople();
+      let added=0, updated=0;
+      valid.forEach(function(p){
+        const i=current.findIndex(function(e){ return e.name===p.name; });
+        if(i>=0){ current[i]=p; updated++; } else { current.push(p); added++; }
+      });
+      let over=false;
+      let merged=current;
+      if(merged.length>PEOPLE_MAX){ merged=merged.slice(merged.length-PEOPLE_MAX); over=true; }
+      savePeopleList(merged);
+      alert('読み込みが完了しました（新規'+added+'件、上書き'+updated+'件）。'+(over?('\n保存上限（'+PEOPLE_MAX+'人）を超えたため、古いものから一部が保存されませんでした。'):''));
+    }catch(e){
+      alert('このファイルは読み込めませんでした。「書き出す」ボタンで作ったファイルを選んでください。');
+    }finally{
+      ev.target.value='';
+    }
+  };
+  reader.readAsText(file);
 }
 function savePerson(){
   const nameEl=document.getElementById('inp-name');

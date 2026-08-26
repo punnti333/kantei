@@ -577,7 +577,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608261410';
+var APP_VERSION = '202608261439';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4816,7 +4816,8 @@ function sjAddMonthsClamped(date,months){
   return nd;
 }
 
-// ★の盤を1・3ヶ月単位で前後に動かすナビゲーション（2026-08-26 追加）。
+// ★の盤を月単位で前後に動かすナビゲーション（2026-08-26 追加。
+// 3ヶ月ボタンは不要とのことで撤去したが、関数自体は任意の月数を受け付ける）。
 // 「盤面はこの日の写真」という原則そのものは変えず、写真を撮る日を
 // その年の中で自由に選び直せるようにしたもの。年をまたぐ移動はしない。
 function sjMoveChart(months){
@@ -4835,28 +4836,42 @@ function sjResetChartDate(){
   st.date=new Date(st.bestDate);
   sjUpdateChartView();
 }
-// Date→'YYYY-MM-DD'（<input type="date">の値の形式に合わせる、2026-08-26 追加）
-function sjDateToISO(d){
-  const mm=String(d.getUTCMonth()+1).padStart(2,'0');
-  const dd=String(d.getUTCDate()).padStart(2,'0');
-  return d.getUTCFullYear()+'-'+mm+'-'+dd;
+// その年月の末日（28〜31）を返す（2026-08-26 追加）
+function sjDaysInMonth(year,month){
+  return new Date(Date.UTC(year,month,0)).getUTCDate();
 }
-// 日付入力欄で直接指定されたとき（2026-08-26 追加）。
-// 年はその年の盤であることを優先し、入力欄のmin/maxで基本は制限されるが、
-// 念のためコード側でもその年の1/1〜12/31にクランプする。
-function sjJumpToInput(value){
-  const st=window._sanjuChartState; if(!st||!value) return;
-  const parts=value.split('-').map(Number);
-  if(parts.length!==3||parts.some(isNaN)) return;
-  let nd=new Date(Date.UTC(st.year,parts[1]-1,parts[2],3,0));
-  const yStart=new Date(Date.UTC(st.year,0,1,3,0));
-  const yEnd=new Date(Date.UTC(st.year,11,31,3,0));
-  if(nd<yStart) nd=yStart;
-  if(nd>yEnd) nd=yEnd;
-  st.date=nd;
+// 月・日プルダウンのoption一覧を作る（2026-08-26 追加）
+function sjMonthOptions(selMonth){
+  let h=''; for(let m=1;m<=12;m++) h+='<option value="'+m+'"'+(m===selMonth?' selected':'')+'>'+m+'月</option>';
+  return h;
+}
+function sjDayOptions(year,month,selDay){
+  const days=sjDaysInMonth(year,month);
+  let h=''; for(let d=1;d<=days;d++) h+='<option value="'+d+'"'+(d===selDay?' selected':'')+'>'+d+'日</option>';
+  return h;
+}
+// 月・日プルダウンが変更されたとき（2026-08-26 追加）。
+// 年は先生の指摘の通り、そもそも触れないようにする（入力欄を年なしの
+// 月・日プルダウンだけにして、年をまたぐ操作自体ができない作りにした）。
+function sjOnMonthOrDayChange(){
+  const st=window._sanjuChartState; if(!st) return;
+  const mSel=document.getElementById('sanju-month-select');
+  const dSel=document.getElementById('sanju-day-select');
+  if(!mSel||!dSel) return;
+  const month=parseInt(mSel.value,10);
+  // 月が変わって日の選択肢の範囲が変わる場合は、日プルダウンを作り直す
+  // （末日を超えていたらその月の末日に丸める）。
+  if(dSel._month!==month){
+    const days=sjDaysInMonth(st.year,month);
+    const keepDay=Math.min(parseInt(dSel.value,10)||1,days);
+    dSel.innerHTML=sjDayOptions(st.year,month,keepDay);
+    dSel._month=month;
+  }
+  const day=parseInt(dSel.value,10);
+  st.date=new Date(Date.UTC(st.year,month-1,day,3,0));
   sjUpdateChartView();
 }
-// 盤（SVG）と最下部の日付キャプション・日付入力欄を差し替える。
+// 盤（SVG）と最下部の日付キャプション・月日プルダウンを差し替える。
 // 一覧表・Tスクエア・グランドクロスはその年全体の情報なので、
 // 日付を動かしても変わらない（意図的に据え置き）。
 function sjUpdateChartView(){
@@ -4868,12 +4883,16 @@ function sjUpdateChartView(){
   const cap=document.getElementById('sanju-date-caption');
   const isBest=st.date.getTime()===st.bestDate.getTime();
   if(cap){
-    cap.innerHTML=(st.date.getUTCMonth()+1)+'月'+st.date.getUTCDate()+'日 — '
+    // 月日部分は太字に（2026-08-26 再修正）
+    cap.innerHTML='<span style="font-weight:700;">'+(st.date.getUTCMonth()+1)+'月'+st.date.getUTCDate()+'日</span> — '
       +(isBest?'この一年でいちばん凶角が重なっている日（'+n+'本が同時にオーブ内）'
                :'この日（'+n+'本が同時にオーブ内）');
   }
-  const inp=document.getElementById('sanju-date-input');
-  if(inp) inp.value=sjDateToISO(st.date);
+  const mSel=document.getElementById('sanju-month-select');
+  const dSel=document.getElementById('sanju-day-select');
+  const month=st.date.getUTCMonth()+1, day=st.date.getUTCDate();
+  if(mSel) mSel.value=String(month);
+  if(dSel){ dSel.innerHTML=sjDayOptions(st.year,month,day); dSel._month=month; }
 }
 
 // ★を押したときに開く
@@ -4952,21 +4971,24 @@ function openSanjuChart(year,weak){
 
     // 2026-08-26：上部の説明文＋凡例は、最下部の日付要約と内容が重複してスペースの無駄との
     // 指摘があったため撤去。図と記号（☌／□／☍・線の色）だけで読ませる形にした。
-    // 2026-08-26：盤を1・3ヶ月単位で前後させるナビゲーションボタン＋日付を直接指定できる
-    // 入力欄を追加。SVGと最下部キャプション・日付欄はid付きの器に入れ、
+    // 2026-08-26：盤を1ヶ月単位で前後させるナビゲーションボタン＋日付を直接指定できる
+    // 月・日プルダウンを追加。SVGと最下部キャプション・プルダウンはid付きの器に入れ、
     // sjUpdateChartViewから差し替えられるようにした。
+    // ※3ヶ月ボタンは不要とのことで撤去（2026-08-26 再修正）。
+    // ※年は<input type="date">だと触れてしまう（誤って別の年に飛べてしまう）との
+    // 指摘のため、年の概念自体がない「月」「日」の2つのプルダウンに変更した
+    // （2026-08-26 再修正）。年をまたぐ操作がそもそもできない作りになる。
     const navHtml=
       '<div style="display:flex;justify-content:center;gap:6px;margin:2px 0 6px;flex-wrap:wrap;">'
-        +'<button type="button" class="sj-nav-btn" onclick="sjMoveChart(-3)">◀3ヶ月</button>'
         +'<button type="button" class="sj-nav-btn" onclick="sjMoveChart(-1)">◀1ヶ月</button>'
         +'<button type="button" class="sj-nav-btn" onclick="sjResetChartDate()">いちばんの日</button>'
         +'<button type="button" class="sj-nav-btn" onclick="sjMoveChart(1)">1ヶ月▶</button>'
-        +'<button type="button" class="sj-nav-btn" onclick="sjMoveChart(3)">3ヶ月▶</button>'
       +'</div>'
-      +'<div style="display:flex;justify-content:center;margin:0 0 10px;">'
-        +'<input type="date" id="sanju-date-input" class="sj-date-input" '
-          +'value="'+sjDateToISO(date)+'" min="'+year+'-01-01" max="'+year+'-12-31" '
-          +'onchange="sjJumpToInput(this.value)">'
+      +'<div style="display:flex;justify-content:center;gap:6px;margin:0 0 10px;">'
+        +'<select id="sanju-month-select" class="sj-date-input" onchange="sjOnMonthOrDayChange()">'
+          +sjMonthOptions(date.getUTCMonth()+1)+'</select>'
+        +'<select id="sanju-day-select" class="sj-date-input" onchange="sjOnMonthOrDayChange()">'
+          +sjDayOptions(year,date.getUTCMonth()+1,date.getUTCDate())+'</select>'
       +'</div>';
     body.innerHTML=
       '<div style="text-align:center;margin-bottom:8px;" id="sanju-svg-box">'+svg+'</div>'
@@ -4974,14 +4996,17 @@ function openSanjuChart(year,weak){
       +'<table style="width:100%;border-collapse:collapse;">'+rows+'</table>'
       +gcHtml
       +tsqHtml
-      // 最下部に、日付とその意味を簡単な一文で（2026-08-25 追加）
+      // 最下部に、日付とその意味を簡単な一文で（2026-08-25 追加）。
+      // 月日部分は太字に（2026-08-26 再修正）。
       +'<p style="font-size:12.5px;color:var(--washi2);text-align:center;margin-top:14px;'
         +'border-top:1px solid rgba(201,164,76,.2);padding-top:10px;" id="sanju-date-caption">'
-        +(date.getUTCMonth()+1)+'月'+date.getUTCDate()+'日 — '
+        +'<span style="font-weight:700;">'+(date.getUTCMonth()+1)+'月'+date.getUTCDate()+'日</span> — '
         +'この一年でいちばん凶角が重なっている日（'+overlapN+'本が同時にオーブ内）</p>'
       ;
     // ナビゲーション用の状態を保存（2026-08-26 追加）。年をまたいだ移動はしない。
     window._sanjuChartState={natal,year,main,date:new Date(date),bestDate:new Date(date)};
+    const _dSelInit=document.getElementById('sanju-day-select');
+    if(_dSelInit) _dSelInit._month=date.getUTCMonth()+1;
   }
   // weak=true は☆（要素2つ）からの参考表示。三重殺（★・3つ以上）そのものではないため
   // タイトルで区別する（2026-08-25 23:06 追加）。

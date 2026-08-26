@@ -574,7 +574,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
           <button type="button" class="save-btn" style="flex:1;min-width:100px;" onclick="savePerson()">保存する</button>
         </div>
         <div style="margin-top:6px;font-size:12px;color:var(--washi);opacity:.55;line-height:1.6;">
-          名前を入力すると、ふりがなは自動で入ります（違っていれば書き換えてください）。
+          名前を入力すると、ふりがなは自動で入ります（違っていれば書き換えてください。空欄のままでも保存できます）。
         </div>
         <input type="text" id="inp-people-filter" placeholder="一覧をさがす（名前かふりがな）" oninput="renderPeople()" style="margin-top:10px;width:100%;box-sizing:border-box;padding:10px 12px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:14px;">
         <div id="people" class="people-wrap" style="max-height:220px;overflow-y:auto;padding-right:2px;"></div>
@@ -599,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608262100';
+var APP_VERSION = '202608262300';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。

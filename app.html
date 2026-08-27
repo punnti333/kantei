@@ -599,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608280128';
+var APP_VERSION = '202608280200';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4840,6 +4840,19 @@ function sjRenderChartSVG(natal,date,main){
   // 重なり回避のためキー一覧に加えて一緒にcalcPlacementする（2026-08-26 追加）。
   const trPlaced=calcPlacement(tr,SJ_TRANS.concat(PROG_BODIES),R_TR);
   const naPlaced=calcPlacement(natal,SJ_BODIES,R_NA);
+  // 線が天体の記号（文字）にかぶって読みにくいとの指摘（2026-08-28）。
+  // 記号はfont-size17のテキストで背景の塗りつぶしを持たないため、線を後で
+  // 上に描いても文字の隙間から線が透けて見えてしまう。線そのものを両端とも
+  // 少し手前で止め、記号のまわりに触れないようにした（GLYPH_GAP=13px、
+  // font-size17の文字がだいたい収まる半径）。線の描画順・色・太さ・
+  // 破線の指定には一切触れていない。
+  const GLYPH_GAP=13;
+  const shrinkLine=(x1,y1,x2,y2,gap)=>{
+    const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy);
+    if(len<=gap*2) return [x1,y1,x2,y2];
+    const ux=dx/len, uy=dy/len;
+    return [x1+ux*gap, y1+uy*gap, x2-ux*gap, y2-uy*gap];
+  };
   onChart.forEach(a=>{
     const {x:x1,y:y1}=trPlaced[a.t], {x:x2,y:y2}=naPlaced[a.n];
     const isMain=(main && a.t===main.t&&a.n===main.n&&a.nm===main.nm);
@@ -4848,7 +4861,8 @@ function sjRenderChartSVG(natal,date,main){
     // 主役以外の線が細く・薄くて見えづらいとの指摘（2026-08-26）。
     // メインラインほどではないが、はっきり見える太さ・不透明度に引き上げた。
     // オポジションだけ破線にして、記号なしでもスクエアと見分けられるようにした（2026-08-26）。
-    g+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" `
+    const [lx1,ly1,lx2,ly2]=shrinkLine(x1,y1,x2,y2,GLYPH_GAP);
+    g+=`<line x1="${lx1.toFixed(1)}" y1="${ly1.toFixed(1)}" x2="${lx2.toFixed(1)}" y2="${ly2.toFixed(1)}" `
       +`stroke="${aColor}" stroke-width="${isMain?2.4:1.8}" opacity="${isMain?0.95:0.75}" `
       +(aDash?`stroke-dasharray="${aDash}"`:'')+`/>`;
     // 線の中点の記号（☌／□／☍）は「見えない」「角度は一覧を見ればわかるので不要」との
@@ -4870,7 +4884,8 @@ function sjRenderChartSVG(natal,date,main){
   });
   onChartProg.forEach(a=>{
     const {x:x1,y:y1}=trPlaced[a.t], {x:x2,y:y2}=naPlaced[a.n];
-    g+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" `
+    const [lx1,ly1,lx2,ly2]=shrinkLine(x1,y1,x2,y2,GLYPH_GAP);
+    g+=`<line x1="${lx1.toFixed(1)}" y1="${ly1.toFixed(1)}" x2="${lx2.toFixed(1)}" y2="${ly2.toFixed(1)}" `
       +`stroke="${PROG_COLOR[a.kind]}" stroke-width="1.4" opacity="0.75" stroke-dasharray="2,3"/>`;
   });
   // 天体を描く（位置は上で計算済みのものをそのまま使う）

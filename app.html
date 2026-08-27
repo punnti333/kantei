@@ -303,7 +303,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 }
 /* ===== 命式タイプ ここまで ===== */
 
-/* 三重殺：東洋12要素のうち3つ以上が重なった年（2026-08-21 追加、2026-08-25 12要素へ拡張） */
+/* 三命殺：東洋12要素のうち3つ以上が重なった年（2026-08-21 追加、2026-08-25 12要素へ拡張） */
 .sanju-star{
   /* 絶対配置。行の幅を取らないので干支の位置がずれない（2026-08-24 修正） */
   position:absolute; left:-3px; top:50%; transform:translateY(-50%);
@@ -316,14 +316,14 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 }
 .sanju-star:active{ opacity:.5; }
 
-/* 三重殺・準備段階：東洋12要素のうち2つが重なった年（2026-08-25 追加）
+/* 三命殺・準備段階：東洋12要素のうち2つが重なった年（2026-08-25 追加）
    ★（3つ以上）とは別枠。判定基準は3つ以上のまま変えず、
    目で強弱が分かるよう色を変えて出す。
    ※最初は赤のopacity .4で出していたが、背景(#1d1916系)が暗いため実質見えなかった。
    丸枠バッジも試したが、星だけでよいとのことで撤去（2026-08-25 再修正）。
    ※盤は当初クリック不可にしていた（西洋の凶角は東洋3つ以上の年でのみ「意味を持つ」
    という判定ロジック上の理由）。2026-08-25 23:06、参考として盤自体は見られるように
-   変更。三重殺の成立判定（3つ以上）や★との違いには一切触れていない。 */
+   変更。三命殺の成立判定（3つ以上）や★との違いには一切触れていない。 */
 .sanju-star-weak{
   position:absolute; left:-3px; top:50%; transform:translateY(-50%);
   color:var(--washi);
@@ -334,7 +334,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 }
 .sanju-star-weak:active{ opacity:.5; }
 
-/* 三重殺トランジット盤 */
+/* 三命殺トランジット盤 */
 #sanju-modal{
   position:fixed; inset:0; z-index:9500; display:none;
   background:rgba(10,8,7,.88); overflow-y:auto; padding:20px 12px 40px;
@@ -599,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608280200';
+var APP_VERSION = '202608280230';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2142,7 +2142,7 @@ function updateNengun(){
     const hasKeishaGoou=goouPalace!=='中宮'&&keisha===goouPalace&&honmei!==5;
     const ankenMark=honmeiAnken&&keishaAnken?'◎':keishaAnken?'●':honmeiAnken?'○':'';
 
-    // ===== 三重殺（2026-08-21 追加、2026-08-25 12要素へ拡張）=====
+    // ===== 三命殺（2026-08-21 追加、2026-08-25 12要素へ拡張）=====
     // 東洋の12要素のうち【3つ以上】が重なった年。
     //   四柱推命 … 冲（日支と年運の支）／日柱併臨／空亡／天戦地冲（日柱）／
     //             月柱併臨／天戦地冲（月柱）
@@ -2175,7 +2175,7 @@ function updateNengun(){
     const isSanjusatsu = _sanju.length>=3;
     // 2026-08-25 追加：2つ重なった年を薄い印（☆）で出す。判定基準は3つ以上のまま変更しない。
     // ★との二値ではなく強弱を目で追えるようにするための表示上の追加で、
-    // 三重殺そのものの定義（東洋12要素・3つ以上）には触れていない。
+    // 三命殺そのものの定義（東洋12要素・3つ以上）には触れていない。
     const isSanjuWeak = _sanju.length===2;
     const kaiMark=
       (ankenMark?'<span class="nengun-kaza-mark red" title="'+(honmeiAnken&&keishaAnken?'本命・傾斜暗剣殺':keishaAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+ankenMark+'</span>':'')+
@@ -2193,8 +2193,8 @@ function updateNengun(){
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
       '<td style="'+tdSty+'position:relative;padding-left:20px;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
-         (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三重殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':
-          isSanjuWeak?'<span class="sanju-star-weak" onclick="openSanjuChart('+yr+',true)" title="要素2つ：'+_sanju.join('・')+'（参考。三重殺の成立には3つ以上が必要。押すとトランジットを表示）">☆</span>':'')+
+         (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三命殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':
+          isSanjuWeak?'<span class="sanju-star-weak" onclick="openSanjuChart('+yr+',true)" title="要素2つ：'+_sanju.join('・')+'（参考。三命殺の成立には3つ以上が必要。押すとトランジットを表示）">☆</span>':'')+
          '<span class="'+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'">'+
            '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
            // 地支は「本気の蔵干」の五行で喜忌の色を付ける（2026-08-19 追加）。
@@ -4531,9 +4531,9 @@ function keishaPalace(y,m,d,male){
 }
 
 // ===================================================================
-// 三重殺トランジット盤（ソーラーサイン・二重円）  2026-08-21 追加
+// 三命殺トランジット盤（ソーラーサイン・二重円）  2026-08-21 追加
 // ===================================================================
-// 年運表の★を押すと、その年の三重殺の中身を円で表示する。
+// 年運表の★を押すと、その年の三命殺の中身を円で表示する。
 //
 //   ・ソーラーサイン方式。太陽のサインを第1ハウスに置く（出生時刻・緯度は不要）
 //   ・二重円。内側＝ネイタル（全天体）、外側＝トランジット（火土天海冥）
@@ -4541,7 +4541,7 @@ function keishaPalace(y,m,d,male){
 //   ・描く日付は、その年でいちばん重い凶角が最も締まる日
 //       （土星以遠を優先。同格なら誤差の小さいほう）
 //
-// 条件（引き継ぎメモ「三重殺」の西洋側と同じ）
+// 条件（引き継ぎメモ「三命殺」の西洋側と同じ）
 //   T側 … 火星・土星・天王星・海王星・冥王星
 //   N側 … 全天体
 //   角度 … 合0°・スクエア90°・オポジション180°のみ
@@ -5136,9 +5136,9 @@ function openSanjuChart(year,weak){
     const _dSelInit=document.getElementById('sanju-day-select');
     if(_dSelInit) _dSelInit._month=date.getUTCMonth()+1;
   }
-  // weak=true は☆（要素2つ）からの参考表示。三重殺（★・3つ以上）そのものではないため
+  // weak=true は☆（要素2つ）からの参考表示。三命殺（★・3つ以上）そのものではないため
   // タイトルで区別する（2026-08-25 23:06 追加）。
-  document.getElementById('sanju-title').textContent=year+'年　'+(weak?'三重殺・参考（2要素）':'三重殺');
+  document.getElementById('sanju-title').textContent=year+'年　'+(weak?'三命殺・参考（2要素）':'三命殺');
   box.classList.add('on');
 }
 function closeSanjuChart(){
@@ -5223,13 +5223,13 @@ function closeSanjuChart(){
   }
 })();
 </script>
-<!-- 三重殺トランジット盤 -->
+<!-- 三命殺トランジット盤 -->
 <!-- カード外クリックで閉じると誤操作で年運に戻ってしまうとの指摘のため、
      背景クリックでの自動クローズは撤去。閉じるボタンでのみ閉じる（2026-08-26 再修正）。 -->
 <div id="sanju-modal">
   <div class="sj-inner">
     <div class="sj-head">
-      <div class="sj-title" id="sanju-title">三重殺</div>
+      <div class="sj-title" id="sanju-title">三命殺</div>
       <button class="sj-close" onclick="closeSanjuChart()">閉じる</button>
     </div>
     <div id="sanju-body"></div>

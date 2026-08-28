@@ -599,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608280345';
+var APP_VERSION = '202608280440';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2263,11 +2263,18 @@ function calcDaiin(y, m, d, sex, mP, yP, hourJST){
     const dispAge=kiunDisp+(i-1)*10;
     const startYear=y+age+kiunMonthOffset;  // 交替月が年をまたぐ場合は+1年
     const transKanI=KAN10[((startYear-1864)%10+10)%10];
-    // 接木運（2026-08-28 追加、同日先生の確認により1番目=起運も対象に修正）：
-    // 大運の支は十二支を1つずつ進むため、辰・未・戌・丑（土支）は必ず3運
-    // （30年）おきに巡ってくる。起運（1番目）を含め、1番目・4番目・7番目・
-    // 10番目の大運を接木運として印を付ける。
-    const tsugikiun=((i-1)%3===0);
+    // 接木運（2026-08-28 追加、同日中に3回修正）：
+    // 「季節が変わる大運」＝十二支を四季3つずつに分けたとき、季節の境目を
+    // 跨いだ先の大運。これが順行・逆行で対称ではないことが分かった。
+    // 　順行（forward）：季節境を跨いだ先は新しい季節の最初の支＝寅・巳・申・亥。
+    // 　逆行（backward）：季節境を跨いだ先は前の季節の最後の支＝丑・辰・未・戌
+    // 　　（＝土支・四庫）。
+    // どちらの支も十二支の中で3つおきに均等に並ぶため、3運（30年）おきに
+    // 巡ってくる点は共通。先生（逆行）の命式で丑辰未戌のみが正しく出たのは
+    // 逆行だったからで、順行の人には別の支（寅巳申亥）を見る必要がある。
+    // 先生から頂いた5ステップの一般的な出し方（月支の3グループ表）で全24通り
+    // （十二支×順行逆行）を検算し、下の1行で完全に再現できることを確認済み。
+    const tsugikiun = junko ? ['寅','巳','申','亥'].includes(shi) : ['丑','辰','未','戌'].includes(shi);
     rounds.push({kan,shi,age,dispAge,startYear,startMonth:kiunStartMonth,transKan:transKanI,kiunMonth:kiunStartMonth,tsugikiun});
   }
   // 交替年の干（最初の大運交替年から）
@@ -4006,8 +4013,10 @@ function calculate(){
       isYujoKansat?`<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>`:'',
       isHeirinD?`<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>`:'',
       isHeirinMD?`<span style="font-size:11px;color:#a0d8a0;border:1px solid #a0d8a0;border-radius:4px;padding:1px 5px;margin-left:3px;">🔶月柱併臨</span>`:'',
-      R.tsugikiun?`<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">接木運</span>`:'',
     ].join('');
+    // 接木運（2026-08-28）は、命式との相性を示す他のタグ（空亡・干合など）とは
+    // 性質が違う（年齢そのものの節目）ため、まぎれないよう西暦の直前に「接」の
+    // 一文字だけを添える形にした（dai-ymセル側で使用）。
     // 「今」の行は、背景の金色ハイライトと太字だけで強調する。
     // 文字色は固定しない（喜神=青／忌神=赤／どちらでもない=白、の色分けを優先するため）。
     const nowSty=isNow?'font-weight:700;':'';
@@ -4066,7 +4075,7 @@ function calculate(){
     const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
       '<td class="dai-age" style="'+tdSty+'font-size:18px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'font-weight:700;')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;white-space:nowrap;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
-      '<td class="dai-ym" style="'+tdSty+'font-size:18px;white-space:nowrap;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
+      '<td class="dai-ym" style="'+tdSty+'font-size:18px;white-space:nowrap;'+nowSty+'">'+((!isSub&&R.tsugikiun)?'<span style="color:#e0c478;font-weight:700;margin-right:2px;" title="接木運（30年ごとの節目）">接</span>':'')+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜</td>'+
       '<td class="dai-kanshi" style="'+tdSty+'font-size:21px;font-family:Shippori Mincho,serif;'+nowSty+'">'+
         '<span class="dai-ks">'+
           // 細分行は干支が上と同じになるので干は出さない。

@@ -599,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608280230';
+var APP_VERSION = '202608280345';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2263,7 +2263,12 @@ function calcDaiin(y, m, d, sex, mP, yP, hourJST){
     const dispAge=kiunDisp+(i-1)*10;
     const startYear=y+age+kiunMonthOffset;  // 交替月が年をまたぐ場合は+1年
     const transKanI=KAN10[((startYear-1864)%10+10)%10];
-    rounds.push({kan,shi,age,dispAge,startYear,startMonth:kiunStartMonth,transKan:transKanI,kiunMonth:kiunStartMonth});
+    // 接木運（2026-08-28 追加、同日先生の確認により1番目=起運も対象に修正）：
+    // 大運の支は十二支を1つずつ進むため、辰・未・戌・丑（土支）は必ず3運
+    // （30年）おきに巡ってくる。起運（1番目）を含め、1番目・4番目・7番目・
+    // 10番目の大運を接木運として印を付ける。
+    const tsugikiun=((i-1)%3===0);
+    rounds.push({kan,shi,age,dispAge,startYear,startMonth:kiunStartMonth,transKan:transKanI,kiunMonth:kiunStartMonth,tsugikiun});
   }
   // 交替年の干（最初の大運交替年から）
   const firstTransYear=y+kiun+kiunMonthOffset;
@@ -4001,6 +4006,7 @@ function calculate(){
       isYujoKansat?`<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>`:'',
       isHeirinD?`<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>`:'',
       isHeirinMD?`<span style="font-size:11px;color:#a0d8a0;border:1px solid #a0d8a0;border-radius:4px;padding:1px 5px;margin-left:3px;">🔶月柱併臨</span>`:'',
+      R.tsugikiun?`<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">接木運</span>`:'',
     ].join('');
     // 「今」の行は、背景の金色ハイライトと太字だけで強調する。
     // 文字色は固定しない（喜神=青／忌神=赤／どちらでもない=白、の色分けを優先するため）。

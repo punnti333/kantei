@@ -599,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608280445';
+var APP_VERSION = '202608280500';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4631,7 +4631,8 @@ function sjFindAspects(natal,year){
   SJ_TRANS.forEach(t=>{
     SJ_NATAL.forEach(n=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(n)) return;   // トランス同士は除外
-      if(t==='Mars'&&n!=='Saturn') return;   // T火星は N土星 と組むときだけ拾う（2026-08-24）
+      // T火星をN土星以外とも組むよう制限を解除（2026-08-28。以前はT火星がN土星と
+      // 組むときだけ拾っていたが、先生の指示で他の天体との組み合わせも見るようにした）。
       SJ_HARD.forEach(([ang,nm,mark,orb])=>{
         // 前年の大晦日に既にオーブ内なら「継続」。元旦から入っていても新規ではない。
         const prev=new Date(Date.UTC(year-1,11,31,3,0));
@@ -4685,9 +4686,7 @@ function sjTsquares(natal,date,natOpp){
   natOpp.forEach(({a,b,orb})=>{
     SJ_TRANS.forEach(t=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(a)&&SJ_OUTER.includes(b)) return;
-      // T火星はN土星と組むときだけ拾う、という他の凶角判定と同じ制限を
-      // ここでも適用する（2026-08-26 追加。抜けていたバグ）。
-      if(t==='Mars'&&a!=='Saturn'&&b!=='Saturn') return;
+      // T火星をN土星以外とも組むよう制限を解除（2026-08-28）。
       // Tスクエア・グランドクロスは、太陽か月を巻き込むものだけを扱う（2026-08-26 追加）。
       // 外惑星どうしだけで組むものは頻度が高く個人差が出にくいため対象外にする、という判断。
       if(a!=='Sun'&&a!=='Moon'&&b!=='Sun'&&b!=='Moon') return;
@@ -4699,7 +4698,7 @@ function sjTsquares(natal,date,natOpp){
   SJ_TRANS.forEach(t=>{
     SJ_NATAL.forEach(a=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(a)) return;
-      if(t==='Mars'&&a!=='Saturn') return;   // 同上（2026-08-26 追加）
+      // T火星の制限は解除済み（2026-08-28）。
       if(Math.abs(sjSep(tr[t],natal[a])-180)>8) return;
       SJ_NATAL.forEach(c=>{
         if(c===a) return;
@@ -4722,7 +4721,7 @@ function sjGrandCross(natal,date,natOpp){
   const axes=natOpp.map(o=>({a:'N'+o.a,b:'N'+o.b,orb:o.orb}));
   SJ_TRANS.forEach(t=>SJ_NATAL.forEach(n=>{
     if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(n)) return;
-    if(t==='Mars'&&n!=='Saturn') return;   // 同上（2026-08-26 追加。抜けていたバグ）
+    // T火星の制限は解除済み（2026-08-28）。
     const o=Math.abs(sjSep(tr[t],natal[n])-180);
     if(o<=8) axes.push({a:'T'+t,b:'N'+n,orb:o});
   }));
@@ -4820,7 +4819,7 @@ function sjRenderChartSVG(natal,date,main){
   SJ_TRANS.forEach(t=>{
     SJ_NATAL.forEach(n=>{
       if(SJ_OUTER.includes(t)&&SJ_OUTER.includes(n)) return;
-      if(t==='Mars'&&n!=='Saturn') return;   // T火星は N土星 と組むときだけ
+      // T火星の制限は解除済み（2026-08-28。先生の指示によりN土星以外とも組む）。
       const sp=sjSep(tr[t],natal[n]);
       SJ_HARD.forEach(([a2,nm,mark,orb])=>{
         const o=Math.abs(sp-a2);

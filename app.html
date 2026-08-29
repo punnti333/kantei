@@ -599,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608280500';
+var APP_VERSION = '202608290600';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2484,7 +2484,7 @@ function gogyo_points(nK, yP, mP, dP, hP, hUnknown){
     score+=pt;
     rows.push({label:i.label, gogyo:i.gogyo||'(消)', weight:i.weight, score:pt});
   }
-  // ※身強身弱の正式判定は得令＋得地(total)で行う。ここは参考値のみ返す。
+  // ※身強身弱の正式判定は得令＋得地＋隣接(total)で行う。ここは参考値のみ返す。
   return{score,rows};
 }
 
@@ -3868,6 +3868,14 @@ function calculate(){
   const persona=personaLine(nK,mP,dP);
   if(persona) punch=persona;
 
+  // 身強・身中・身弱の3系統ぶんの特徴キーワード（2026-08-29追加、身強カードのフッターに表示）
+  const SHINJYO_TRAIT={
+    'sig-strong':{kw:'積極的・目立つ・バイタリティ・主体性・向上心・影響力',line:'浮き沈み大、人に勝ちたいタイプ。'},
+    'sig-mid':   {kw:'中庸・バランス・平和的',line:'浮き沈み小、状況に応じて柔軟に対応するタイプ。'},
+    'sig-weak':  {kw:'内省的・控えめ・協調性・慎重・継続力・安定・柔軟性',line:'浮き沈み小、周囲と歩調を合わせるタイプ。'}
+  };
+  const shinjyoTrait=SHINJYO_TRAIT[cls];
+
   const sc=n=>(n>0?'+':'')+n;
   const vc=n=>n>0?'pos':n<0?'neg':'zer';
   const kuubouStr=kuubou[0]+'・'+kuubou[1];
@@ -4200,7 +4208,7 @@ function calculate(){
     ${renderKango(judgeKango(yP, mP, dP, hP, hUnknown), allRounds)}
     ${renderType(judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, ZK_ADOPT))}
     <div class="signal-banner ${cls}" style="margin-top:18px;">
-      <div class="lamp">身強身弱判断<span style="font-size:.8em;opacity:.7;letter-spacing:.05em;">（得令＋得地の合計点）</span></div>
+      <div class="lamp">身強身弱判断<span style="font-size:.8em;opacity:.7;letter-spacing:.05em;">（得令＋得地＋隣接の合計点）</span></div>
       <div class="score-num">${sc(total)}</div>
       <div class="verdict">${verdict}</div>
       <div class="punch">${punch}</div>
@@ -4223,7 +4231,10 @@ function calculate(){
           </div>
         `).join('')}
       </div>
-      <div style="margin-top:14px;font-size:13px;color:var(--washi2);letter-spacing:.08em;line-height:1.8;opacity:.9;"></div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(201,164,76,.15);font-size:13px;letter-spacing:.06em;line-height:1.7;">
+        <span style="color:var(--kin);font-weight:700;">${shinjyoTrait.kw}</span><br>
+        <span style="color:var(--washi2);opacity:.9;">${shinjyoTrait.line}</span>
+      </div>
     </div>
     <div class="card" style="margin-top:18px;">
       <div class="form-title">得令・得地・隣接</div>
@@ -4396,7 +4407,7 @@ function calculate(){
         <div class="signal-banner ${cls}" style="padding:20px;">
           <div class="lamp">五行点数（参考）</div>
           <div class="score-num" style="font-size:clamp(36px,7vw,56px);">${gp.score>0?'+':''}${gp.score}</div>
-          <div style="margin-top:8px;font-size:12px;color:var(--washi2);opacity:.8;letter-spacing:.08em;line-height:1.7;">※身強身弱の判定は「得令＋得地」で行っています。<br>この点数は五行バランスの参考値です。</div>
+          <div style="margin-top:8px;font-size:12px;color:var(--washi2);opacity:.8;letter-spacing:.08em;line-height:1.7;">※身強身弱の判定は「得令＋得地＋隣接」で行っています。<br>この点数は五行バランスの参考値です。</div>
         </div>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;">

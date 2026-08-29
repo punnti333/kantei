@@ -599,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608290600';
+var APP_VERSION = '202608290615';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4211,6 +4211,10 @@ function calculate(){
       <div class="lamp">身強身弱判断<span style="font-size:.8em;opacity:.7;letter-spacing:.05em;">（得令＋得地＋隣接の合計点）</span></div>
       <div class="score-num">${sc(total)}</div>
       <div class="verdict">${verdict}</div>
+      <div style="margin-top:6px;font-size:13px;letter-spacing:.06em;line-height:1.6;">
+        <span style="color:var(--kin);font-weight:700;">${shinjyoTrait.kw}</span><br>
+        <span style="color:var(--washi2);opacity:.9;">${shinjyoTrait.line}</span>
+      </div>
       <div class="punch">${punch}</div>
       <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;">
         ${[
@@ -4231,10 +4235,7 @@ function calculate(){
           </div>
         `).join('')}
       </div>
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(201,164,76,.15);font-size:13px;letter-spacing:.06em;line-height:1.7;">
-        <span style="color:var(--kin);font-weight:700;">${shinjyoTrait.kw}</span><br>
-        <span style="color:var(--washi2);opacity:.9;">${shinjyoTrait.line}</span>
-      </div>
+      <div style="margin-top:14px;font-size:13px;color:var(--washi2);letter-spacing:.08em;line-height:1.8;opacity:.9;"></div>
     </div>
     <div class="card" style="margin-top:18px;">
       <div class="form-title">得令・得地・隣接</div>

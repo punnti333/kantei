@@ -599,7 +599,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202608301323';
+var APP_VERSION = '202608290700';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2177,12 +2177,6 @@ function updateNengun(){
     // ★との二値ではなく強弱を目で追えるようにするための表示上の追加で、
     // 三命殺そのものの定義（東洋12要素・3つ以上）には触れていない。
     const isSanjuWeak = _sanju.length===2;
-    // 震度表示（2026-08-30 追加）：☆＝震度5、★＝震度7、と先生の中で決まっている対応を
-    // そのままバッジにしただけ。isSanjusatsu／isSanjuWeakの判定（3つ以上／ちょうど2つ）は
-    // 一切変更していない。震度2〜4など、それ以下の段階は今回入れていない（先生の今後の宿題）。
-    const jishinTag=
-      isSanjusatsu?'<span style="font-size:11px;color:#e0453c;border:1px solid #e0453c;border-radius:4px;padding:1px 5px;margin-left:3px;font-weight:700;">震度7</span>':
-      isSanjuWeak?'<span style="font-size:11px;color:#e8a545;border:1px solid #e8a545;border-radius:4px;padding:1px 5px;margin-left:3px;">震度5</span>':'';
     const kaiMark=
       (ankenMark?'<span class="nengun-kaza-mark red" title="'+(honmeiAnken&&keishaAnken?'本命・傾斜暗剣殺':keishaAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+ankenMark+'</span>':'')+
       (hasKeishaGoou?'<span class="nengun-kaza-mark blue" title="傾斜五黄殺">●</span>':'');
@@ -2199,8 +2193,8 @@ function updateNengun(){
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
       '<td style="'+tdSty+'position:relative;padding-left:20px;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
-         (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三命殺（震度7）：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':
-          isSanjuWeak?'<span class="sanju-star-weak" onclick="openSanjuChart('+yr+',true)" title="要素2つ（震度5）：'+_sanju.join('・')+'（参考。三命殺の成立には3つ以上が必要。押すとトランジットを表示）">☆</span>':'')+
+         (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三命殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':
+          isSanjuWeak?'<span class="sanju-star-weak" onclick="openSanjuChart('+yr+',true)" title="要素2つ：'+_sanju.join('・')+'（参考。三命殺の成立には3つ以上が必要。押すとトランジットを表示）">☆</span>':'')+
          '<span class="'+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'">'+
            '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
            // 地支は「本気の蔵干」の五行で喜忌の色を付ける（2026-08-19 追加）。
@@ -2208,7 +2202,7 @@ function updateNengun(){
            // 時刻による切替は使わない（年運に生まれ時刻は関係しないため常に本気）。
            '<span style="'+kiimiColor(KAN_GOGYO[(ZOKAN[ks.shi]||[])[0]],d.KIIMI)+'">'+ks.shi+'</span>'+
          '</span>'+
-         tags+jishinTag+'</td>'+
+         tags+'</td>'+
       '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'"><span class="nengun-kaza"><span>'+palace+'</span>'+kaiMark+'</span></td>'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+'">'+age+'歳</td>'+
       '</tr>';

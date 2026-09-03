@@ -3,67 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="apple-mobile-web-app-title" content="八字鑑定シート">
+<meta http-equiv="refresh" content="0; url=app.html">
 <title>八字鑑定シート</title>
-<style>
-html,body{margin:0;padding:0;height:100%;background:#14110f;color:#c9a44c;
-font-family:'Hiragino Mincho ProN','Yu Mincho',serif;}
-.boot{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
-.seal{width:78px;height:78px;border:2.5px solid #c0392b;border-radius:8px;color:#c0392b;
-display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;
-font-size:15px;letter-spacing:4px;font-weight:800;transform:rotate(-4deg);line-height:1.15;padding:6px;}
-.msg{font-size:13px;letter-spacing:.22em;opacity:.75;}
-.err{font-size:14px;line-height:1.9;text-align:center;padding:0 30px;color:#ece3d0;}
-.err a{color:#c9a44c;}
-</style>
 </head>
 <body>
-<div class="boot" id="boot">
-  <div class="seal">八字<br>鑑定</div>
-  <div class="msg" id="msg">読み込んでいます</div>
-</div>
-<script>
-/* ===================================================================
-   入口ファイル。ここは原則もう書き換えません。
-   起動のたびに app.html の最新版を取りに行き、この画面と差し替えます。
-   （iPhoneのホーム画面アプリでも、消して入れ直す必要がなくなります）
-   通信できないときは、前回読み込んだ内容をそのまま使います。
-   =================================================================== */
-(function(){
-  var KEY='hachiji-app-html';
-  var TIMEOUT=6000;   // 6秒つながらなければ、前回の内容に切り替える
-  var done=false;
-
-  function boot(html){
-    if(done) return; done=true;
-    document.open(); document.write(html); document.close();
-  }
-  function cached(){ try{ return localStorage.getItem(KEY); }catch(e){ return null; } }
-  function store(html){ try{ localStorage.setItem(KEY,html); }catch(e){} }
-
-  function fail(){
-    if(done) return;
-    var c=cached();
-    if(c){ boot(c); return; }
-    done=true;
-    document.getElementById('boot').innerHTML=
-      '<div class="err">読み込めませんでした。<br>電波の良い場所でもう一度お試しください。<br><br>'+
-      '<a href="app.html">▶ 直接ひらく</a></div>';
-  }
-
-  // 6秒たっても返事がなければ、前回の内容で起動する
-  var timer=setTimeout(fail,TIMEOUT);
-
-  fetch('app.html?ts='+Date.now(),{cache:'no-store',credentials:'same-origin'})
-    .then(function(res){ if(!res.ok) throw new Error('status '+res.status); return res.text(); })
-    .then(function(html){
-      if(html.indexOf('</'+'html>')<0) throw new Error('incomplete');
-      clearTimeout(timer);
-      store(html);
-      boot(html);
-    })
-    .catch(function(){ clearTimeout(timer); fail(); });
-})();
-</script>
+<p>読み込み中です。自動的に移動しない場合は<a href="app.html">こちら</a>を押してください。</p>
 </body>
 </html>

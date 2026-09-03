@@ -600,7 +600,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609031100';
+var APP_VERSION = '202609031145';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4162,9 +4162,16 @@ function calculate(){
     // そこから出す通変星まで採用蔵干基準にすると、性格診断（本気で読む）や一般的な
     // 通変星の扱いとズレる。例：1962-07-18は未月の余気期間で採用蔵干＝丁、本気＝己。
     // 日主丁だと、丁→比肩・己→食神で結果が変わってしまうため、本気で統一する。
+    // 日柱は天干の通変星（.p-ts、金色）が日主自身のため空欄になり、支の通変星
+    // （下の1行目）だけがその柱の唯一の通変星表示になる。他の柱は天干側が
+    // 金色で目立つのに、日柱だけ支側が.p-juniの地の色・薄い不透明度
+    // （--washi2・opacity.75）のままだと見劣りするので、日柱のときだけ
+    // ラッパーごとopacity:1にした上で、通変星の文字だけ金色にする
+    // （opacityは親のぶんが子にも重なるため、子だけopacity:1にしても
+    // 元の薄さが残ってしまう。ラッパー側で上書きする必要がある）（2026-09-03）。
     const shiJuniCell=
-      '<span class="p-juni" style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.5;">'+
-        '<span>'+getTsuuhensei(nK,ZOKAN[shi][0])+'</span>'+
+      '<span class="p-juni" style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.5;'+(isDay?'opacity:1;':'')+'">'+
+        '<span'+(isDay?' style="color:var(--kin);"':'')+'>'+getTsuuhensei(nK,ZOKAN[shi][0])+'</span>'+
         '<span>'+juni+'</span>'+
       '</span>';
     return '<div class="pillar'+(isDay?' day':'')+'">' +

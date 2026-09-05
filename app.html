@@ -4984,8 +4984,12 @@ function sjRenderChartSVG(natal,date,main){
   onChartProg.forEach(a=>{
     const {x:x1,y:y1}=trPlaced[a.t], {x:x2,y:y2}=naPlaced[a.n];
     const [lx1,ly1,lx2,ly2]=shrinkLine(x1,y1,x2,y2,GLYPH_GAP);
+    // 2026-09-05：点線が細かすぎて見えにくいとの指摘（プログレス太陽×天王星180度など）。
+    // トランジット側が全角度実線になったので、プログレスの波線と混同する心配がなくなった
+    // 分、遠慮なく太く・くっきりした破線にできる（太さ1.4→2、不透明度.75→.9、
+    // 破線パターン2,3→6,3で「間延びしたドット」ではなく「はっきりした破線」に見えるようにした）。
     g+=`<line x1="${lx1.toFixed(1)}" y1="${ly1.toFixed(1)}" x2="${lx2.toFixed(1)}" y2="${ly2.toFixed(1)}" `
-      +`stroke="${PROG_COLOR[a.kind]}" stroke-width="1.4" opacity="0.75" stroke-dasharray="2,3"/>`;
+      +`stroke="${PROG_COLOR[a.kind]}" stroke-width="2" opacity="0.9" stroke-dasharray="6,3"/>`;
   });
   // 天体を描く（位置は上で計算済みのものをそのまま使う）
   const renderGlyphs=(placed,keys,cls,glyphColor)=>{

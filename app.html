@@ -2154,7 +2154,10 @@ function updateNengun(){
       isYujoKansat?'<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>':'',
       isHeirinN?'<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>':'',
       isHeirinM?'<span style="font-size:11px;color:#a0d8a0;border:1px solid #a0d8a0;border-radius:4px;padding:1px 5px;margin-left:3px;">🔶月柱併臨</span>':'',
-      isSaiHeirin?'<span style="font-size:11px;color:#7ab4d8;border:1px solid #7ab4d8;border-radius:4px;padding:1px 5px;margin-left:3px;">🔵歳運併臨</span>':''
+      isSaiHeirin?'<span style="font-size:11px;color:#7ab4d8;border:1px solid #7ab4d8;border-radius:4px;padding:1px 5px;margin-left:3px;">🔵歳運併臨</span>':'',
+      // 大運交替：三命クロス法の震度3表示（chip-jishin3）と同じティール系の色で揃える（2026-09-05 追加）。
+      // 吉凶ではなく「変化の年」という中立の意味なので、赤・紫・金など凶を示す色とは別系統にする。
+      isDaiinKotai?'<span style="font-size:11px;color:#8fe0d6;border:1px solid #5ac8be;border-radius:4px;padding:1px 5px;margin-left:3px;">🔄大運交替</span>':''
     ].join('');
 
     // 九星回座

@@ -4250,7 +4250,6 @@ function calculate(){
     </div>
     <!-- 干合カード：命式のすぐ下に置く（2026-08-19 移動）-->
     ${renderKango(judgeKango(yP, mP, dP, hP, hUnknown), allRounds)}
-    ${renderType(judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, ZK_ADOPT))}
     <div class="signal-banner ${cls}" style="margin-top:18px;">
       <div class="lamp">身強身弱判断<span style="font-size:.8em;opacity:.7;letter-spacing:.05em;">（得令＋得地＋隣接の合計点）</span></div>
       <div class="score-num">${sc(total)}</div>
@@ -4394,6 +4393,8 @@ function calculate(){
           '</div>';
       })()}
     </div>
+    <!-- 命式タイプカード：八字命式（再表示）のすぐ下に置く（2026-09-06 移動）-->
+    ${renderType(judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, ZK_ADOPT))}
     ${renderKuubou(judgeKuubou(kuubou, nK,
         [{label:'年柱',kan:yP.kan,shi:yP.shi},{label:'月柱',kan:mP.kan,shi:mP.shi},
          {label:'日柱',kan:dP.kan,shi:dP.shi}].concat(hUnknown?[]:[{label:'時柱',kan:hP.kan,shi:hP.shi}]),

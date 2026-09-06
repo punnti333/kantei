@@ -4256,7 +4256,7 @@ function calculate(){
            クリックするまで隠す（2026-09-06 追加）。PC・スマホなど画面サイズやスクロール位置に
            左右されないよう、スクロール位置ではなくクリックでの開閉にした。 -->
       <div id="shinjyo-answer-toggle" style="margin-top:14px;text-align:center;">
-        <button onclick="document.getElementById('shinjyo-answer-body').style.display='block';document.getElementById('shinjyo-answer-toggle').style.display='none';"
+        <button onclick="document.getElementById('shinjyo-answer-body').style.display='block';document.getElementById('shinjyo-answer-toggle').style.display='none';document.getElementById('tokurei-tokuchi-card').style.display='block';"
           style="font-family:'Shippori Mincho',serif;font-size:15px;background:var(--shu);border:1px solid var(--kin);
           color:#fff;border-radius:10px;padding:12px 26px;cursor:pointer;letter-spacing:.12em;">
           答え合わせ（身強身弱の判定を見る）</button>
@@ -4300,7 +4300,9 @@ function calculate(){
       <div style="margin-top:14px;font-size:13px;color:var(--washi2);letter-spacing:.08em;line-height:1.8;opacity:.9;"></div>
       </div>
     </div>
-    <div class="card" style="margin-top:18px;">
+    <!-- 得令・得地・隣接：身強身弱の内訳そのもの（答えが分かってしまう）なので、
+         答え合わせボタンを押すまで一緒に隠す（2026-09-06 追加）。 -->
+    <div id="tokurei-tokuchi-card" class="card" style="margin-top:18px;display:none;">
       <div class="form-title">得令・得地・隣接</div>
       <div class="score-grid score-grid-3" style="margin-bottom:6px;">
       <div class="score-card">

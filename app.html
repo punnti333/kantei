@@ -4252,6 +4252,16 @@ function calculate(){
     ${renderKango(judgeKango(yP, mP, dP, hP, hUnknown), allRounds)}
     <div class="signal-banner ${cls}" style="margin-top:18px;">
       <div class="lamp">身強身弱判断<span style="font-size:.8em;opacity:.7;letter-spacing:.05em;">（得令＋得地＋隣接の合計点）</span></div>
+      <!-- 勉強用：まず八字だけ見て自分で身強身弱を考えられるよう、答え（判定結果）は
+           クリックするまで隠す（2026-09-06 追加）。PC・スマホなど画面サイズやスクロール位置に
+           左右されないよう、スクロール位置ではなくクリックでの開閉にした。 -->
+      <div id="shinjyo-answer-toggle" style="margin-top:14px;text-align:center;">
+        <button onclick="document.getElementById('shinjyo-answer-body').style.display='block';document.getElementById('shinjyo-answer-toggle').style.display='none';"
+          style="font-family:'Shippori Mincho',serif;font-size:15px;background:var(--shu);border:1px solid var(--kin);
+          color:#fff;border-radius:10px;padding:12px 26px;cursor:pointer;letter-spacing:.12em;">
+          答え合わせ（身強身弱の判定を見る）</button>
+      </div>
+      <div id="shinjyo-answer-body" style="display:none;">
       <div class="score-num">${sc(total)}</div>
       <div class="verdict">${verdict}</div>
       <div class="punch">${punch}</div>
@@ -4288,6 +4298,7 @@ function calculate(){
         `).join('')}
       </div>
       <div style="margin-top:14px;font-size:13px;color:var(--washi2);letter-spacing:.08em;line-height:1.8;opacity:.9;"></div>
+      </div>
     </div>
     <div class="card" style="margin-top:18px;">
       <div class="form-title">得令・得地・隣接</div>

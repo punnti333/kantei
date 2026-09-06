@@ -4250,13 +4250,15 @@ function calculate(){
     </div>
     <!-- 干合カード：命式のすぐ下に置く（2026-08-19 移動）-->
     ${renderKango(judgeKango(yP, mP, dP, hP, hUnknown), allRounds)}
-    <div class="signal-banner ${cls}" style="margin-top:18px;">
+    <div id="shinjyo-signal-banner" class="signal-banner" style="margin-top:18px;">
       <div class="lamp">身強身弱判断<span style="font-size:.8em;opacity:.7;letter-spacing:.05em;">（得令＋得地＋隣接の合計点）</span></div>
       <!-- 勉強用：まず八字だけ見て自分で身強身弱を考えられるよう、答え（判定結果）は
            クリックするまで隠す（2026-09-06 追加）。PC・スマホなど画面サイズやスクロール位置に
-           左右されないよう、スクロール位置ではなくクリックでの開閉にした。 -->
+           左右されないよう、スクロール位置ではなくクリックでの開閉にした。
+           ※カード自体の背景色（sig-strong=緑／sig-mid=金／sig-weak=青）も答えのヒントになって
+           しまうため、クラス（${cls}）はクリックまで付けず、ボタン側で一緒に付与する（2026-09-06 追加）。 -->
       <div id="shinjyo-answer-toggle" style="margin-top:14px;text-align:center;">
-        <button onclick="document.getElementById('shinjyo-answer-body').style.display='block';document.getElementById('shinjyo-answer-toggle').style.display='none';document.getElementById('tokurei-tokuchi-card').style.display='block';"
+        <button onclick="document.getElementById('shinjyo-signal-banner').classList.add('${cls}');document.getElementById('shinjyo-answer-body').style.display='block';document.getElementById('shinjyo-answer-toggle').style.display='none';document.getElementById('tokurei-tokuchi-card').style.display='block';"
           style="font-family:'Shippori Mincho',serif;font-size:15px;background:var(--shu);border:1px solid var(--kin);
           color:#fff;border-radius:10px;padding:12px 26px;cursor:pointer;letter-spacing:.12em;">
           答え合わせ（身強身弱の判定を見る）</button>

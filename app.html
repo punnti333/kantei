@@ -2140,6 +2140,11 @@ function updateNengun(){
     // 大運交替：この年が大運の開始年かどうか
     const nextDaiinData=(d.allRounds||[]).find(r=>r.startYear===yr);
     const isDaiinKotai=!!nextDaiinData;
+    // 天剋（2026-09-10 追加）：大運の天干と、その年の年運の天干が、同じ陰陽で剋し合う関係
+    // （TENSEN_KANの七殺ペア）にあるかどうか。方向は問わない（大運剋年運／年運剋大運どちらも対象）。
+    // 震度（三命殺）の12要素には含めない、独立の参考タグ。地支の冲までは見ていないので
+    // 天剋地沖より軽い「天干だけがぶつかる」年、という位置づけ。
+    const isTenkoku=curDaiin && (TENSEN_KAN[curDaiin.kan]===ks.kan || TENSEN_KAN[ks.kan]===curDaiin.kan);
     const tags=[
       ...rels.map(t=>{
         const c=t==='沖'?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':t==='歳運併臨'?'#e0453c':t==='月柱併臨'?'#c9a44c':'#9ed687';
@@ -2163,7 +2168,9 @@ function updateNengun(){
       isDaiinKotai?(nextDaiinData.tsugikiun
         ?'<span style="font-size:11px;color:#8fe0d6;border:1px solid #5ac8be;border-radius:4px;padding:1px 5px;margin-left:3px;">🔄接木交替</span>'
         :'<span style="font-size:11px;color:#8fe0d6;border:1px solid #5ac8be;border-radius:4px;padding:1px 5px;margin-left:3px;">🔄大運交替</span>')
-        :''
+        :'',
+      // 天剋（2026-09-10 追加）：震度とは別枠の参考タグ。大運干と年運干が七殺型で剋し合う年。
+      isTenkoku?'<span style="font-size:11px;color:#e08a5a;border:1px solid #e08a5a;border-radius:4px;padding:1px 5px;margin-left:3px;" title="大運の天干と年運の天干が剋し合う年（参考タグ・震度には含みません）">⚔️天剋</span>':''
     ].join('');
 
     // 九星回座

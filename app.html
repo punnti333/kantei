@@ -2157,7 +2157,13 @@ function updateNengun(){
       isSaiHeirin?'<span style="font-size:11px;color:#7ab4d8;border:1px solid #7ab4d8;border-radius:4px;padding:1px 5px;margin-left:3px;">🔵歳運併臨</span>':'',
       // 大運交替：三命クロス法の震度3表示（chip-jishin3）と同じティール系の色で揃える（2026-09-05 追加）。
       // 吉凶ではなく「変化の年」という中立の意味なので、赤・紫・金など凶を示す色とは別系統にする。
-      isDaiinKotai?'<span style="font-size:11px;color:#8fe0d6;border:1px solid #5ac8be;border-radius:4px;padding:1px 5px;margin-left:3px;">🔄大運交替</span>':''
+      // 接木運（季節境を跨ぐ大運交替）のときは、通常の大運交替と区別できるよう
+      // ラベルを「接木交替」にする（2026-09-10 追加。「大運交替」と同じ4文字・
+      // ○○交替の構造に揃え、色・意味合いも大運交替と同じ扱い）。
+      isDaiinKotai?(nextDaiinData.tsugikiun
+        ?'<span style="font-size:11px;color:#8fe0d6;border:1px solid #5ac8be;border-radius:4px;padding:1px 5px;margin-left:3px;">🔄接木交替</span>'
+        :'<span style="font-size:11px;color:#8fe0d6;border:1px solid #5ac8be;border-radius:4px;padding:1px 5px;margin-left:3px;">🔄大運交替</span>')
+        :''
     ].join('');
 
     // 九星回座

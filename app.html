@@ -5203,8 +5203,9 @@ function sjUpdateChartView(){
   const cap=document.getElementById('sanju-date-caption');
   const isBest=st.date.getTime()===st.bestDate.getTime();
   if(cap){
-    // 月日部分は太字に（2026-08-26 再修正）
-    cap.innerHTML='<span style="font-weight:700;">'+(st.date.getUTCMonth()+1)+'月'+st.date.getUTCDate()+'日</span> — '
+    // 2026-09-15：<p>要素自体を赤字・太字にしたので、ここは日付部分だけを
+    // 別途太字にする必要がなくなった（全体がすでに太字）。
+    cap.innerHTML=(st.date.getUTCMonth()+1)+'月'+st.date.getUTCDate()+'日 — '
       +(isBest?'この一年でいちばん凶角が重なっている日（'+n+'本が同時にオーブ内）'
                :'この日（'+n+'本が同時にオーブ内）');
   }
@@ -5305,9 +5306,14 @@ function openSanjuChart(year,weak){
       +tsqHtml
       // 最下部に、日付とその意味を簡単な一文で（2026-08-25 追加）。
       // 月日部分は太字に（2026-08-26 再修正）。
-      +'<p style="font-size:12.5px;color:var(--washi2);text-align:center;margin-top:14px;'
-        +'border-top:1px solid rgba(201,164,76,.2);padding-top:10px;" id="sanju-date-caption">'
-        +'<span style="font-weight:700;">'+(date.getUTCMonth()+1)+'月'+date.getUTCDate()+'日</span> — '
+      // 2026-09-15 修正：一覧表の各行の「正確」日（＝それぞれの凶角が単独で一番強まる日）と、
+      // 「いま盤に表示している日」（＝複数の凶角が同時に重なる日）が別々にあって、
+      // どちらが本題の日なのか分かりにくいとの指摘。表の個々の日付より、
+      // 「結局この盤はどの日の話をしているのか」を示すこの一文がいちばん大事なので、
+      // 赤くはっきり目立たせて、ここが基準の日であることを分かりやすくした。
+      +'<p style="font-size:14.5px;color:#f0a0a0;font-weight:700;text-align:center;margin-top:14px;'
+        +'border-top:1px solid rgba(224,69,60,.35);padding-top:10px;" id="sanju-date-caption">'
+        +(date.getUTCMonth()+1)+'月'+date.getUTCDate()+'日 — '
         +'この一年でいちばん凶角が重なっている日（'+overlapN+'本が同時にオーブ内）</p>'
       ;
     // ナビゲーション用の状態を保存（2026-08-26 追加）。年をまたいだ移動はしない。

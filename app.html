@@ -4892,9 +4892,50 @@ function sjCountOverlap(natal,date){
   return {n,sum};
 }
 
+// 一覧表の行を一意に識別するためのキー（2026-09-15 追加）
+function sjAspKey(a){ return a.t+'|'+a.n+'|'+a.nm; }
+
+// 一覧表（◆のみ）の行HTMLを作る。openSanjuChart（初期表示）と
+// sjUpdateChartView（日付移動）の両方から呼び、常に「いま盤に表示している日」の
+// 凶角（onChart）に合わせてハイライトし直す（2026-09-15 追加）。
+//   ・主役（dayPrimary＝盤で太い線になっている1本）のみ濃い赤で強調
+//   ・それ以外でも、いま見ている日にオーブ内の凶角は薄い赤で示す
+//   ・その日オーブ外の凶角はハイライトなし
+function sjBuildRowsHTML(_slow,onChart,dayPrimary){
+  const _fmt=d=>(d.getUTCMonth()+1)+'/'+d.getUTCDate();
+  const onSet=new Set((onChart||[]).map(sjAspKey));
+  const primaryKey=dayPrimary?sjAspKey(dayPrimary):null;
+  const _row=a=>{
+    const key=sjAspKey(a);
+    const isPrimary=(key===primaryKey);
+    const isActive=onSet.has(key);
+    // 主役（盤で太い線）＝濃い赤＋太字。今日オーブ内だが主役ではない＝薄めの赤。
+    // どちらでもない（今日はオーブ外）＝色なし。2026-09-15：以前は薄いほうがほぼ見えない
+    // 濃さだったため、はっきり分かる濃さに引き上げた。
+    const c=isPrimary?'#f5b0a8':(isActive?'#d99a90':'var(--washi2)');
+    const fw=isPrimary?'font-weight:700;':'';
+    const bg=isPrimary?'background:rgba(192,57,43,.26);':(isActive?'background:rgba(192,57,43,.12);':'');
+    return '<tr style="'+bg+'">'
+      +'<td style="padding:3px 6px;color:'+c+';font-size:12.5px;white-space:nowrap;'+fw+'">'+_fmt(a.enter)+'</td>'
+      +'<td style="padding:3px 6px;color:'+c+';font-size:12.5px;white-space:nowrap;'+fw+'">'+_fmt(a.date)+'</td>'
+      +'<td style="padding:3px 6px;color:'+c+';font-size:12.5px;'+fw+'">'
+        +(a.slow?'◆':'・')+' T'+SJ_NAME[a.t]+' '+a.mark+' N'+SJ_NAME[a.n]+'</td>'
+      +'<td style="padding:3px 6px;color:rgba(236,227,208,.42);font-size:11.5px;text-align:right;">'
+        +a.orb.toFixed(1)+'°</td></tr>';
+  };
+  return _slow.map(_row).join('');
+}
+
 // 指定した1日の盤（SVG）を描く。sjBuildChart（初回表示）と、
 // 月送りナビゲーションボタン（sjMoveChart）の両方から呼ばれる
 // （2026-08-26、元々sjBuildChart内にあった描画部分を分離）。
+// 2026-09-15 修正：以前は「主役1本」をその年でいちばん誤差が小さい凶角（＝年間を通じて
+// 固定の1本）で決めていたため、日付を送って別の日を見ても、一覧表でハイライトされる行が
+// 元の固定の1本のままで、いま見ている日とは無関係な日を指してしまうことがあった
+// （「7月20日を見ているのに、表は6月5日の凶角がハイライトされている」との指摘）。
+// 主役は「いま盤に描かれている（＝その日実際にオーブ内の）凶角の中で、土星以遠優先・
+// 誤差最小のもの」を、日付ごとに選び直すように変更した。mainパラメータは使わなくなったが、
+// 呼び出し元との互換のため引数自体は残している。
 function sjRenderChartSVG(natal,date,main){
   const tr={}; SJ_TRANS.forEach(b=>tr[b]=sjLon(b,date));
   // プログレス太陽・月（2026-08-26 追加）。トランジット側の輪に緑の点として置く。
@@ -4984,9 +5025,19 @@ function sjRenderChartSVG(natal,date,main){
     const ux=dx/len, uy=dy/len;
     return [x1+ux*gap, y1+uy*gap, x2-ux*gap, y2-uy*gap];
   };
+  // 「主役」＝いまこの日に描かれている凶角(onChart)の中で、土星以遠優先・誤差最小のもの。
+  // 年間固定の1本ではなく、表示している日ごとに選び直す（2026-09-15 修正）。
+  let dayPrimary=null;
+  onChart.forEach(a=>{
+    const slow=SJ_SLOW.includes(a.t);
+    if(!dayPrimary){ dayPrimary=a; return; }
+    const pSlow=SJ_SLOW.includes(dayPrimary.t);
+    if(slow!==pSlow){ if(slow) dayPrimary=a; return; }
+    if(a.orb<dayPrimary.orb) dayPrimary=a;
+  });
   onChart.forEach(a=>{
     const {x:x1,y:y1}=trPlaced[a.t], {x:x2,y:y2}=naPlaced[a.n];
-    const isMain=(main && a.t===main.t&&a.n===main.n&&a.nm===main.nm);
+    const isMain=(dayPrimary && a.t===dayPrimary.t&&a.n===dayPrimary.n&&a.nm===dayPrimary.nm);
     const aColor=SJ_ASPECT_COLOR[a.mark]||'#e0453c';
     const aDash=SJ_ASPECT_DASH[a.mark]||'';
     // 主役以外の線が細く・薄くて見えづらいとの指摘（2026-08-26）。
@@ -5047,7 +5098,7 @@ function sjRenderChartSVG(natal,date,main){
   });
 
   const svg=`<svg viewBox="0 0 420 420" style="width:100%;max-width:420px;height:auto;">${g}</svg>`;
-  return {svg,onChart};
+  return {svg,onChart,dayPrimary};
 }
 
 function sjBuildChart(natal,year){
@@ -5067,9 +5118,8 @@ function sjBuildChart(natal,year){
     if(n>bestN || (n===bestN && sum<bestSum)){ bestN=n; bestSum=sum; date=dt; }
   }
   const overlapN=bestN;                     // その日、同時にオーブ内だった◆の本数（2026-08-25 追加：下部の説明文用）
-  const main=list[0];                       // 一覧で赤く示す一本（土星以遠優先＋誤差最小）
-  const {svg,onChart}=sjRenderChartSVG(natal,date,main);
-  return {svg,list,date,main,onChart,overlapN};
+  const {svg,onChart,dayPrimary}=sjRenderChartSVG(natal,date);
+  return {svg,list,date,onChart,dayPrimary,overlapN};
 }
 
 // 月を足す（月末日のずれを吸収する）。いったん移動先の月の1日に飛んでから、
@@ -5138,14 +5188,17 @@ function sjOnMonthOrDayChange(){
   st.date=new Date(Date.UTC(st.year,month-1,day,3,0));
   sjUpdateChartView();
 }
-// 盤（SVG）と最下部の日付キャプション・月日プルダウンを差し替える。
-// 一覧表・Tスクエア・グランドクロスはその年全体の情報なので、
-// 日付を動かしても変わらない（意図的に据え置き）。
+// 盤（SVG）・一覧表のハイライト・最下部の日付キャプション・月日プルダウンを差し替える。
+// Tスクエア・グランドクロスはその年全体の情報なので、日付を動かしても変わらない（意図的に据え置き）。
+// 2026-09-15 修正：一覧表のハイライトも、盤と同じくいま見ている日に合わせて描き直すようにした
+// （以前は初期表示時の1本のまま固定されていて、日付を送ると盤と表の内容がずれていた）。
 function sjUpdateChartView(){
   const st=window._sanjuChartState; if(!st) return;
-  const {svg}=sjRenderChartSVG(st.natal,st.date,st.main);
+  const {svg,onChart,dayPrimary}=sjRenderChartSVG(st.natal,st.date);
   const svgBox=document.getElementById('sanju-svg-box');
   if(svgBox) svgBox.innerHTML=svg;
+  const rowsBody=document.getElementById('sanju-rows-body');
+  if(rowsBody && st.slowList) rowsBody.innerHTML=sjBuildRowsHTML(st.slowList,onChart,dayPrimary);
   const {n}=sjCountOverlap(st.natal,st.date);
   const cap=document.getElementById('sanju-date-caption');
   const isBest=st.date.getTime()===st.bestDate.getTime();
@@ -5166,7 +5219,7 @@ function sjUpdateChartView(){
 function openSanjuChart(year,weak){
   const d=window._nengunData; if(!d) return;
   const natal=sjNatal(d.y,d.bm,d.bd);
-  const {svg,list,date,main,overlapN}=sjBuildChart(natal,year);
+  const {svg,list,date,onChart,dayPrimary,overlapN}=sjBuildChart(natal,year);
   const box=document.getElementById('sanju-modal');
   const body=document.getElementById('sanju-body');
   if(!box||!body) return;
@@ -5177,29 +5230,16 @@ function openSanjuChart(year,weak){
     // 一覧は ◆（土星以遠）を先に、・（火星）を後ろに。
     // ◆の中では「その年に新しく入った順」。前年からの継続は下にまとめる。
     // 火星は一年で何十本も組むため、時系列で混ぜると◆が埋もれてしまう。
-    const _fmt=d=>(d.getUTCMonth()+1)+'/'+d.getUTCDate();
     const _slow=list.filter(a=>a.slow).sort((a,b)=>a.enter-b.enter);
     const _fast=list.filter(a=>!a.slow).sort((a,b)=>a.enter-b.enter);
     const _hdr=t=>'<tr><td colspan="4" style="padding:9px 6px 3px;font-size:11.5px;'
       +'color:var(--kin);letter-spacing:.08em;border-bottom:1px solid rgba(201,164,76,.16);">'+t+'</td></tr>';
-    const _row=(a,dim)=>{
-      const isMain=(a.t===main.t&&a.n===main.n&&a.nm===main.nm);
-      const c=isMain?'#f0a0a0':(dim?'rgba(236,227,208,.55)':'var(--washi2)');
-      const fs=dim?'11.5px':'12.5px';
-      return '<tr style="'+(isMain?'background:rgba(192,57,43,.16);':'')+'">'
-        +'<td style="padding:3px 6px;color:'+c+';font-size:'+fs+';white-space:nowrap;">'+_fmt(a.enter)+'</td>'
-        +'<td style="padding:3px 6px;color:'+c+';font-size:'+fs+';white-space:nowrap;">'+_fmt(a.date)+'</td>'
-        +'<td style="padding:3px 6px;color:'+c+';font-size:'+fs+';">'
-          +(a.slow?'◆':'・')+' T'+SJ_NAME[a.t]+' '+a.mark+' N'+SJ_NAME[a.n]+'</td>'
-        +'<td style="padding:3px 6px;color:rgba(236,227,208,.42);font-size:11.5px;text-align:right;">'
-          +a.orb.toFixed(1)+'°</td></tr>';
-    };
     const rows='<tr>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:left;">入り</th>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:left;">正確</th>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:left;">凶角</th>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:right;">誤差</th></tr>'
-      +(_slow.length?_slow.map(a=>_row(a,false)).join(''):'');
+      +'<tbody id="sanju-rows-body">'+sjBuildRowsHTML(_slow,onChart,dayPrimary)+'</tbody>';
     // 火星（T火星×N土星）は一覧に出さない。主役ではないため（2026-08-24）。
     // 判定にも図の日付にも影響しない。盤の線とTスクエアには引き続き反映される。
     // ── B：Tスクエア
@@ -5271,7 +5311,8 @@ function openSanjuChart(year,weak){
         +'この一年でいちばん凶角が重なっている日（'+overlapN+'本が同時にオーブ内）</p>'
       ;
     // ナビゲーション用の状態を保存（2026-08-26 追加）。年をまたいだ移動はしない。
-    window._sanjuChartState={natal,year,main,date:new Date(date),bestDate:new Date(date)};
+    // slowListは日付移動のたび一覧表を描き直すために保持（2026-09-15 追加）。
+    window._sanjuChartState={natal,year,slowList:_slow,date:new Date(date),bestDate:new Date(date)};
     const _dSelInit=document.getElementById('sanju-day-select');
     if(_dSelInit) _dSelInit._month=date.getUTCMonth()+1;
   }

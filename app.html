@@ -4208,7 +4208,12 @@ function calculate(){
 
   document.getElementById('result').innerHTML=`
     <div class="card">
-      <div class="form-title">八字命式</div>
+      <div class="form-title">八字命式
+        <button type="button" onclick="newPerson()" style="margin-left:auto;font-family:'Shippori Mincho',serif;
+          font-size:12.5px;background:rgba(201,164,76,.10);border:1.5px solid var(--kin);color:var(--kin2);
+          border-radius:8px;padding:6px 14px;cursor:pointer;letter-spacing:.05em;white-space:nowrap;">
+          別の人で占う</button>
+      </div>
       <div class="shichuu-disp">
         ${pil('年柱',yP.kan,yP.shi,false)}
         ${pil('月柱',mP.kan,mP.shi,false)}

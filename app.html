@@ -605,7 +605,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609161000';
+var APP_VERSION = '202609191000';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2147,6 +2147,10 @@ function updateNengun(){
     const isFukuKansat=(FUKU_KANSAT_N[d.nK]||[]).includes(ks.kan);
     const isHeirinN=(ks.kan===d.nK && ks.shi===d.dShi);
     const isHeirinM=(ks.kan===d.mKan && ks.shi===d.mShi);
+    // 傷官が巡る年（2026-09-19 追加）。年運の天干の十神が「傷官」のとき。
+    // 他のタグと同じく略さずフルネーム「傷官」で表示する（「傷」1文字だと
+    // 十神の呼び名だと伝わりにくく、単なる「傷」という文字に見えてしまうため）。
+    const isShokanN=(getTsuuhensei(d.nK,ks.kan)==='傷官');
     // 年柱併臨は「還暦そのもの」で、あえてタグにする必要はないとのご判断で削除。
     // 歳運併臨：年運干支と大運干支が一致
     const curDaiin=(d.allRounds||[]).find(r=>r.startYear<=yr && r.startYear+10>yr);
@@ -2161,6 +2165,7 @@ function updateNengun(){
       }),
       isKuubou?'<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>':'',
       isKango?'<span style="font-size:11px;color:#c78fff;border:1px solid #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">干合</span>':'',
+      isShokanN?'<span style="font-size:11px;color:#e0a5c8;border:1px solid #e0a5c8;border-radius:4px;padding:1px 5px;margin-left:3px;">傷官</span>':'',
       isMujoKansat?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>':'',
       isFukuKansat?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️奉官殺</span>':'',
       isMujoZai?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>':'',
@@ -4061,6 +4066,9 @@ function calculate(){
     const isHeirinD=(r.kan===dP.kan && r.shi===dP.shi);
     const isHeirinMD=(r.kan===mP.kan && r.shi===mP.shi);
     // isHeirinYD は使用しなくなったため削除
+    // 傷官が巡る大運（2026-09-19 追加）。大運の天干の十神が「傷官」のとき。
+    // 年運側（isShokanN）と同じ考え方・同じ表示（フルネーム「傷官」）で揃える。
+    const isShokanD=(getTsuuhensei(nK,r.kan)==='傷官');
     const tags=[
       ...rels.map(t=>{
         const c=t==='沖'?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':t==='歳運併臨'?'#e0453c':t==='月柱併臨'?'#c9a44c':'#9ed687';
@@ -4068,6 +4076,7 @@ function calculate(){
       }),
       isKuubou2?`<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>`:'',
       isKango?`<span style="font-size:11px;color:#c78fff;border:1px solid #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">干合</span>`:'',
+      isShokanD?`<span style="font-size:11px;color:#e0a5c8;border:1px solid #e0a5c8;border-radius:4px;padding:1px 5px;margin-left:3px;">傷官</span>`:'',
       isMujoKansat?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>`:'',
       isFukuKansat?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️奉官殺</span>`:'',
       isMujoZai?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>`:'',

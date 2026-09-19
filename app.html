@@ -582,7 +582,13 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
         <div style="margin-top:6px;font-size:12px;color:var(--washi);opacity:.55;line-height:1.6;">
           名前を入力すると、ふりがなは自動で入ります（違っていれば書き換えてください。空欄のままでも保存できます）。
         </div>
-        <input type="text" id="inp-people-filter" placeholder="名前検索（名前かふりがな）" oninput="renderPeople()" style="margin-top:10px;width:100%;box-sizing:border-box;padding:10px 12px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:14px;">
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:stretch;">
+          <input type="text" id="inp-people-filter" placeholder="名前検索（名前かふりがな）" oninput="renderPeople()" style="flex:1;box-sizing:border-box;padding:10px 12px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:14px;">
+          <button type="button" id="btn-people-edit" onclick="togglePeopleEdit()" style="flex:none;padding:10px 14px;background:#0f0c0a;border:1px solid rgba(201,164,76,.4);border-radius:8px;color:var(--kin2);font-size:13px;letter-spacing:.05em;cursor:pointer;white-space:nowrap;">整理する</button>
+        </div>
+        <div id="people-bulk-bar" style="display:none;margin-top:8px;">
+          <button type="button" id="btn-people-bulk-del" onclick="delSelectedPeople()" style="width:100%;padding:10px 14px;background:rgba(192,57,43,.14);border:1px solid rgba(192,57,43,.5);border-radius:8px;color:#f0a0a0;font-size:13px;letter-spacing:.05em;cursor:pointer;">選んだ人をまとめて消す</button>
+        </div>
         <div id="people" class="people-wrap" style="max-height:220px;overflow-y:auto;padding-right:2px;"></div>
       </div>
       <div class="field field-full">
@@ -605,7 +611,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609192115';
+var APP_VERSION = '202609192230';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1442,7 +1448,11 @@ function setTimeMode(mode){
 
 // ===== 鑑定した人の保存（この端末のブラウザにだけ残ります）=====
 const PEOPLE_KEY='hachiji_people';
-const PEOPLE_MAX=100;
+const PEOPLE_MAX=200;
+// 2026-09-19 追加：「整理する」モード。一人ずつ×で消すのが大変との声を受けて、
+// チェックボックスで複数選んでまとめて削除できるようにした。
+let PEOPLE_EDIT=false;
+let PEOPLE_SELECTED=new Set(); // loadPeople() の元の並び順インデックス（i）を保持
 function escHTML(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;')
   .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function loadPeople(){
@@ -1601,11 +1611,12 @@ function delPerson(i,ev){
 function renderPeople(){
   const box=document.getElementById('people'); if(!box) return;
   const list=loadPeople();
+  updatePeopleEditBar(list.length);
   if(!list.length){ box.innerHTML='<span class="people-empty">まだ保存された方はいません</span>'; return; }
   // 表示はふりがな優先の並び順（無ければ名前そのものを代わりに使う）。
-  // ただし usePerson/delPerson は保存された生データ（loadPeople()）の位置を
-  // 直接参照する作りのため、並び替えても元のインデックスがずれないよう、
-  // ペアにしてからソートする。
+  // ただし usePerson/delPerson/togglePersonSelect は保存された生データ
+  // （loadPeople()）の位置を直接参照する作りのため、並び替えても元の
+  // インデックスがずれないよう、ペアにしてからソートする。
   const filterEl=document.getElementById('inp-people-filter');
   const q=(filterEl&&filterEl.value||'').trim();
   const indexed=list.map(function(e,i){return {e:e, i:i};});
@@ -1620,11 +1631,56 @@ function renderPeople(){
   box.innerHTML=shown.map(function(o){
     const e=o.e, i=o.i;
     const t=e.hUnknown?'時刻不明':(e.time||'');
+    if(PEOPLE_EDIT){
+      const checked=PEOPLE_SELECTED.has(i)?' checked':'';
+      return '<span class="pchip" onclick="togglePersonSelect('+i+',event)">'+
+        '<input type="checkbox" onclick="event.stopPropagation()" onchange="togglePersonSelect('+i+',event)"'+checked+
+        ' style="width:16px;height:16px;flex:none;padding:0;margin:0 8px 0 0;accent-color:var(--kin);">'+
+        '<span class="pname">'+escHTML(e.name)+'</span>'+
+        e.y+'.'+e.m+'.'+e.d+' '+t+
+        '</span>';
+    }
     return '<span class="pchip" onclick="usePerson('+i+')">'+
       '<span class="pname">'+escHTML(e.name)+'</span>'+
       e.y+'.'+e.m+'.'+e.d+' '+t+
       '<span class="pdel" onclick="delPerson('+i+',event)">×</span></span>';
   }).join('');
+}
+/* 「整理する」モードの切り替え。ONにすると各人の頭にチェックボックスが出て、
+   複数選んでから下の「選んだ人をまとめて消す」で一気に削除できる。 */
+function togglePeopleEdit(){
+  PEOPLE_EDIT=!PEOPLE_EDIT;
+  PEOPLE_SELECTED.clear();
+  renderPeople();
+}
+function togglePersonSelect(i,ev){
+  if(ev&&ev.stopPropagation) ev.stopPropagation();
+  if(PEOPLE_SELECTED.has(i)) PEOPLE_SELECTED.delete(i);
+  else PEOPLE_SELECTED.add(i);
+  renderPeople();
+}
+function delSelectedPeople(){
+  if(!PEOPLE_SELECTED.size) return;
+  const n=PEOPLE_SELECTED.size;
+  if(!confirm(n+'人をまとめて消しますか？（この操作は元に戻せません）')) return;
+  const list=loadPeople().filter(function(p,i){ return !PEOPLE_SELECTED.has(i); });
+  PEOPLE_SELECTED.clear();
+  savePeopleList(list);
+}
+/* 「整理する」ボタンの表示文字と、まとめて削除バーの表示・件数を更新する。 */
+function updatePeopleEditBar(count){
+  const editBtn=document.getElementById('btn-people-edit');
+  const bulkBar=document.getElementById('people-bulk-bar');
+  const bulkBtn=document.getElementById('btn-people-bulk-del');
+  if(!editBtn||!bulkBar||!bulkBtn) return;
+  editBtn.textContent=PEOPLE_EDIT?'整理をやめる':'整理する';
+  editBtn.style.borderColor=PEOPLE_EDIT?'var(--kin)':'rgba(201,164,76,.4)';
+  bulkBar.style.display=PEOPLE_EDIT?'block':'none';
+  const n=PEOPLE_SELECTED.size;
+  bulkBtn.textContent=n?('選んだ人をまとめて消す（'+n+'人）'):'消す人にチェックを入れてください';
+  bulkBtn.disabled=!n;
+  bulkBtn.style.opacity=n?'1':'.5';
+  bulkBtn.style.cursor=n?'pointer':'default';
 }
 
 function setHUnknown(v){ if(!!v!==H_UNKNOWN) toggleHUnknown(); }

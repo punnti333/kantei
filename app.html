@@ -611,7 +611,7 @@ line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609221030';
+var APP_VERSION = '202609251230';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2221,6 +2221,12 @@ function updateNengun(){
     // 他のタグと同じく略さずフルネーム「傷官」で表示する（「傷」1文字だと
     // 十神の呼び名だと伝わりにくく、単なる「傷」という文字に見えてしまうため）。
     const isShokanN=(getTsuuhensei(d.nK,ks.kan)==='傷官');
+    // 七殺（偏官）が巡る年（2026-09-25 追加）。傷官と同じ考え方・同じ表示方式。
+    const isSisatsuN=(getTsuuhensei(d.nK,ks.kan)==='偏官');
+    // 傷官・七殺タグの色（2026-09-25 改訂）：身強なら食傷・官殺は喜神なので
+    // 穏やかな緑、身弱なら忌神なので警告の赤。kanYojin はこの下で
+    // 天干（ks.kan）の喜神・忌神をすでに判定済みのものをそのまま使う。
+    const shokanSisatsuColor = kanYojin==='○' ? '#9ed687' : kanYojin==='✕' ? '#f0857a' : '#b0a898';
     // 年柱併臨は「還暦そのもの」で、あえてタグにする必要はないとのご判断で削除。
     // 歳運併臨：年運干支と大運干支が一致
     const curDaiin=(d.allRounds||[]).find(r=>r.startYear<=yr && r.startYear+10>yr);
@@ -2235,7 +2241,8 @@ function updateNengun(){
       }),
       isKuubou?'<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>':'',
       isKango?'<span style="font-size:11px;color:#c78fff;border:1px solid #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">干合</span>':'',
-      isShokanN?'<span style="font-size:11px;color:#e0a5c8;border:1px solid #e0a5c8;border-radius:4px;padding:1px 5px;margin-left:3px;">傷官</span>':'',
+      isShokanN?'<span style="font-size:11px;color:'+shokanSisatsuColor+';border:1px solid '+shokanSisatsuColor+';border-radius:4px;padding:1px 5px;margin-left:3px;">傷官</span>':'',
+      isSisatsuN?'<span style="font-size:11px;color:'+shokanSisatsuColor+';border:1px solid '+shokanSisatsuColor+';border-radius:4px;padding:1px 5px;margin-left:3px;">七殺</span>':'',
       isMujoKansat?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>':'',
       isFukuKansat?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️奉官殺</span>':'',
       isMujoZai?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>':'',
@@ -4139,6 +4146,15 @@ function calculate(){
     // 傷官が巡る大運（2026-09-19 追加）。大運の天干の十神が「傷官」のとき。
     // 年運側（isShokanN）と同じ考え方・同じ表示（フルネーム「傷官」）で揃える。
     const isShokanD=(getTsuuhensei(nK,r.kan)==='傷官');
+    // 七殺（偏官）が巡る大運（2026-09-25 追加）。年運側（isSisatsuN）と同じ表示で揃える。
+    const isSisatsuD=(getTsuuhensei(nK,r.kan)==='偏官');
+    // 傷官・七殺タグの色（2026-09-25 改訂）：年運側と同じ考え方で、この大運の
+    // 天干（r.kan）が喜神か忌神かで色を変える。下の方で改めて effectiveTotal・
+    // kanYojin を計算しているが（ageSty用）、タグ表示はここで先に必要なので、
+    // 同じ式をそのまま先に計算しておく（total・midType は行ループの外で決まっている）。
+    const tagEffTotal=midType!==null?(midType==='strong'?TH_STRONG:TH_WEAK):total;
+    const tagKanYojin=yojinHantei(nK,KAN_GOGYO[r.kan],tagEffTotal);
+    const shokanSisatsuColorD = tagKanYojin==='○' ? '#9ed687' : tagKanYojin==='✕' ? '#f0857a' : '#b0a898';
     const tags=[
       ...rels.map(t=>{
         const c=t==='沖'?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':t==='歳運併臨'?'#e0453c':t==='月柱併臨'?'#c9a44c':'#9ed687';
@@ -4146,7 +4162,8 @@ function calculate(){
       }),
       isKuubou2?`<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>`:'',
       isKango?`<span style="font-size:11px;color:#c78fff;border:1px solid #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">干合</span>`:'',
-      isShokanD?`<span style="font-size:11px;color:#e0a5c8;border:1px solid #e0a5c8;border-radius:4px;padding:1px 5px;margin-left:3px;">傷官</span>`:'',
+      isShokanD?`<span style="font-size:11px;color:${shokanSisatsuColorD};border:1px solid ${shokanSisatsuColorD};border-radius:4px;padding:1px 5px;margin-left:3px;">傷官</span>`:'',
+      isSisatsuD?`<span style="font-size:11px;color:${shokanSisatsuColorD};border:1px solid ${shokanSisatsuColorD};border-radius:4px;padding:1px 5px;margin-left:3px;">七殺</span>`:'',
       isMujoKansat?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>`:'',
       isFukuKansat?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️奉官殺</span>`:'',
       isMujoZai?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>`:'',

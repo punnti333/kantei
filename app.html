@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609271700';
+var APP_VERSION = '202609272100';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1321,7 +1321,7 @@ function simRinsetsuKango(nK, yP, mP, dP, hP, hUnknown, zkDay, zkHour){
     {pos:'日', kan:nK,     gogyo:KAN_GOGYO[nK],     weight:0},
   ];
   if(!hUnknown && hP) kans.push({pos:'時', kan:hP.kan, gogyo:KAN_GOGYO[hP.kan], weight:1});
-  const pk=applyKango(kans, mP.shi, nK);
+  const pk=applyKango(kans, mP.shi, nK, (!hUnknown&&hP)?hP.shi:null);
   const get=(pos)=>pk.find(k=>k.pos===pos);
   const RIN_W=0.5;
   const st=(g)=>{
@@ -2497,11 +2497,23 @@ function getMonthGogyo(mShi){
   return MOON_GOGYO[mShi]||'';
 }
 
-function applyKango(kans, mShi, nK){
+function applyKango(kans, mShi, nK, hShi){
   // kans: [{pos:'年'|'月'|'日'|'時', kan, gogyo}]
   // 干合ペア（隣接のみ）: 年-月, 月-日, 日-時
   const pairs=[['年','月'],['月','日'],['日','時']];
   const moonG=getMonthGogyo(mShi);
+  // 2026-09-27 修正：化す／化さないの判定を、干合カード（judgeKango）と同じ基準に揃えた。
+  // 以前は「月支の五行＝化五行」のときだけ化すとしていたが、干合カードは本のとおり
+  // 「生月か生時の支」で真化・準ずるを判定しており、同じ命式でカードは「真化に準ずる」、
+  // 点数は「化さない」と食い違っていた（例：月支亥・時支未の乙庚）。
+  // いまは月支か時支が「真化」の支のときだけ化すとして数える（かぴさんの方針）。
+  // 「真化に準ずる」「嫌う」「干合のみ」は化さない＝従来どおり倍加干合／無作用干合。
+  const _kaOK=(g)=>{
+    const D=(typeof KANGO_DATA!=='undefined')?KANGO_DATA[g]:null;
+    if(!D) return moonG===g;
+    const shis=[mShi].concat(hShi?[hShi]:[]);
+    return shis.some(s=>D.shinka.includes(s));
+  };
   const result=kans.map(k=>({...k})); // コピー
   const used=new Set();
 
@@ -2522,7 +2534,7 @@ function applyKango(kans, mShi, nK){
     if(p1==='年'&&p2==='月'){
       // 無作用干合：年干と月干のみの干合
       // 変化干合しない場合は無作用（干を消す）
-      if(moonG===kaGogyo){
+      if(_kaOK(kaGogyo)){
         // 変化干合：月令が化五行と同じ→変化
         result[i1]={...k1, gogyo:kaGogyo, note:'変化干合('+k1.kan+'→'+kaGogyo+')'};
         result[i2]={...k2, gogyo:kaGogyo, note:'変化干合('+k2.kan+'→'+kaGogyo+')'};
@@ -2534,7 +2546,7 @@ function applyKango(kans, mShi, nK){
       used.add(i1); used.add(i2);
     } else {
       // 日干・月干 or 日干・時干の干合
-      if(moonG===kaGogyo){
+      if(_kaOK(kaGogyo)){
         // 変化干合
         result[i1]={...k1, gogyo:kaGogyo, note:'変化干合('+k1.kan+'→'+kaGogyo+')'};
         result[i2]={...k2, gogyo:kaGogyo, note:'変化干合('+k2.kan+'→'+kaGogyo+')'};
@@ -2649,7 +2661,7 @@ function gogyo_points(nK, yP, mP, dP, hP, hUnknown){
   if(!hUnknown) kans.push({pos:'時', kan:hP.kan, gogyo:KAN_GOGYO[hP.kan], weight:1});
 
   // 干合処理を適用
-  const processedKans=applyKango(kans, mP.shi, nK);
+  const processedKans=applyKango(kans, mP.shi, nK, (!hUnknown&&hP)?hP.shi:null);
 
   const items=[];
   for(const k of processedKans){

@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609272100';
+var APP_VERSION = '202609272200';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -3894,6 +3894,12 @@ const KUUBOU_TSUHEN = {
   }
 };
 
+// 月柱の傷官が空亡した場合の説明（2026-09-27 追加）
+const KUUBOU_SHOKAN_GETSU =
+  '親や兄弟との縁が薄く、実家の援助を受けにくい。'
+  + '若いころ（青年期）に基盤が安定しにくく、苦労しやすい。'
+  + '仕事や社会での足場が固まりにくい。';
+
 // ===== 判定 =====
 // kuubou   … ['子','丑'] のような配列
 // pillars  … [{label:'年柱', kan, shi}, ...]（日柱は蔵干で見るので zk を渡す）
@@ -3919,8 +3925,17 @@ function judgeKuubou(kuubou, nK, pillars, zkDay){
     if(!useKan){ hit.push({...p, tsuuhen:null, src, data:null}); continue; }
     let t = getTsuuhensei(nK, useKan);
     if(t === '偏印') t = '倒食';        // 本書の呼び方に合わせる
+    let data = KUUBOU_TSUHEN[t] || null;
+    // 2026-09-27 追加：傷官の本文は「年柱に傷官があって空亡していると」で始まる、
+    // 年柱専用の説明。年柱以外で出すと内容が合わないため、柱ごとに差し替える。
+    //   月柱：月柱（両親・兄弟・実家／青年期／社会の土台）の一般的な読み方
+    //         （本の文章ではない。かぴさん確認済みの文言）
+    //   日柱・時柱：該当する説明がないため本文は出さない（救いの条件だけ出す）
+    if(t === '傷官' && data && p.label !== '年柱'){
+      data = { ...data, txt: (p.label === '月柱') ? KUUBOU_SHOKAN_GETSU : '' };
+    }
     hit.push({ label:p.label, kan:p.kan, shi:p.shi, useKan, src,
-               tsuuhen:t, data:KUUBOU_TSUHEN[t] || null });
+               tsuuhen:t, data });
   }
 
   return { key, gogyoSide, hit, uncertain: gs.length > 1 };
@@ -3940,7 +3955,7 @@ function renderKuubou(res){
       +   '<span class="kb-tsu">' + h.tsuuhen + ' 空亡</span>'
       +   '<span class="kb-src">' + h.src + ' ' + h.useKan + '</span>'
       + '</div>'
-      + '<div class="kb-body">' + D.txt + '</div>'
+      + (D.txt ? '<div class="kb-body">' + D.txt + '</div>' : '')
       + (D.add  ? '<div class="kb-add">'  + D.add  + '</div>' : '')
       + (D.save ? '<div class="kb-save">救い　' + D.save + '</div>' : '')
       + (D.tekigyo ? '<div class="kb-add">適業　' + D.tekigyo + '</div>' : '')

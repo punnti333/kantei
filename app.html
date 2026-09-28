@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609272345';
+var APP_VERSION = '202609291230';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4510,9 +4510,10 @@ function calculate(){
            しまうため、クラス（${cls}）はクリックまで付けず、ボタン側で一緒に付与する（2026-09-06 追加）。 -->
       <div id="shinjyo-answer-toggle" style="margin-top:14px;text-align:center;">
         <button onclick="document.getElementById('shinjyo-signal-banner').classList.add('${cls}');document.getElementById('shinjyo-answer-body').style.display='block';document.getElementById('shinjyo-answer-toggle').style.display='none';document.getElementById('tokurei-tokuchi-card').style.display='block';"
-          style="font-family:'Shippori Mincho',serif;font-size:15px;background:var(--shu);border:1px solid var(--kin);
+          style="font-family:'Shippori Mincho',serif;font-size:15px;background:#2e5e3e;border:1px solid #7fbf8f;
           color:#fff;border-radius:10px;padding:12px 26px;cursor:pointer;letter-spacing:.12em;">
           答え合わせ（身強身弱の判定を見る）</button>
+        <!-- 2026-09-29 修正：赤（朱）のボタンは忌神・凶の赤表示と紛らわしいため、緑系のボタンに変更 -->
       </div>
       <div id="shinjyo-answer-body" style="display:none;">
       <div class="score-num">${sc(total)}</div>

@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609301700';
+var APP_VERSION = '202609301800';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4281,7 +4281,9 @@ function calculate(){
       const mainKan = useKan ? R.kan : shiKan;
       const subKan  = useKan ? shiKan : R.kan;
       const nameT=(k)=>{ let t=getTsuuhensei(nK,k); if(t==='偏印') t='倒食'; return t; };
-      const kiOf=(k)=>yojinHantei(nK,KAN_GOGYO[k],effectiveTotalForLuck);
+      // 2026-09-30 改訂：喜忌は扶抑（yojinHantei）ではなく、シートの赤青と同じ KIIMI（命式タイプ判定）で見る。
+      // 扶抑だけで決めると、赤青の表示と逆になる命式があったため。どちらにも入らない五行は「中立」。
+      const kiOf=(k)=>{const g=KAN_GOGYO[k]; return KIIMI.kishin.has(g)?'○':KIIMI.imijin.has(g)?'✕':'－';};
       const kiTxt=(m)=>m==='○'?'喜神':m==='✕'?'忌神':'どちらでもない';
       const mainT=nameT(mainKan), mainKi=kiOf(mainKan);
       const subT=nameT(subKan), subKi=kiOf(subKan);
@@ -4349,7 +4351,7 @@ function calculate(){
       // 主役・脇役を見やすく表示する（2026-09-30 追加）
       //   左：「主役」「脇役」のラベル／中：干支の字を大きく＋通変／右：喜神（緑）・忌神（赤）のバッジ
       const roleRow=(label,where,ch,conv,tsu,ki,isMain)=>{
-        const kc = ki==='○' ? '#9ed687' : ki==='✕' ? '#f0857a' : '#b0a898';
+        const kc = ki==='○' ? '#7fb3e8' : ki==='✕' ? '#e8837f' : '#b0a898';
         const kt = ki==='○' ? '喜神' : ki==='✕' ? '忌神' : '中立';
         return '<div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px 10px;border-radius:8px;'+
             (isMain?'background:rgba(201,164,76,.10);border:1px solid rgba(201,164,76,.45);':'background:rgba(236,227,208,.04);border:1px solid rgba(236,227,208,.15);opacity:.85;')+'">'+
@@ -4380,11 +4382,12 @@ function calculate(){
         : '脇役の'+_subName+'は、主役の'+_mainName+'に剋されて弱っています。影響は小さく、ほぼ主役で決まります。';
       // この人の身強身弱と、それによる喜神・忌神（2026-09-30 追加）
       const _lv = total>=TH_MASTER?'身旺':total>=TH_STRONG?'身強':total<=TH_ZETSU?'超身弱':total<=TH_WEAK?'身弱':('中庸（'+(midType==='strong'?'身強寄り':'身弱寄り')+'）');
-      const _strongSide = effectiveTotalForLuck>=TH_STRONG;
-      const _G5=['木','火','土','金','水'], _ni=_G5.indexOf(KAN_GOGYO[nK]), _gg=(k)=>_G5[(_ni+k)%5];
-      const _kiTxt = _strongSide ? '食傷・財・官殺（'+_gg(1)+'・'+_gg(2)+'・'+_gg(3)+'）' : '印・比劫（'+_gg(4)+'・'+_gg(0)+'）';
+      const _ord=['木','火','土','金','水'];
+      const _fmt=(set)=>{const a=_ord.filter(g=>set.has(g)); return a.length?a.join('・'):'なし';};
       const shinLine='<div style="font-size:13px;margin:-2px 0 8px;padding:5px 10px;border-radius:6px;background:rgba(236,227,208,.06);">'+
-        'この人：<b>'+_lv+'</b>　→ 喜神は '+_kiTxt+'</div>';
+        'この人：<b>'+_lv+'</b>'+
+        '<div style="margin-top:2px;">喜神 <b style="color:#7fb3e8;">'+_fmt(KIIMI.kishin)+'</b>　忌神 <b style="color:#e8837f;">'+_fmt(KIIMI.imijin)+'</b>'+
+        '<span style="font-size:11px;opacity:.65;">（シートの青・赤と同じ）</span></div></div>';
       const startAge=(R.dispAge!=null?R.dispAge:R.age);
       const li=(t)=>'<li style="margin:3px 0;">'+t+'</li>';
       const body=

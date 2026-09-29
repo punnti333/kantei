@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609301400';
+var APP_VERSION = '202609301500';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4268,8 +4268,18 @@ function calculate(){
       else if(ove(gk,gs)){ type='蓋頭干支'; useKan=true; }
       else if(gen(gk,gs)){ type='漏干干支'; useKan=false; }
       else { type='載脚干支'; useKan=false; }
-      const mainKan = useKan ? R.kan : B2K[R.shi];
-      const subKan  = useKan ? B2K[R.shi] : R.kan;
+      // 2026-09-30 改訂：地支を干に直すときは、大運の表と同じく「今の区間の蔵干」を使う
+      // （小山内流：大運の地支を10年の中で蔵干ごとに区切る。例：未は前半己・後半丁）。
+      // 区間の蔵干が取れないときだけ、本気（B2K）で代用する。
+      let segZkNow=null;
+      try{
+        const _segs=splitRound(R);
+        const _cur=_segs.filter(sg=>sg.startYear<_ny || (sg.startYear===_ny && (R.startMonth||1)<=_nm));
+        if(_cur.length) segZkNow=_cur[_cur.length-1].zokan||null;
+      }catch(e){}
+      const shiKan = segZkNow || B2K[R.shi];
+      const mainKan = useKan ? R.kan : shiKan;
+      const subKan  = useKan ? shiKan : R.kan;
       const nameT=(k)=>{ let t=getTsuuhensei(nK,k); if(t==='偏印') t='倒食'; return t; };
       const kiOf=(k)=>yojinHantei(nK,KAN_GOGYO[k],effectiveTotalForLuck);
       const kiTxt=(m)=>m==='○'?'喜神':m==='✕'?'忌神':'どちらでもない';

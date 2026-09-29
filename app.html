@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609301800';
+var APP_VERSION = '202609301900';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4370,10 +4370,11 @@ function calculate(){
       const _shiLab=R.shi+'（'+shiKan+'・'+_g(shiKan)+'）', _kanLab=R.kan+'（'+_g(R.kan)+'）';
       const relLine = (type==='専旺干支') ? '' :
         '<div style="font-size:13px;margin:6px 0 2px;padding:6px 10px;border-radius:6px;background:rgba(236,227,208,.05);">'+
-          (type==='扶干干支' ? _shiLab+' ━生→ '+_kanLab+'　地支が天干を生む' :
-           type==='漏干干支' ? _kanLab+' ━生→ '+_shiLab+'　天干が地支を生む' :
-           type==='蓋頭干支' ? _kanLab+' ━剋→ '+_shiLab+'　天干が地支を剋す' :
-                               _shiLab+' ━剋→ '+_kanLab+'　地支が天干を剋す')+
+          // 2026-09-30 改訂：「━生→」が「一生」と読めてしまうため、文章で書く
+          (type==='扶干干支' ? '地支の'+_shiLab+'が、天干の'+_kanLab+'を<b>生む</b>' :
+           type==='漏干干支' ? '天干の'+_kanLab+'が、地支の'+_shiLab+'を<b>生む</b>' :
+           type==='蓋頭干支' ? '天干の'+_kanLab+'が、地支の'+_shiLab+'を<b>剋す</b>' :
+                               '地支の'+_shiLab+'が、天干の'+_kanLab+'を<b>剋す</b>')+
           '<div style="font-size:12px;opacity:.7;margin-top:2px;">主役＝強い側／脇役＝残った弱い側</div>'+
         '</div>';
       const _subName=(useKan?R.shi:R.kan)+'（'+subT+'）', _mainName=(useKan?R.kan:R.shi);

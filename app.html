@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609302000';
+var APP_VERSION = '202609302200';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2841,6 +2841,25 @@ function kiimiColor(gogyo, sets){
 }
 
 // ===== 表示 =====
+
+// 本に書かれていない五行の補足を求める（2026-09-30 追加）。命式タイプのカードと大運のまとめで共用。
+//   戻り値：{ 五行: { ki:'○'|'✕', why:'大過している五行'|'扶抑の目安', hoshi } }
+function typeHosoku(res){
+  const out={};
+  if(!res) return out;
+  const ctx=res.ctx, ks=kishinImijinGogyo(res);
+  const rev={}; for(const k in ctx.tsu) rev[ctx.tsu[k]]=k;
+  const taikaG = ctx.taikaTop ? ctx.tsu[ctx.taikaTop] : null;
+  const strongSide = (ctx.band==='強' || ctx.band==='中強');
+  for(const g of CYCLE){
+    if(ks.kishin.has(g) || ks.imijin.has(g)) continue;
+    const hoshi=rev[g];
+    if(g===taikaG){ out[g]={ki:'✕',why:'大過している五行',hoshi}; continue; }
+    const good = strongSide ? ['食傷','財星','官星'].includes(hoshi) : ['印星','比劫'].includes(hoshi);
+    out[g]={ki:good?'○':'✕',why:'扶抑の目安',hoshi};
+  }
+  return out;
+}
 function renderType(res){
   if(!res) return '';
   const t = res.type, ctx = res.ctx;
@@ -2870,22 +2889,12 @@ function renderType(res){
   //   大過している五行（病の五行）＝忌神（大過している五行）
   //   それ以外＝扶抑の目安（身強側：食傷・財・官殺が喜神／身弱側：印・比劫が喜神）
   const hosoku = (function(){
-    try{
-      const ks = kishinImijinGogyo(res);
-      const miss = CYCLE.filter(g => !ks.kishin.has(g) && !ks.imijin.has(g));
-      if(!miss.length) return '';
-      const rev = {}; for(const k in ctx.tsu) rev[ctx.tsu[k]] = k;
-      const taikaG = ctx.taikaTop ? ctx.tsu[ctx.taikaTop] : null;
-      const strongSide = (ctx.band==='強' || ctx.band==='中強');
-      const items = miss.map(g => {
-        const hoshi = rev[g];
-        if(g === taikaG) return g+'（'+hoshi+'）＝<b style="color:#e8837f;">忌神</b>（大過している五行）';
-        const good = strongSide ? ['食傷','財星','官星'].includes(hoshi) : ['印星','比劫'].includes(hoshi);
-        return g+'（'+hoshi+'）＝'+(good?'<b style="color:#7fb3e8;">喜神</b>':'<b style="color:#e8837f;">忌神</b>')+'（扶抑の目安）';
-      });
-      return '<div style="margin-top:12px;padding:8px 12px;border-top:1px dashed rgba(236,227,208,.25);font-size:13px;line-height:1.8;opacity:.85;">'+
-        '<div style="font-size:12px;opacity:.8;">※表に書かれていない五行（補足）</div>'+items.map(s=>'<div>'+s+'</div>').join('')+'</div>';
-    }catch(e){ return ''; }
+    const hs=typeHosoku(res), gs=Object.keys(hs);
+    if(!gs.length) return '';
+    const items=gs.map(g=>{const x=hs[g];
+      return g+'（'+x.hoshi+'）＝'+(x.ki==='○'?'<b style="color:#7fb3e8;">喜神</b>':'<b style="color:#e8837f;">忌神</b>')+'（'+x.why+'）';});
+    return '<div style="margin-top:12px;padding:8px 12px;border-top:1px dashed rgba(236,227,208,.25);font-size:13px;line-height:1.8;opacity:.85;">'+
+      '<div style="font-size:12px;opacity:.8;">※表に書かれていない五行（補足）</div>'+items.map(s=>'<div>'+s+'</div>').join('')+'</div>';
   })();
 
   return `
@@ -4261,9 +4270,9 @@ function calculate(){
     日柱: zokanDayShi(dP.shi, effH),
     時柱: hUnknown?null:zokanHourShi(hP.shi, effH, shiIdx)
   };
-  const KIIMI = kishinImijinGogyo(
-    judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, _zkForKI)
-  );
+  const _typeResKI = judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, _zkForKI);
+  const KIIMI = kishinImijinGogyo(_typeResKI);
+  const HOSOKU = typeHosoku(_typeResKI);   // 本に書かれていない五行の補足（大運のまとめで使う）
 
   // ===== 今の大運のまとめ（答え合わせ式、2026-09-29 追加）=====
   // 本（大運の見方）に沿って自動で組み立てる「たたき台」。
@@ -4375,7 +4384,8 @@ function calculate(){
       //   左：「主役」「脇役」のラベル／中：干支の字を大きく＋通変／右：喜神（緑）・忌神（赤）のバッジ
       const roleRow=(label,where,ch,conv,tsu,ki,isMain)=>{
         const kc = ki==='○' ? '#7fb3e8' : ki==='✕' ? '#e8837f' : '#b0a898';
-        const kt = ki==='○' ? '喜神' : ki==='✕' ? '忌神' : '中立';
+        const _hs = (ki==='－') ? HOSOKU[KAN_GOGYO[conv||ch]] : null;
+        const kt = ki==='○' ? '喜神' : ki==='✕' ? '忌神' : (_hs ? '中立<span style="display:block;font-size:10px;font-weight:400;opacity:.85;">'+(_hs.why==='大過している五行'?'大過で':'扶抑では')+(_hs.ki==='○'?'喜神':'忌神')+'</span>' : '中立');
         return '<div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px 10px;border-radius:8px;'+
             (isMain?'background:rgba(201,164,76,.10);border:1px solid rgba(201,164,76,.45);':'background:rgba(236,227,208,.04);border:1px solid rgba(236,227,208,.15);opacity:.85;')+'">'+
           '<span style="flex:none;font-size:12px;font-weight:700;letter-spacing:.1em;padding:3px 8px;border-radius:12px;'+
@@ -4398,7 +4408,7 @@ function calculate(){
            type==='漏干干支' ? '天干の'+_kanLab+'が、地支の'+_shiLab+'を<b>生む</b>' :
            type==='蓋頭干支' ? '天干の'+_kanLab+'が、地支の'+_shiLab+'を<b>剋す</b>' :
                                '地支の'+_shiLab+'が、天干の'+_kanLab+'を<b>剋す</b>')+
-          '<div style="font-size:12px;opacity:.7;margin-top:2px;">主役＝強い側／脇役＝残った弱い側</div>'+
+
         '</div>';
       const _subName=(useKan?R.shi:R.kan)+'（'+subT+'）', _mainName=(useKan?R.kan:R.shi);
       const subNote = (type==='扶干干支'||type==='漏干干支')
@@ -4408,10 +4418,13 @@ function calculate(){
       const _lv = total>=TH_MASTER?'身旺':total>=TH_STRONG?'身強':total<=TH_ZETSU?'超身弱':total<=TH_WEAK?'身弱':('中庸（'+(midType==='strong'?'身強寄り':'身弱寄り')+'）');
       const _ord=['木','火','土','金','水'];
       const _fmt=(set)=>{const a=_ord.filter(g=>set.has(g)); return a.length?a.join('・'):'なし';};
-      const shinLine='<div style="font-size:13px;margin:-2px 0 8px;padding:5px 10px;border-radius:6px;background:rgba(236,227,208,.06);">'+
-        'この人：<b>'+_lv+'</b>'+
-        '<div style="margin-top:2px;">喜神 <b style="color:#7fb3e8;">'+_fmt(KIIMI.kishin)+'</b>　忌神 <b style="color:#e8837f;">'+_fmt(KIIMI.imijin)+'</b>'+
-        '<span style="font-size:11px;opacity:.65;">（シートの青・赤と同じ）</span></div></div>';
+      // 2026-09-30 改訂：行数を減らすため1行にまとめる。補足（本に書かれていない五行）は（　）で添える。
+      const _hk=Object.keys(HOSOKU).filter(g=>HOSOKU[g].ki==='○'), _hi=Object.keys(HOSOKU).filter(g=>HOSOKU[g].ki==='✕');
+      const _ordf=(a)=>_ord.filter(g=>a.includes(g)).join('・');
+      const shinLine='<div style="font-size:13px;margin:-2px 0 8px;padding:5px 10px;border-radius:6px;background:rgba(236,227,208,.06);" title="（　）は本に書かれていない五行の補足">'+
+        'この人：<b>'+_lv+'</b>　喜神 <b style="color:#7fb3e8;">'+_fmt(KIIMI.kishin)+'</b>'+(_hk.length?'<span style="color:#7fb3e8;opacity:.75;">（'+_ordf(_hk)+'）</span>':'')+
+        '　忌神 <b style="color:#e8837f;">'+_fmt(KIIMI.imijin)+'</b>'+(_hi.length?'<span style="color:#e8837f;opacity:.75;">（'+_ordf(_hi)+'）</span>':'')+
+        '</div>';
       const startAge=(R.dispAge!=null?R.dispAge:R.age);
       const li=(t)=>'<li style="margin:3px 0;">'+t+'</li>';
       const body=
@@ -4426,7 +4439,7 @@ function calculate(){
           '<div style="margin-top:6px;"><b>地支の関係（注意点）</b>：'+(shake.length?'<ul style="margin:4px 0 0 1.2em;padding:0;">'+shake.map(li).join('')+'</ul>':'特になし')+'</div>'+
           (good.length?'<div><b>良い関係</b>：<ul style="margin:4px 0 0 1.2em;padding:0;">'+good.map(li).join('')+'</ul></div>':'')+
           '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(201,164,76,.07);"><b>総合</b>：'+sum+'</div>'+
-          '<div style="font-size:12px;opacity:.65;margin-top:6px;">※これはたたき台です。蔵干の細かい働きや、化するかどうかなどは入っていません。</div>'+
+          '<div style="font-size:12px;opacity:.65;margin-top:6px;">※これはたたき台です。蔵干の細かい働きや、化するかどうかなどは入っていません。喜神・忌神の（　）は、本に書かれていない五行の補足です。</div>'+
         '</div>';
       return '<div id="daiin-sum-toggle" style="margin-top:14px;text-align:center;">'+
           '<button onclick="document.getElementById(\'daiin-sum-body\').style.display=\'block\';document.getElementById(\'daiin-sum-toggle\').style.display=\'none\';" '+

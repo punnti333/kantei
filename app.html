@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609291600';
+var APP_VERSION = '202609301200';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4307,12 +4307,27 @@ function calculate(){
       } else {
         base = '中立';
       }
+      // 2026-09-30 改訂：総合の後半は、注意点の中身に合わせて書き分ける。
+      //   沖・月冲・刑・天戦地冲・併臨など「ぶつかる」要素＝揺れ
+      //   空亡＝空回り・手応えの薄さ（揺れではない）
+      //   日支との合＝縛られて身動きが取りにくい（揺れではない）
+      const hasYure = tenN||tenM||chuN||chuM||rels.includes('三刑')||rels.includes('刑')||(R.kan===dP.kan && R.shi===dP.shi);
+      const hasKuu = kuubou.includes(R.shi);
+      const hasGou = rels.includes('合');
+      const isKichi = base.indexOf('吉')===0, isKyo = base.indexOf('凶')===0;
       let tail;
-      if(score===0) tail = (base.indexOf('吉')===0) ? '支えが素直に働く10年です。' : (base.indexOf('凶')===0) ? '無理を控え、守りを固めたい10年です。' : '大きな波は少なめの10年です。';
-      else if(score<=2) tail = (base.indexOf('凶')===0) ? '揺れもあるので、慎重に過ごしたい10年です。' : 'ただ、やや揺れもあります。';
-      else tail = (base.indexOf('吉')===0)
-        ? 'ただし揺れの多い10年です。支えはあるので大崩れはしにくいものの、落ち着かず疲れやすい時期です。'
-        : (base.indexOf('凶')===0) ? '揺れも重なるので、無理をせず慎重に過ごしたい10年です。' : 'ただし揺れの要素が多いので、変化に備えたい10年です。';
+      if(hasYure){
+        if(score<=2) tail = isKyo ? '揺れもあるので、慎重に過ごしたい10年です。' : 'ただ、やや揺れもあります。';
+        else tail = isKichi
+          ? 'ただし揺れの多い10年です。支えはあるので大崩れはしにくいものの、落ち着かず疲れやすい時期です。'
+          : isKyo ? '揺れも重なるので、無理をせず慎重に過ごしたい10年です。' : 'ただし揺れの要素が多いので、変化に備えたい10年です。';
+      } else {
+        const notes=[];
+        if(hasKuu) notes.push('空亡なので、努力のわりに手応えが薄く感じやすい面もあります');
+        if(hasGou) notes.push('日支が縛られ、身動きが取りにくい面もあります');
+        if(notes.length) tail = (isKyo?'さらに、':'ただ、')+notes.join('。また、')+'。';
+        else tail = isKichi ? '支えが素直に働く10年です。' : isKyo ? '無理を控え、守りを固めたい10年です。' : '大きな波は少なめの10年です。';
+      }
       const sum = base+'。'+tail;
       const startAge=(R.dispAge!=null?R.dispAge:R.age);
       const li=(t)=>'<li style="margin:3px 0;">'+t+'</li>';
@@ -4322,10 +4337,10 @@ function calculate(){
           '<div><b>干支の種類</b>：'+type+'（'+(useKan?'天干':'地支')+'で読む'+(type==='専旺干支'?'。天干・地支どちらでも同じ':'')+'）</div>'+
           '<div><b>主役</b>：'+(useKan?'天干の'+R.kan:'地支の'+R.shi+'（'+mainKan+'）')+'＝<b>'+mainT+'</b>　→ '+kiTxt(mainKi)+'</div>'+
           (type!=='専旺干支'?'<div style="opacity:.8"><b>脇役</b>：'+(useKan?'地支の'+R.shi+'（'+subKan+'）':'天干の'+R.kan)+'＝'+subT+'　→ '+kiTxt(subKi)+'</div>':'')+
-          '<div style="margin-top:6px;"><b>地支の関係（揺れ）</b>：'+(shake.length?'<ul style="margin:4px 0 0 1.2em;padding:0;">'+shake.map(li).join('')+'</ul>':'特になし')+'</div>'+
+          '<div style="margin-top:6px;"><b>地支の関係（注意点）</b>：'+(shake.length?'<ul style="margin:4px 0 0 1.2em;padding:0;">'+shake.map(li).join('')+'</ul>':'特になし')+'</div>'+
           (good.length?'<div><b>良い関係</b>：<ul style="margin:4px 0 0 1.2em;padding:0;">'+good.map(li).join('')+'</ul></div>':'')+
           '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(201,164,76,.07);"><b>総合</b>：'+sum+'</div>'+
-          '<div style="font-size:12px;opacity:.65;margin-top:6px;">※本の大運の見方に沿って自動で組み立てた、たたき台です。蔵干の細かい働きや、化するかどうかなどは入っていません。</div>'+
+          '<div style="font-size:12px;opacity:.65;margin-top:6px;">※これはたたき台です。蔵干の細かい働きや、化するかどうかなどは入っていません。</div>'+
         '</div>';
       return '<div id="daiin-sum-toggle" style="margin-top:14px;text-align:center;">'+
           '<button onclick="document.getElementById(\'daiin-sum-body\').style.display=\'block\';document.getElementById(\'daiin-sum-toggle\').style.display=\'none\';" '+

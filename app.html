@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609301200';
+var APP_VERSION = '202609301400';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4246,7 +4246,7 @@ function calculate(){
   // 本（大運の見方）に沿って自動で組み立てる「たたき台」。
   //   ① 干支の種類（専旺・扶干・蓋頭・漏干・載脚）で、天干と地支のどちらで通変を出すか決める
   //      扶干・蓋頭＝天干、漏干・載脚＝地支、専旺＝どちらでも同じ（天干で出す）
-  //      地支は本の置き換え表（巳＝丁、午＝丙、亥＝癸、子＝壬 など）で干に直す
+  //      地支は蔵干の本気（小山内流：巳＝丙、午＝丁、亥＝壬、子＝癸 など）で干に直す
   //   ② その通変が喜神か忌神か（身強身弱の判定＝effectiveTotalForLuck で見る）
   //   ③ 地支と日支・月支の関係（沖・月冲・刑・合・空亡・天戦地冲・併臨）を「揺れ」として数える
   //   ④ ②と③から総合を一文で出す
@@ -4257,7 +4257,10 @@ function calculate(){
       const _started=allRounds.filter(r=>!r.pre && (r.startYear<_ny || (r.startYear===_ny && (r.startMonth||1)<=_nm)));
       const R=_started[_started.length-1];
       if(!R) return '';
-      const B2K={寅:'甲',卯:'乙',辰:'戊',巳:'丁',午:'丙',未:'己',申:'庚',酉:'辛',戌:'戊',亥:'癸',子:'壬',丑:'己'};
+      // 地支を干に置き換える表（2026-09-30 改訂）：本（26ページ）は地支の陰陽で置き換えるため
+      // 巳＝丁・午＝丙・亥＝癸・子＝壬だが、シートは小山内流が土台なので、蔵干の本気に揃えて
+      // 巳＝丙・午＝丁・亥＝壬・子＝癸 とする（大運の表の「巳（丙）」などとも一致する）。
+      const B2K={寅:'甲',卯:'乙',辰:'戊',巳:'丙',午:'丁',未:'己',申:'庚',酉:'辛',戌:'戊',亥:'壬',子:'癸',丑:'己'};
       const gk=KAN_GOGYO[R.kan], gs=SHI_GOGYO[R.shi];
       let type, useKan;
       if(gk===gs){ type='専旺干支'; useKan=true; }
@@ -4329,14 +4332,31 @@ function calculate(){
         else tail = isKichi ? '支えが素直に働く10年です。' : isKyo ? '無理を控え、守りを固めたい10年です。' : '大きな波は少なめの10年です。';
       }
       const sum = base+'。'+tail;
+      // 主役・脇役を見やすく表示する（2026-09-30 追加）
+      //   左：「主役」「脇役」のラベル／中：干支の字を大きく＋通変／右：喜神（緑）・忌神（赤）のバッジ
+      const roleRow=(label,where,ch,conv,tsu,ki,isMain)=>{
+        const kc = ki==='○' ? '#9ed687' : ki==='✕' ? '#f0857a' : '#b0a898';
+        const kt = ki==='○' ? '喜神' : ki==='✕' ? '忌神' : '中立';
+        return '<div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px 10px;border-radius:8px;'+
+            (isMain?'background:rgba(201,164,76,.10);border:1px solid rgba(201,164,76,.45);':'background:rgba(236,227,208,.04);border:1px solid rgba(236,227,208,.15);opacity:.85;')+'">'+
+          '<span style="flex:none;font-size:12px;font-weight:700;letter-spacing:.1em;padding:3px 8px;border-radius:12px;'+
+            (isMain?'background:var(--kin);color:#14110f;':'border:1px solid rgba(236,227,208,.4);color:var(--washi2);')+'">'+label+'</span>'+
+          '<span style="flex:none;font-family:\'Shippori Mincho\',serif;font-size:'+(isMain?'28px':'22px')+';font-weight:700;line-height:1;color:var(--washi);">'+ch+'</span>'+
+          '<span style="flex:1;min-width:0;line-height:1.35;">'+
+            '<span style="font-size:11px;opacity:.7;display:block;">'+where+(conv?'（'+conv+'として）':'')+'</span>'+
+            '<span style="font-size:'+(isMain?'17px':'15px')+';font-weight:700;">'+tsu+'</span>'+
+          '</span>'+
+          '<span style="flex:none;font-size:13px;font-weight:700;color:'+kc+';border:1.5px solid '+kc+';border-radius:6px;padding:3px 9px;">'+kt+'</span>'+
+        '</div>';
+      };
       const startAge=(R.dispAge!=null?R.dispAge:R.age);
       const li=(t)=>'<li style="margin:3px 0;">'+t+'</li>';
       const body=
         '<div style="font-size:15px;font-weight:700;color:var(--kin2);margin-bottom:8px;">今の大運：'+R.kan+R.shi+'（'+startAge+'歳〜・'+R.startYear+'年〜）</div>'+
         '<div style="font-size:14px;line-height:1.8;color:var(--washi);">'+
           '<div><b>干支の種類</b>：'+type+'（'+(useKan?'天干':'地支')+'で読む'+(type==='専旺干支'?'。天干・地支どちらでも同じ':'')+'）</div>'+
-          '<div><b>主役</b>：'+(useKan?'天干の'+R.kan:'地支の'+R.shi+'（'+mainKan+'）')+'＝<b>'+mainT+'</b>　→ '+kiTxt(mainKi)+'</div>'+
-          (type!=='専旺干支'?'<div style="opacity:.8"><b>脇役</b>：'+(useKan?'地支の'+R.shi+'（'+subKan+'）':'天干の'+R.kan)+'＝'+subT+'　→ '+kiTxt(subKi)+'</div>':'')+
+          roleRow('主役', (useKan?'天干':'地支'), (useKan?R.kan:R.shi), (useKan?'':mainKan), mainT, mainKi, true)+
+          (type!=='専旺干支'?roleRow('脇役', (useKan?'地支':'天干'), (useKan?R.shi:R.kan), (useKan?subKan:''), subT, subKi, false):'')+
           '<div style="margin-top:6px;"><b>地支の関係（注意点）</b>：'+(shake.length?'<ul style="margin:4px 0 0 1.2em;padding:0;">'+shake.map(li).join('')+'</ul>':'特になし')+'</div>'+
           (good.length?'<div><b>良い関係</b>：<ul style="margin:4px 0 0 1.2em;padding:0;">'+good.map(li).join('')+'</ul></div>':'')+
           '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(201,164,76,.07);"><b>総合</b>：'+sum+'</div>'+

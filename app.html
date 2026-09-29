@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609302200';
+var APP_VERSION = '202609302300';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4422,7 +4422,7 @@ function calculate(){
       const _hk=Object.keys(HOSOKU).filter(g=>HOSOKU[g].ki==='○'), _hi=Object.keys(HOSOKU).filter(g=>HOSOKU[g].ki==='✕');
       const _ordf=(a)=>_ord.filter(g=>a.includes(g)).join('・');
       const shinLine='<div style="font-size:13px;margin:-2px 0 8px;padding:5px 10px;border-radius:6px;background:rgba(236,227,208,.06);" title="（　）は本に書かれていない五行の補足">'+
-        'この人：<b>'+_lv+'</b>　喜神 <b style="color:#7fb3e8;">'+_fmt(KIIMI.kishin)+'</b>'+(_hk.length?'<span style="color:#7fb3e8;opacity:.75;">（'+_ordf(_hk)+'）</span>':'')+
+        '<b>'+nK+'</b>：<b>'+_lv+'</b>　喜神 <b style="color:#7fb3e8;">'+_fmt(KIIMI.kishin)+'</b>'+(_hk.length?'<span style="color:#7fb3e8;opacity:.75;">（'+_ordf(_hk)+'）</span>':'')+
         '　忌神 <b style="color:#e8837f;">'+_fmt(KIIMI.imijin)+'</b>'+(_hi.length?'<span style="color:#e8837f;opacity:.75;">（'+_ordf(_hi)+'）</span>':'')+
         '</div>';
       const startAge=(R.dispAge!=null?R.dispAge:R.age);

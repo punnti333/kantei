@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609302300';
+var APP_VERSION = '202609302330';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4588,12 +4588,10 @@ function calculate(){
         '</span>'+
         // 2026-09-30 改訂：後半の区間の行にも、地支そのものの関係（沖・刑・合・三合・月冲・空亡）を薄く表示する。
         // 地支は10年間同じなので、これらの関係は区間が変わっても続いている。
+        // 2026-09-30 再改訂：後半の区間の行にも、上の行と同じタグをすべて薄く表示する。
+        // 天干（干合・有情財など）も地支（沖・刑・月冲・空亡など）も、10年間同じなので関係は続いている。
         (isSub
-          ? ((rels.length||isKuubou2)?'<span class="dai-tags" style="opacity:.55;">'+
-              rels.map(t=>{const c=(t==='沖'||t==='月冲')?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':'#9ed687';
-                return '<span style="font-size:11px;color:'+c+';border:1px solid '+c+';border-radius:4px;padding:1px 5px;margin-left:3px;">'+t+'</span>';}).join('')+
-              (isKuubou2?'<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>':'')+
-            '</span>':'')
+          ? (tags.replace(/<[^>]*>/g,'').trim() ? '<span class="dai-tags" style="opacity:.55;">'+tags+'</span>' : '')
           : '<span class="dai-tags">'+tags+'</span>')+
       '</td>'+
       '</tr>';

@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609291400';
+var APP_VERSION = '202609291600';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4242,6 +4242,99 @@ function calculate(){
     judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, _zkForKI)
   );
 
+  // ===== 今の大運のまとめ（答え合わせ式、2026-09-29 追加）=====
+  // 本（大運の見方）に沿って自動で組み立てる「たたき台」。
+  //   ① 干支の種類（専旺・扶干・蓋頭・漏干・載脚）で、天干と地支のどちらで通変を出すか決める
+  //      扶干・蓋頭＝天干、漏干・載脚＝地支、専旺＝どちらでも同じ（天干で出す）
+  //      地支は本の置き換え表（巳＝丁、午＝丙、亥＝癸、子＝壬 など）で干に直す
+  //   ② その通変が喜神か忌神か（身強身弱の判定＝effectiveTotalForLuck で見る）
+  //   ③ 地支と日支・月支の関係（沖・月冲・刑・合・空亡・天戦地冲・併臨）を「揺れ」として数える
+  //   ④ ②と③から総合を一文で出す
+  // 巳の中の庚（長生）や化するかどうか等の細かい読みは入らない。
+  const daiinSummaryHTML=(function(){
+    try{
+      const _now=new Date(), _ny=_now.getFullYear(), _nm=_now.getMonth()+1;
+      const _started=allRounds.filter(r=>!r.pre && (r.startYear<_ny || (r.startYear===_ny && (r.startMonth||1)<=_nm)));
+      const R=_started[_started.length-1];
+      if(!R) return '';
+      const B2K={寅:'甲',卯:'乙',辰:'戊',巳:'丁',午:'丙',未:'己',申:'庚',酉:'辛',戌:'戊',亥:'癸',子:'壬',丑:'己'};
+      const gk=KAN_GOGYO[R.kan], gs=SHI_GOGYO[R.shi];
+      let type, useKan;
+      if(gk===gs){ type='専旺干支'; useKan=true; }
+      else if(gen(gs,gk)){ type='扶干干支'; useKan=true; }
+      else if(ove(gk,gs)){ type='蓋頭干支'; useKan=true; }
+      else if(gen(gk,gs)){ type='漏干干支'; useKan=false; }
+      else { type='載脚干支'; useKan=false; }
+      const mainKan = useKan ? R.kan : B2K[R.shi];
+      const subKan  = useKan ? B2K[R.shi] : R.kan;
+      const nameT=(k)=>{ let t=getTsuuhensei(nK,k); if(t==='偏印') t='倒食'; return t; };
+      const kiOf=(k)=>yojinHantei(nK,KAN_GOGYO[k],effectiveTotalForLuck);
+      const kiTxt=(m)=>m==='○'?'喜神':m==='✕'?'忌神':'どちらでもない';
+      const mainT=nameT(mainKan), mainKi=kiOf(mainKan);
+      const subT=nameT(subKan), subKi=kiOf(subKan);
+      // 地支の関係
+      const ms=[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])];
+      const rels=getRelations(dP.shi,R.shi,ms);
+      const shake=[]; let score=0;
+      // 沖と天戦地冲は重ねて数えない（天戦地冲は冲を含むため、天戦地冲として1つにまとめる）。
+      // 日支と月支が同じ支で両方と冲になる場合も1つにまとめる。
+      const tenN=isTensenChichu(dP.kan,dP.shi,R.kan,R.shi);
+      const tenM=isTensenChichu(mP.kan,mP.shi,R.kan,R.shi);
+      const chuN=rels.includes('沖'), chuM=(CHUU[mP.shi]===R.shi);
+      if(tenN){ shake.push('日柱と天戦地冲（天干も地支もぶつかる）：夫婦・家庭・住まいの大きな転換'); score+=2; }
+      else if(chuN && chuM && dP.shi===mP.shi && !tenM){ shake.push('日支・月支（'+dP.shi+'）と冲：足元と生活の土台（母・実家・仕事）がともに揺れやすい'); score+=3; }
+      else if(chuN){ shake.push('日支（'+dP.shi+'）と沖：自分の足元・配偶者・住まいが揺れやすい'); score+=2; }
+      if(tenM){ shake.push('月柱と天戦地冲（天干も地支もぶつかる）：生活の土台・社会環境の大きな転換'); score+=2; }
+      // 日支と同じ支でまとめ済みなら月冲は出さない
+      else if(chuM && !(chuN && dP.shi===mP.shi && !tenN)){ shake.push('月支（'+mP.shi+'）と冲（月冲）：生活の土台・母・実家・仕事の基盤が揺れやすい'); score+=2; }
+      if(rels.includes('三刑')){ shake.push('三刑がそろう：もめごと・消耗に注意'); score+=2; }
+      else if(rels.includes('刑')){ shake.push('刑：すっきりしない関係、気苦労'); score+=1; }
+      if(rels.includes('合')){ shake.push('日支（'+dP.shi+'）と合：日支が縛られ、身動きが取りにくい'); score+=1; }
+      if(kuubou.includes(R.shi)){ shake.push('空亡：空回り・手応えの薄さ'); score+=1; }
+      if(R.kan===dP.kan && R.shi===dP.shi){ shake.push('日柱併臨：人生の大きな出来事'); score+=2; }
+      const good=[];
+      if(rels.includes('三')) good.push('命式と三合がそろう：その五行の力がまとまる');
+      // 総合（2026-09-29 改訂：脇役の喜忌も加える。主役が中心で、脇役は加減）
+      //   主役○・脇役○＝吉（一段強め）／主役○・脇役✕＝吉寄り
+      //   主役✕・脇役○＝凶寄り（脇役の助けあり）／主役✕・脇役✕＝凶
+      //   専旺干支は天干・地支が同じ五行なので脇役なし（主役だけで判断）
+      const hasSub = (type!=='専旺干支');
+      let base;
+      if(mainKi==='○'){
+        base = (!hasSub || subKi==='○') ? '吉' : '吉寄り';
+      } else if(mainKi==='✕'){
+        base = (!hasSub || subKi==='✕') ? '凶' : '凶寄り（脇役の助けあり）';
+      } else {
+        base = '中立';
+      }
+      let tail;
+      if(score===0) tail = (base.indexOf('吉')===0) ? '支えが素直に働く10年です。' : (base.indexOf('凶')===0) ? '無理を控え、守りを固めたい10年です。' : '大きな波は少なめの10年です。';
+      else if(score<=2) tail = (base.indexOf('凶')===0) ? '揺れもあるので、慎重に過ごしたい10年です。' : 'ただ、やや揺れもあります。';
+      else tail = (base.indexOf('吉')===0)
+        ? 'ただし揺れの多い10年です。支えはあるので大崩れはしにくいものの、落ち着かず疲れやすい時期です。'
+        : (base.indexOf('凶')===0) ? '揺れも重なるので、無理をせず慎重に過ごしたい10年です。' : 'ただし揺れの要素が多いので、変化に備えたい10年です。';
+      const sum = base+'。'+tail;
+      const startAge=(R.dispAge!=null?R.dispAge:R.age);
+      const li=(t)=>'<li style="margin:3px 0;">'+t+'</li>';
+      const body=
+        '<div style="font-size:15px;font-weight:700;color:var(--kin2);margin-bottom:8px;">今の大運：'+R.kan+R.shi+'（'+startAge+'歳〜・'+R.startYear+'年〜）</div>'+
+        '<div style="font-size:14px;line-height:1.8;color:var(--washi);">'+
+          '<div><b>干支の種類</b>：'+type+'（'+(useKan?'天干':'地支')+'で読む'+(type==='専旺干支'?'。天干・地支どちらでも同じ':'')+'）</div>'+
+          '<div><b>主役</b>：'+(useKan?'天干の'+R.kan:'地支の'+R.shi+'（'+mainKan+'）')+'＝<b>'+mainT+'</b>　→ '+kiTxt(mainKi)+'</div>'+
+          (type!=='専旺干支'?'<div style="opacity:.8"><b>脇役</b>：'+(useKan?'地支の'+R.shi+'（'+subKan+'）':'天干の'+R.kan)+'＝'+subT+'　→ '+kiTxt(subKi)+'</div>':'')+
+          '<div style="margin-top:6px;"><b>地支の関係（揺れ）</b>：'+(shake.length?'<ul style="margin:4px 0 0 1.2em;padding:0;">'+shake.map(li).join('')+'</ul>':'特になし')+'</div>'+
+          (good.length?'<div><b>良い関係</b>：<ul style="margin:4px 0 0 1.2em;padding:0;">'+good.map(li).join('')+'</ul></div>':'')+
+          '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(201,164,76,.07);"><b>総合</b>：'+sum+'</div>'+
+          '<div style="font-size:12px;opacity:.65;margin-top:6px;">※本の大運の見方に沿って自動で組み立てた、たたき台です。蔵干の細かい働きや、化するかどうかなどは入っていません。</div>'+
+        '</div>';
+      return '<div id="daiin-sum-toggle" style="margin-top:14px;text-align:center;">'+
+          '<button onclick="document.getElementById(\'daiin-sum-body\').style.display=\'block\';document.getElementById(\'daiin-sum-toggle\').style.display=\'none\';" '+
+          'style="font-family:\'Shippori Mincho\',serif;font-size:15px;background:#2e5e3e;border:1px solid #7fbf8f;color:#fff;border-radius:10px;padding:12px 22px;cursor:pointer;letter-spacing:.1em;">'+
+          '答え合わせ（今の大運のまとめを見る）</button></div>'+
+        '<div id="daiin-sum-body" style="display:none;margin-top:14px;padding:14px 16px;border:1px solid rgba(201,164,76,.3);border-radius:10px;background:#0f0c0a;">'+body+'</div>';
+    }catch(e){ return ''; }
+  })();
+
   const daiinRows=allRounds.filter(r=>!r.pre).flatMap(R=>splitRound(R).map((SEG,SI,SEGS)=>{
     const r=Object.assign({},R,{dispAge:SEG.age,startYear:SEG.startYear});
     const segZk=SEG.zokan;               // この区間の大運蔵干
@@ -4601,6 +4694,7 @@ function calculate(){
         </tr>
         ${daiinRows}
       </table>
+      ${daiinSummaryHTML}
     </div>
     <div class="card" style="margin-top:18px;">
       <div class="form-title">年運<span style="font-size:13px;color:var(--washi2);font-family:'Zen Kaku Gothic New',sans-serif;font-weight:400;margin-left:12px;letter-spacing:.05em;">交替（${daiin.transKan}年/${daiin.transShi}月）</span></div>

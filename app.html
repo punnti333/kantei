@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609301900';
+var APP_VERSION = '202609302000';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2866,6 +2866,28 @@ function renderType(res){
 
   const cntStr = CYCLE.map(g => `${g}${ctx.cnt[g]}`).join('　');
 
+  // 本に書かれていない五行の補足（2026-09-30 追加）。本文・色分けは変えず、目安として一行出す。
+  //   大過している五行（病の五行）＝忌神（大過している五行）
+  //   それ以外＝扶抑の目安（身強側：食傷・財・官殺が喜神／身弱側：印・比劫が喜神）
+  const hosoku = (function(){
+    try{
+      const ks = kishinImijinGogyo(res);
+      const miss = CYCLE.filter(g => !ks.kishin.has(g) && !ks.imijin.has(g));
+      if(!miss.length) return '';
+      const rev = {}; for(const k in ctx.tsu) rev[ctx.tsu[k]] = k;
+      const taikaG = ctx.taikaTop ? ctx.tsu[ctx.taikaTop] : null;
+      const strongSide = (ctx.band==='強' || ctx.band==='中強');
+      const items = miss.map(g => {
+        const hoshi = rev[g];
+        if(g === taikaG) return g+'（'+hoshi+'）＝<b style="color:#e8837f;">忌神</b>（大過している五行）';
+        const good = strongSide ? ['食傷','財星','官星'].includes(hoshi) : ['印星','比劫'].includes(hoshi);
+        return g+'（'+hoshi+'）＝'+(good?'<b style="color:#7fb3e8;">喜神</b>':'<b style="color:#e8837f;">忌神</b>')+'（扶抑の目安）';
+      });
+      return '<div style="margin-top:12px;padding:8px 12px;border-top:1px dashed rgba(236,227,208,.25);font-size:13px;line-height:1.8;opacity:.85;">'+
+        '<div style="font-size:12px;opacity:.8;">※表に書かれていない五行（補足）</div>'+items.map(s=>'<div>'+s+'</div>').join('')+'</div>';
+    }catch(e){ return ''; }
+  })();
+
   return `
   <div class="card type-card">
     <div class="lamp">命式タイプ</div>
@@ -2877,6 +2899,7 @@ function renderType(res){
     <div class="type-seijo">${t.seijo}</div>
     <div class="k-sec"><div class="k-label">喜神</div>${rows(t.kishin)}</div>
     <div class="k-sec"><div class="k-label imi">忌神</div>${rows(t.imijin)}</div>
+    ${hosoku}
   </div>`;
 }
 

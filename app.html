@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609301600';
+var APP_VERSION = '202609301700';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4378,10 +4378,18 @@ function calculate(){
       const subNote = (type==='扶干干支'||type==='漏干干支')
         ? '脇役の'+_subName+'は、力を主役に注いでいるため弱め。影響は控えめです。'
         : '脇役の'+_subName+'は、主役の'+_mainName+'に剋されて弱っています。影響は小さく、ほぼ主役で決まります。';
+      // この人の身強身弱と、それによる喜神・忌神（2026-09-30 追加）
+      const _lv = total>=TH_MASTER?'身旺':total>=TH_STRONG?'身強':total<=TH_ZETSU?'超身弱':total<=TH_WEAK?'身弱':('中庸（'+(midType==='strong'?'身強寄り':'身弱寄り')+'）');
+      const _strongSide = effectiveTotalForLuck>=TH_STRONG;
+      const _G5=['木','火','土','金','水'], _ni=_G5.indexOf(KAN_GOGYO[nK]), _gg=(k)=>_G5[(_ni+k)%5];
+      const _kiTxt = _strongSide ? '食傷・財・官殺（'+_gg(1)+'・'+_gg(2)+'・'+_gg(3)+'）' : '印・比劫（'+_gg(4)+'・'+_gg(0)+'）';
+      const shinLine='<div style="font-size:13px;margin:-2px 0 8px;padding:5px 10px;border-radius:6px;background:rgba(236,227,208,.06);">'+
+        'この人：<b>'+_lv+'</b>　→ 喜神は '+_kiTxt+'</div>';
       const startAge=(R.dispAge!=null?R.dispAge:R.age);
       const li=(t)=>'<li style="margin:3px 0;">'+t+'</li>';
       const body=
         '<div style="font-size:15px;font-weight:700;color:var(--kin2);margin-bottom:8px;">今の大運：'+R.kan+R.shi+'（'+startAge+'歳〜・'+R.startYear+'年〜）</div>'+
+        shinLine+
         '<div style="font-size:14px;line-height:1.8;color:var(--washi);">'+
           '<div><b>干支の種類</b>：'+type+'（'+(useKan?'天干':'地支')+'で読む'+(type==='専旺干支'?'。天干・地支どちらでも同じ':'')+'）</div>'+
           relLine+

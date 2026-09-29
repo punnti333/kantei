@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609301500';
+var APP_VERSION = '202609301600';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4311,12 +4311,16 @@ function calculate(){
       //   主役○・脇役○＝吉（一段強め）／主役○・脇役✕＝吉寄り
       //   主役✕・脇役○＝凶寄り（脇役の助けあり）／主役✕・脇役✕＝凶
       //   専旺干支は天干・地支が同じ五行なので脇役なし（主役だけで判断）
+      // 2026-09-30 改訂：脇役の弱り方で扱いを分ける。
+      //   扶干・漏干＝脇役は力を漏らして弱め → 喜忌で加減する
+      //   蓋頭・載脚＝脇役は主役に剋されてひどく弱い → 総合は主役だけで決める
       const hasSub = (type!=='専旺干支');
+      const subCounts = (type==='扶干干支' || type==='漏干干支');
       let base;
       if(mainKi==='○'){
-        base = (!hasSub || subKi==='○') ? '吉' : '吉寄り';
+        base = (!subCounts || subKi==='○') ? '吉' : '吉寄り';
       } else if(mainKi==='✕'){
-        base = (!hasSub || subKi==='✕') ? '凶' : '凶寄り（脇役の助けあり）';
+        base = (!subCounts || subKi==='✕') ? '凶' : '凶寄り（脇役の助けあり）';
       } else {
         base = '中立';
       }
@@ -4359,14 +4363,31 @@ function calculate(){
           '<span style="flex:none;font-size:13px;font-weight:700;color:'+kc+';border:1.5px solid '+kc+';border-radius:6px;padding:3px 9px;">'+kt+'</span>'+
         '</div>';
       };
+      // 主役と脇役の関係を1行で示す（2026-09-30 追加）
+      const _g=(k)=>KAN_GOGYO[k];
+      const _shiLab=R.shi+'（'+shiKan+'・'+_g(shiKan)+'）', _kanLab=R.kan+'（'+_g(R.kan)+'）';
+      const relLine = (type==='専旺干支') ? '' :
+        '<div style="font-size:13px;margin:6px 0 2px;padding:6px 10px;border-radius:6px;background:rgba(236,227,208,.05);">'+
+          (type==='扶干干支' ? _shiLab+' ━生→ '+_kanLab+'　地支が天干を生む' :
+           type==='漏干干支' ? _kanLab+' ━生→ '+_shiLab+'　天干が地支を生む' :
+           type==='蓋頭干支' ? _kanLab+' ━剋→ '+_shiLab+'　天干が地支を剋す' :
+                               _shiLab+' ━剋→ '+_kanLab+'　地支が天干を剋す')+
+          '<div style="font-size:12px;opacity:.7;margin-top:2px;">主役＝強い側／脇役＝残った弱い側</div>'+
+        '</div>';
+      const _subName=(useKan?R.shi:R.kan)+'（'+subT+'）', _mainName=(useKan?R.kan:R.shi);
+      const subNote = (type==='扶干干支'||type==='漏干干支')
+        ? '脇役の'+_subName+'は、力を主役に注いでいるため弱め。影響は控えめです。'
+        : '脇役の'+_subName+'は、主役の'+_mainName+'に剋されて弱っています。影響は小さく、ほぼ主役で決まります。';
       const startAge=(R.dispAge!=null?R.dispAge:R.age);
       const li=(t)=>'<li style="margin:3px 0;">'+t+'</li>';
       const body=
         '<div style="font-size:15px;font-weight:700;color:var(--kin2);margin-bottom:8px;">今の大運：'+R.kan+R.shi+'（'+startAge+'歳〜・'+R.startYear+'年〜）</div>'+
         '<div style="font-size:14px;line-height:1.8;color:var(--washi);">'+
           '<div><b>干支の種類</b>：'+type+'（'+(useKan?'天干':'地支')+'で読む'+(type==='専旺干支'?'。天干・地支どちらでも同じ':'')+'）</div>'+
+          relLine+
           roleRow('主役', (useKan?'天干':'地支'), (useKan?R.kan:R.shi), (useKan?'':mainKan), mainT, mainKi, true)+
           (type!=='専旺干支'?roleRow('脇役', (useKan?'地支':'天干'), (useKan?R.shi:R.kan), (useKan?subKan:''), subT, subKi, false):'')+
+          (hasSub?'<div style="font-size:13px;opacity:.85;margin:-2px 0 6px 4px;">'+subNote+'</div>':'')+
           '<div style="margin-top:6px;"><b>地支の関係（注意点）</b>：'+(shake.length?'<ul style="margin:4px 0 0 1.2em;padding:0;">'+shake.map(li).join('')+'</ul>':'特になし')+'</div>'+
           (good.length?'<div><b>良い関係</b>：<ul style="margin:4px 0 0 1.2em;padding:0;">'+good.map(li).join('')+'</ul></div>':'')+
           '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(201,164,76,.07);"><b>総合</b>：'+sum+'</div>'+
@@ -4517,7 +4538,15 @@ function calculate(){
           '</span>'+
           (segZk?'<span class="dai-zk" style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI)||'color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,.5);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
         '</span>'+
-        (isSub?'':'<span class="dai-tags">'+tags+'</span>')+
+        // 2026-09-30 改訂：後半の区間の行にも、地支そのものの関係（沖・刑・合・三合・月冲・空亡）を薄く表示する。
+        // 地支は10年間同じなので、これらの関係は区間が変わっても続いている。
+        (isSub
+          ? ((rels.length||isKuubou2)?'<span class="dai-tags" style="opacity:.55;">'+
+              rels.map(t=>{const c=(t==='沖'||t==='月冲')?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':'#9ed687';
+                return '<span style="font-size:11px;color:'+c+';border:1px solid '+c+';border-radius:4px;padding:1px 5px;margin-left:3px;">'+t+'</span>';}).join('')+
+              (isKuubou2?'<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>':'')+
+            '</span>':'')
+          : '<span class="dai-tags">'+tags+'</span>')+
       '</td>'+
       '</tr>';
   })).join('');

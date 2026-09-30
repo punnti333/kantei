@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610011100';
+var APP_VERSION = '202610011200';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4401,7 +4401,10 @@ function calculate(){
       const nameT=(k)=>{ let t=getTsuuhensei(nK,k); if(t==='偏印') t='倒食'; return t; };
       // 2026-09-30 改訂：喜忌は扶抑（yojinHantei）ではなく、シートの赤青と同じ KIIMI（命式タイプ判定）で見る。
       // 扶抑だけで決めると、赤青の表示と逆になる命式があったため。どちらにも入らない五行は「中立」。
-      const kiOf=(k)=>{const g=KAN_GOGYO[k]; return KIIMI.kishin.has(g)?'○':KIIMI.imijin.has(g)?'✕':'－';};
+      // 2026-10-01 改訂：本に書かれていない五行は、補足（大過／扶抑の目安）で喜神・忌神を決める。
+      // 以前は「中立」扱いで総合も中立になっていたが、補足の判定を使う方が実態に合う。
+      const kiOf=(k)=>{const g=KAN_GOGYO[k]; if(KIIMI.kishin.has(g))return '○'; if(KIIMI.imijin.has(g))return '✕'; return HOSOKU[g]?HOSOKU[g].ki:'－';};
+      const isHosokuKi=(k)=>{const g=KAN_GOGYO[k]; return !KIIMI.kishin.has(g)&&!KIIMI.imijin.has(g)&&!!HOSOKU[g];};
       const kiTxt=(m)=>m==='○'?'喜神':m==='✕'?'忌神':'どちらでもない';
       const mainT=nameT(mainKan), mainKi=kiOf(mainKan);
       const subT=nameT(subKan), subKi=kiOf(subKan);
@@ -4470,8 +4473,9 @@ function calculate(){
       //   左：「主役」「脇役」のラベル／中：干支の字を大きく＋通変／右：喜神（緑）・忌神（赤）のバッジ
       const roleRow=(label,where,ch,conv,tsu,ki,isMain)=>{
         const kc = ki==='○' ? '#7fb3e8' : ki==='✕' ? '#e8837f' : '#b0a898';
-        const _hs = (ki==='－') ? HOSOKU[KAN_GOGYO[conv||ch]] : null;
-        const kt = ki==='○' ? '喜神' : ki==='✕' ? '忌神' : (_hs ? '中立<span style="display:block;font-size:10px;font-weight:400;opacity:.85;">'+(_hs.why==='大過している五行'?'大過で':'扶抑では')+(_hs.ki==='○'?'喜神':'忌神')+'</span>' : '中立');
+        const _k = conv||ch, _hs = isHosokuKi(_k) ? HOSOKU[KAN_GOGYO[_k]] : null;
+        const kt = (ki==='○' ? '喜神' : ki==='✕' ? '忌神' : '中立') +
+          (_hs ? '<span style="display:block;font-size:10px;font-weight:400;opacity:.85;">（補足・'+(_hs.why==='大過している五行'?'大過':'扶抑')+'）</span>' : '');
         return '<div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px 10px;border-radius:8px;'+
             (isMain?'background:rgba(201,164,76,.10);border:1px solid rgba(201,164,76,.45);':'background:rgba(236,227,208,.04);border:1px solid rgba(236,227,208,.15);opacity:.85;')+'">'+
           '<span style="flex:none;font-size:12px;font-weight:700;letter-spacing:.1em;padding:3px 8px;border-radius:12px;'+

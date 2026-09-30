@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202609302330';
+var APP_VERSION = '202610010900';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4293,13 +4293,6 @@ function calculate(){
       // 巳＝丁・午＝丙・亥＝癸・子＝壬だが、シートは小山内流が土台なので、蔵干の本気に揃えて
       // 巳＝丙・午＝丁・亥＝壬・子＝癸 とする（大運の表の「巳（丙）」などとも一致する）。
       const B2K={寅:'甲',卯:'乙',辰:'戊',巳:'丙',午:'丁',未:'己',申:'庚',酉:'辛',戌:'戊',亥:'壬',子:'癸',丑:'己'};
-      const gk=KAN_GOGYO[R.kan], gs=SHI_GOGYO[R.shi];
-      let type, useKan;
-      if(gk===gs){ type='専旺干支'; useKan=true; }
-      else if(gen(gs,gk)){ type='扶干干支'; useKan=true; }
-      else if(ove(gk,gs)){ type='蓋頭干支'; useKan=true; }
-      else if(gen(gk,gs)){ type='漏干干支'; useKan=false; }
-      else { type='載脚干支'; useKan=false; }
       // 2026-09-30 改訂：地支を干に直すときは、大運の表と同じく「今の区間の蔵干」を使う
       // （小山内流：大運の地支を10年の中で蔵干ごとに区切る。例：未は前半己・後半丁）。
       // 区間の蔵干が取れないときだけ、本気（B2K）で代用する。
@@ -4310,6 +4303,26 @@ function calculate(){
         if(_cur.length) segZkNow=_cur[_cur.length-1].zokan||null;
       }catch(e){}
       const shiKan = segZkNow || B2K[R.shi];
+      // 区間が分かれる大運は、今どちらの区間かを見出しに添える
+      let segInfo='';
+      try{
+        const _sg=splitRound(R);
+        if(_sg.length>1 && segZkNow){
+          const _i=_sg.findIndex(x=>x.zokan===segZkNow);
+          const _cs=_sg[_i], _nx=_sg[_i+1];
+          segInfo='今は'+(_i===0?'前半':'後半')+'の区間（'+_cs.startYear+'年〜'+(_nx?_nx.startYear+'年':'')+'・'+R.shi+'＝'+segZkNow+'）で読んでいます';
+        }
+      }catch(e){}
+      // 2026-09-30 再改訂：干支の種類（どちらが強いか）も、今の区間の蔵干の五行で決める。
+      // 以前は地支全体の五行（未＝土）で種類を決め、星だけ区間の蔵干（丁）で出していたため、
+      // 「種類は扶干なのに、中身の星は天干を剋している」という食い違いが起きていた。
+      const gk=KAN_GOGYO[R.kan], gs=KAN_GOGYO[shiKan]||SHI_GOGYO[R.shi];
+      let type, useKan;
+      if(gk===gs){ type='専旺干支'; useKan=true; }
+      else if(gen(gs,gk)){ type='扶干干支'; useKan=true; }
+      else if(ove(gk,gs)){ type='蓋頭干支'; useKan=true; }
+      else if(gen(gk,gs)){ type='漏干干支'; useKan=false; }
+      else { type='載脚干支'; useKan=false; }
       const mainKan = useKan ? R.kan : shiKan;
       const subKan  = useKan ? shiKan : R.kan;
       const nameT=(k)=>{ let t=getTsuuhensei(nK,k); if(t==='偏印') t='倒食'; return t; };
@@ -4368,16 +4381,16 @@ function calculate(){
       const isKichi = base.indexOf('吉')===0, isKyo = base.indexOf('凶')===0;
       let tail;
       if(hasYure){
-        if(score<=2) tail = isKyo ? '揺れもあるので、慎重に過ごしたい10年です。' : 'ただ、やや揺れもあります。';
+        if(score<=2) tail = isKyo ? '揺れもあるので、慎重に過ごしたい時期です。' : 'ただ、やや揺れもあります。';
         else tail = isKichi
-          ? 'ただし揺れの多い10年です。支えはあるので大崩れはしにくいものの、落ち着かず疲れやすい時期です。'
-          : isKyo ? '揺れも重なるので、無理をせず慎重に過ごしたい10年です。' : 'ただし揺れの要素が多いので、変化に備えたい10年です。';
+          ? 'ただし揺れが多めです。支えはあるので大崩れはしにくいものの、落ち着かず疲れやすい時期です。'
+          : isKyo ? '揺れも重なるので、無理をせず慎重に過ごしたい時期です。' : 'ただし揺れの要素が多いので、変化に備えたい時期です。';
       } else {
         const notes=[];
         if(hasKuu) notes.push('空亡なので、努力のわりに手応えが薄く感じやすい面もあります');
         if(hasGou) notes.push('日支が縛られ、身動きが取りにくい面もあります');
         if(notes.length) tail = (isKyo?'さらに、':'ただ、')+notes.join('。また、')+'。';
-        else tail = isKichi ? '支えが素直に働く10年です。' : isKyo ? '無理を控え、守りを固めたい10年です。' : '大きな波は少なめの10年です。';
+        else tail = isKichi ? '支えが素直に働く時期です。' : isKyo ? '無理を控え、守りを固めたい時期です。' : '大きな波は少なめの時期です。';
       }
       const sum = base+'。'+tail;
       // 主役・脇役を見やすく表示する（2026-09-30 追加）
@@ -4428,7 +4441,8 @@ function calculate(){
       const startAge=(R.dispAge!=null?R.dispAge:R.age);
       const li=(t)=>'<li style="margin:3px 0;">'+t+'</li>';
       const body=
-        '<div style="font-size:15px;font-weight:700;color:var(--kin2);margin-bottom:8px;">今の大運：'+R.kan+R.shi+'（'+startAge+'歳〜・'+R.startYear+'年〜）</div>'+
+        '<div style="font-size:15px;font-weight:700;color:var(--kin2);margin-bottom:8px;">今の大運：'+R.kan+R.shi+'（'+startAge+'歳〜・'+R.startYear+'年〜）'+
+          (segInfo?'<span style="display:block;font-size:12px;font-weight:400;color:var(--washi2);">'+segInfo+'</span>':'')+'</div>'+
         shinLine+
         '<div style="font-size:14px;line-height:1.8;color:var(--washi);">'+
           '<div><b>干支の種類</b>：'+type+'（'+(useKan?'天干':'地支')+'で読む'+(type==='専旺干支'?'。天干・地支どちらでも同じ':'')+'）</div>'+

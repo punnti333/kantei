@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610011500';
+var APP_VERSION = '202610011700';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4599,6 +4599,33 @@ function calculate(){
         '<b>'+nK+'</b>：<b>'+_lv+'</b>　喜神 <b style="color:#7fb3e8;">'+_fmt(KIIMI.kishin)+'</b>'+(_hk.length?'<span style="color:#7fb3e8;opacity:.75;">（'+_ordf(_hk)+'）</span>':'')+
         '　忌神 <b style="color:#e8837f;">'+_fmt(KIIMI.imijin)+'</b>'+(_hi.length?'<span style="color:#e8837f;opacity:.75;">（'+_ordf(_hi)+'）</span>':'')+
         '</div>';
+      // 次の切り替わり（2026-10-01 追加）：今が前半の区間なら後半の区間、そうでなければ次の大運を1行で示す。
+      // 主役と喜忌、総合の目安（主役・脇役の喜忌のみ。地支の注意点は含まない）だけを出す。
+      const nextLine=(function(){
+        try{
+          let R2=R, zk2=null, st2=null, lab='';
+          const sg=splitRound(R);
+          const ci=sg.findIndex(x=>x.zokan===segZkNow);
+          if(sg.length>1 && ci===0){ zk2=sg[1].zokan; st2=sg[1].startYear; lab='後半の区間（'+R.shi+'＝'+zk2+'）'; }
+          else{
+            const rs=allRounds.filter(r=>!r.pre); const i=rs.indexOf(R); R2=rs[i+1];
+            if(!R2) return '';
+            zk2=(splitRound(R2)[0]||{}).zokan||B2K[R2.shi]; st2=R2.startYear; lab='次の大運 '+R2.kan+R2.shi;
+          }
+          const k2=zk2||B2K[R2.shi];
+          const gk2=KAN_GOGYO[R2.kan], gs2=KAN_GOGYO[k2];
+          let ty2, uk2;
+          if(gk2===gs2){ty2='専旺';uk2=true;} else if(gen(gs2,gk2)){ty2='扶干';uk2=true;} else if(ove(gk2,gs2)){ty2='蓋頭';uk2=true;}
+          else if(gen(gk2,gs2)){ty2='漏干';uk2=false;} else {ty2='載脚';uk2=false;}
+          const mk=uk2?R2.kan:k2, sk=uk2?k2:R2.kan;
+          const mKi=kiOf(mk), sKi=kiOf(sk), cnt=(ty2==='扶干'||ty2==='漏干');
+          const b2 = mKi==='○' ? ((ty2==='専旺'||!cnt||sKi==='○')?'吉':'吉寄り') : mKi==='✕' ? ((ty2==='専旺'||!cnt||sKi==='✕')?'凶':'凶寄り') : '中立';
+          const kc = mKi==='○'?'#7fb3e8':mKi==='✕'?'#e8837f':'#b0a898';
+          return '<div style="margin-top:8px;font-size:13px;padding:6px 10px;border:1px dashed rgba(236,227,208,.3);border-radius:6px;">'+
+            '<b>次</b>：'+st2+'年〜 '+lab+' → 主役 '+(uk2?R2.kan:R2.shi+'（'+k2+'）')+'＝'+nameT(mk)+
+            '（<span style="color:'+kc+';">'+(mKi==='○'?'喜神':mKi==='✕'?'忌神':'中立')+'</span>）　目安：<b>'+b2+'</b></div>';
+        }catch(e){ return ''; }
+      })();
       const startAge=(R.dispAge!=null?R.dispAge:R.age);
       const li=(t)=>'<li style="margin:3px 0;">'+t+'</li>';
       const body=
@@ -4614,6 +4641,7 @@ function calculate(){
           '<div style="margin-top:6px;"><b>地支の関係（注意点）</b>：'+(shake.length?'<ul style="margin:4px 0 0 1.2em;padding:0;">'+shake.map(li).join('')+'</ul>':'特になし')+'</div>'+
           (good.length?'<div><b>良い関係</b>：<ul style="margin:4px 0 0 1.2em;padding:0;">'+good.map(li).join('')+'</ul></div>':'')+
           '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(201,164,76,.07);"><b>総合</b>：'+sum+'</div>'+
+          nextLine+
           '<div style="font-size:12px;opacity:.65;margin-top:6px;">※これはたたき台です。蔵干の細かい働きや、化するかどうかなどは入っていません。喜神・忌神の（　）は、本に書かれていない五行の補足です。</div>'+
         '</div>';
       return '<div id="daiin-sum-toggle" style="margin-top:14px;text-align:center;">'+

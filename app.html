@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610011800';
+var APP_VERSION = '202610012000';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2968,6 +2968,16 @@ const TYPES = [
     lead:'水が三つ以上あって印星大過で日干は強い',
     seijo:'心身ともに不安定となり、言行不一致となりやすく、其の為に世間の信用を失う。時には物事の正邪を反対に主張することもある。'
         + '<br>※浮木は大水に浮かんだ木を意味している。木にとっては水は母親を意味する通変星で、それが大過していますから、躾けもそこそこに甘やかされています。そして常識では正しくない主張も悪ぶれる事もなく主張したりもします。そして、最も恐ろしいのは浮木は大水に流され続けますので、水が多いという事から水商売に入っても、年と共にこの様な命式の人を良く見かけ、そして若いころは銀座や北新地で水商売でのホステスさんに流れ流れて浮木となって地方の花街・歓楽街まで流れてゆく人もいます。',
+    kaisetsu:{
+      sum:'母なる水（印星）が多すぎて、根が浮いてしまった木です。',
+      items:[
+      ['心身ともに不安定','水が多すぎると、木は根を張れずに流される'],
+      ['言行不一致','印星は「考える」星。考えばかり先に立ち、行動が伴わない'],
+      ['世間の信用を失う','地に足がつかず、言うことが変わりやすい'],
+      ['正邪を反対に主張する','母である水に甘やかされて育ち、悪びれずに主張する']
+      ],
+      note:'土（財）で水をせき止め、根を張る地面を作れば安定します。'
+    },
     kishin:[
       { gogyo:'土', hoshi:'財星',
         text:'が、あれば多い水（印星）を制して生活が安定する。'
@@ -3007,6 +3017,16 @@ const TYPES = [
     lead:'土が三つ以上あって財星大過で日干は弱い',
     seijo:'人を見る目があり、全てに先見の明がある。そして自信も強い。然し自制心もあるから表面には出さないが、それだけに内心では疑心が生じ易い。'
         + '<br>※本来は木が土（田畑）を耕し（剋し）ますが、耕す田畑があまりにも広大過ぎると、木製の農具は酷使に堪えられず、損傷してしまうという意味。',
+    kaisetsu:{
+      sum:'支配する相手の土（財星）が多すぎて、根を張りきれず折れやすい木です。',
+      items:[
+      ['人を見る目・先見の明','財星は現実を見る星。多いと損得や先行きを読む目が鋭くなる'],
+      ['自信が強い','財星は「手に入れる」星。手に入るものが多く見えて自信を持つ'],
+      ['自制心があり表に出さない','日干が弱いので、強く出られない'],
+      ['内心で疑心','財が多すぎて扱いきれず、失うことを恐れる']
+      ],
+      note:'水（印）で木を育て、木（比劫）で仲間を増やせば、土に負けない力がつきます。'
+    },
     kishin:[
       { gogyo:'水', hoshi:'印星',
         text:'があれば木は助けられ、土も潤い力を得る。'
@@ -3028,6 +3048,17 @@ const TYPES = [
     lead:'金が三つ以上あって官星大過で日干は弱い',
     seijo:'容姿人格共にいまひとつ。一生を通じて心身ともに衰えやすい。表面は頑強そうでも決断力無く、計画は良くても実行力に欠け、義理人情を思っても実行できない。'
         + '<br>※断木は金（刃物の斧やノコギリ）によって酷く剋され心身ともに弱り切っていますから、心では義理人情を思っていても実行できる気力が失せてる状態。',
+    kaisetsu:{
+      sum:'自分を剋す金（官星）が多すぎて、切り倒されてしまった木です。',
+      items:[
+      ['容姿人格共にいまひとつ','官殺に削られ、木本来の伸びやかさが出ない'],
+      ['心身ともに衰えやすい','官殺は日干を剋す星。多いと消耗し続ける'],
+      ['表面は頑強そう','官星は規律や体面の星。外側だけは固く見える'],
+      ['決断力・実行力に欠ける','官星の圧力に押され、自分で決められない'],
+      ['義理人情を思っても実行できない','木は「仁」の五行だが、力が足りず行動に移せない']
+      ],
+      note:'水（印）で金の力を木へ流し、木（比劫）で支えれば、立ち直れます。'
+    },
     kishin:[
       { gogyo:'水', hoshi:'印星',
         text:'があれば強い金（多い金＝官星）を洩らして木が助けられ一石二鳥。'
@@ -3295,6 +3326,16 @@ const TYPES = [
     lead:'火が多い命で印星大過',
     seijo:'他人に対して万事明朗であり、良く義理を行い世話もするが、内入が悪く、倹約家らしい面と、派手な面（火の現象）があるが実態は異なり、人に恵んで恩に着せる。'
         + '<br>※別名で火炎土燥（後に説明）の命式となります。一般には土からは金が出るとされていますが、焦土（焦げた土）からは金の食傷は出てきません。故に頭の良さは期待できませんし、この命式の人の考案したアイデアやシステムは社会の益にはなりません。',
+    kaisetsu:{
+      sum:'母なる火（印星）が多すぎて、乾いて焦げついた土です。',
+      items:[
+      ['明朗で世話好き','火の熱を受けて、外に向かって明るい'],
+      ['内入が悪い','乾いた土は作物を育てない。財の水が干上がり、実入りが少ない'],
+      ['倹約家らしい面と派手な面','財が乏しいので倹約しつつ、火の華やかさで見栄も張る'],
+      ['恩に着せる','印星が多いと受け取ることに慣れ、施しにも見返りを求めやすい']
+      ],
+      note:'水（財）で土を潤せば、実りのある土になります。'
+    },
     kishin:[
       { gogyo:'水', hoshi:'財星',
         text:'があれば火（印星）を制して自立心が出る。'
@@ -3313,6 +3354,17 @@ const TYPES = [
     lead:'金多く、食傷大過　日干は弱い',
     seijo:'施すことを好み、信用を重んじ義侠的で人情深く、弱きを助ける良い人柄ですが、強情で我侭、慎重性が無くセッカチなところがあり其の為に失敗する。'
         + '<br>※頭は良いが日干を吸い取られて体が弱い。「義侠的で人情深く」「慎重性が無くセッカチ」の両方ともに金の性質。',
+    kaisetsu:{
+      sum:'自分が生み出す金（食傷）が多すぎて、力を出し尽くしてしまう土です。',
+      items:[
+      ['施すことを好み、弱きを助ける','食傷は「与える」星。多いと人に尽くす'],
+      ['信用を重んじる','土は「信」の五行'],
+      ['義侠的で人情深い','食傷の金の性質。金は「義」の五行'],
+      ['強情で我侭','食傷が多すぎると、言いたいことを抑えられない'],
+      ['セッカチで失敗する','これも金の性質。食傷に力が漏れて日干が弱り、腰を据えられない']
+      ],
+      note:'火（印）で土に力を戻し、水（財）で多すぎる金を流せば、尽くす力が長続きします。'
+    },
     kishin:[
       { gogyo:'火', hoshi:'印星',
         text:'があれば金を制して好命。'
@@ -4480,6 +4532,35 @@ function calculate(){
   const _typeResKI = judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, _zkForKI);
   const KIIMI = kishinImijinGogyo(_typeResKI);
   const HOSOKU = typeHosoku(_typeResKI);   // 本に書かれていない五行の補足（大運のまとめで使う）
+  // ===== 用神の答え合わせ（2026-10-01 追加）=====
+  // 身強身弱判断の下に、木火土金水すべての喜神・忌神と、その根拠を1行ずつ出す。
+  //   本のタイプ表に書かれている五行 →（命式タイプ・○○）
+  //   書かれていない五行 → typeHosoku の根拠（大過している五行／扶抑の目安）
+  // 勉強用なので、ボタンを押すまで隠す。
+  const yojinHtml = (function(){
+    if(!_typeResKI) return '';
+    const ctx=_typeResKI.ctx, tname=_typeResKI.type.name;
+    const rev={}; for(const k in ctx.tsu) rev[ctx.tsu[k]]=k;
+    const ki=[], imi=[];
+    CYCLE.forEach(g=>{
+      let k, why;
+      if(KIIMI.kishin.has(g)){ k='○'; why='命式タイプ・'+tname; }
+      else if(KIIMI.imijin.has(g)){ k='✕'; why='命式タイプ・'+tname; }
+      else if(HOSOKU[g]){ k=HOSOKU[g].ki; why=HOSOKU[g].why; }
+      else return;
+      (k==='○'?ki:imi).push('<div style="padding-left:1em;">'+g+'（'+(rev[g]||'')+'）<span style="font-size:12.5px;opacity:.7;margin-left:10px;">'+why+'</span></div>');
+    });
+    const grp=(lab,col,list)=>'<div style="margin-bottom:8px;"><b style="color:'+col+';">'+lab+'</b>'+(list.length?list.join(''):'<div style="padding-left:1em;opacity:.6;">なし</div>')+'</div>';
+    const rows=grp('喜神','#7fb3e8',ki)+grp('忌神','#e8837f',imi);
+    return '<div id="yojin-card" class="card" style="margin-top:18px;">'+
+      '<div class="lamp">用神（喜神・忌神）</div>'+
+      '<div id="yojin-toggle" style="margin-top:14px;text-align:center;">'+
+        '<button onclick="document.getElementById(\'yojin-body\').style.display=\'block\';document.getElementById(\'yojin-toggle\').style.display=\'none\';" '+
+        'style="font-family:\'Shippori Mincho\',serif;font-size:15px;background:#2e5e3e;border:1px solid #7fbf8f;color:#fff;border-radius:10px;padding:12px 26px;cursor:pointer;letter-spacing:.12em;">'+
+        '答え合わせ（用神を見る）</button></div>'+
+      '<div id="yojin-body" style="display:none;margin-top:12px;font-size:15px;line-height:2;color:var(--washi);">'+rows+'</div>'+
+    '</div>';
+  })();
 
   // ===== 今の大運のまとめ（答え合わせ式、2026-09-29 追加）=====
   // 本（大運の見方）に沿って自動で組み立てる「たたき台」。
@@ -5025,6 +5106,7 @@ function calculate(){
       <div style="margin-top:14px;font-size:13px;color:var(--washi2);letter-spacing:.08em;line-height:1.8;opacity:.9;"></div>
       </div>
     </div>
+    ${yojinHtml}
     <!-- 得令・得地・隣接：身強身弱の内訳そのもの（答えが分かってしまう）なので、
          答え合わせボタンを押すまで一緒に隠す（2026-09-06 追加）。 -->
     <div id="tokurei-tokuchi-card" class="card" style="margin-top:18px;display:none;">

@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610012000';
+var APP_VERSION = '202610021000';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4760,12 +4760,10 @@ function calculate(){
       const startAge=(R.dispAge!=null?R.dispAge:R.age);
       const li=(t)=>'<li style="margin:3px 0;">'+t+'</li>';
       const body=
-        '<div style="font-size:15px;font-weight:700;color:var(--kin2);margin-bottom:8px;">今の大運：'+R.kan+R.shi+'（'+startAge+'歳〜・'+R.startYear+'年〜）'+
-          (segInfo?'<span style="display:block;font-size:12px;font-weight:400;color:var(--washi2);">'+segInfo+'</span>':'')+'</div>'+
+        '<div style="font-size:15px;font-weight:700;color:var(--kin2);margin-bottom:8px;">今の大運：'+R.kan+R.shi+'（'+startAge+'歳〜・'+R.startYear+'年〜）'+'</div>'+
         shinLine+
         '<div style="font-size:14px;line-height:1.8;color:var(--washi);">'+
           '<div><b>干支の種類</b>：'+type+'（'+(useKan?'天干':'地支')+'で読む'+(type==='専旺干支'?'。天干・地支どちらでも同じ':'')+'）</div>'+
-          relLine+
           roleRow('主役', (useKan?'天干':'地支'), (useKan?R.kan:R.shi), (useKan?'':mainKan), mainT, mainKi, true)+
           (type!=='専旺干支'?roleRow('脇役', (useKan?'地支':'天干'), (useKan?R.shi:R.kan), (useKan?subKan:''), subT, subKi, false):'')+
           (hasSub?'<div style="font-size:13px;opacity:.85;margin:-2px 0 6px 4px;">'+subNote+'</div>':'')+
@@ -4773,7 +4771,6 @@ function calculate(){
           (good.length?'<div><b>良い関係</b>：<ul style="margin:4px 0 0 1.2em;padding:0;">'+good.map(li).join('')+'</ul></div>':'')+
           '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(201,164,76,.07);"><b>総合</b>：'+sum+'</div>'+
           nextLine+
-          '<div style="font-size:12px;opacity:.65;margin-top:6px;">※これはたたき台です。蔵干の細かい働きや、化するかどうかなどは入っていません。喜神・忌神の（　）は、本に書かれていない五行の補足です。</div>'+
         '</div>';
       return '<div id="daiin-sum-toggle" style="margin-top:14px;text-align:center;">'+
           '<button onclick="document.getElementById(\'daiin-sum-body\').style.display=\'block\';document.getElementById(\'daiin-sum-toggle\').style.display=\'none\';" '+

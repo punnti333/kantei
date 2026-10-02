@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610021000';
+var APP_VERSION = '202610021700';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1909,6 +1909,19 @@ function getKuubou(dayNum){
 // ===== 沖・刑・合データ =====
 // 干合
 const KANGO={甲:'己',己:'甲',乙:'庚',庚:'乙',丙:'辛',辛:'丙',丁:'壬',壬:'丁',戊:'癸',癸:'戊'};
+// 妬合（2026-10-02 追加・同日改訂）：命式の天干に同じ干が2つ以上あり、
+// その干合の相手が大運・年運で巡ってきたとき（例：命式に壬が2つ、丁が巡る＝二壬一丁）。
+// 取り合いになり合は成立しにくい。命式にすでに相手の干がある場合（2対2など）は付けない。
+function tokouInfo(kan, stems){
+  const pt=KANGO[kan]; if(!pt) return null;
+  const cP=stems.filter(k=>k===pt).length, cX=stems.filter(k=>k===kan).length;
+  if(cP<2 || cX>0) return null;
+  const num=['','一','二','三','四'];
+  return num[cP]+pt+'一'+kan;
+}
+function tokouTagHTML(info){
+  return info ? '<span title="'+info+'の妬合（取り合い）" style="font-size:11px;color:#c78fff;border:1px dashed #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">妬合</span>' : '';
+}
 
 const CHUU={子:'午',丑:'未',寅:'申',卯:'酉',辰:'戌',巳:'亥',午:'子',未:'丑',申:'寅',酉:'卯',戌:'辰',亥:'巳'};
 const KEI={
@@ -2305,6 +2318,7 @@ function updateNengun(){
       }),
       isKuubou?'<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>':'',
       isKango?'<span style="font-size:11px;color:#c78fff;border:1px solid #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">干合</span>':'',
+      tokouTagHTML(tokouInfo(ks.kan,d.meishikiKan||[])),
       isShokanN?'<span style="font-size:11px;color:'+shokanSisatsuColor+';border:1px solid '+shokanSisatsuColor+';border-radius:4px;padding:1px 5px;margin-left:3px;">傷官</span>':'',
       isSisatsuN?'<span style="font-size:11px;color:'+shokanSisatsuColor+';border:1px solid '+shokanSisatsuColor+';border-radius:4px;padding:1px 5px;margin-left:3px;">七殺</span>':'',
       isMujoKansat?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>':'',
@@ -4832,6 +4846,7 @@ function calculate(){
       }),
       isKuubou2?`<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>`:'',
       isKango?`<span style="font-size:11px;color:#c78fff;border:1px solid #c78fff;border-radius:4px;padding:1px 5px;margin-left:3px;">干合</span>`:'',
+      tokouTagHTML(tokouInfo(r.kan,[yP.kan,mP.kan,dP.kan,...(hUnknown?[]:[hP.kan])])),
       isShokanD?`<span style="font-size:11px;color:${shokanSisatsuColorD};border:1px solid ${shokanSisatsuColorD};border-radius:4px;padding:1px 5px;margin-left:3px;">傷官</span>`:'',
       isSisatsuD?`<span style="font-size:11px;color:${shokanSisatsuColorD};border:1px solid ${shokanSisatsuColorD};border-radius:4px;padding:1px 5px;margin-left:3px;">七殺</span>`:'',
       isMujoKansat?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>`:'',
@@ -5393,7 +5408,7 @@ function calculate(){
   if(!hUnknown&&hShiG2_pre!==nG2_pre){if(hKanG2_pre===nG2_pre||dShiG2_pre===nG2_pre)adjG2.add(hShiG2_pre);}
 
   // 年運描画
-  window._nengunData={KIIMI, dKan:dP.kan, dShi:dP.shi, dShi2:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, effectiveTotal:effectiveTotalForLuck, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])], mKan:mP.kan, mShi:mP.shi, yKan:yP.kan, yShi:yP.shi};
+  window._nengunData={KIIMI, meishikiKan:[yP.kan,mP.kan,dP.kan,...(hUnknown?[]:[hP.kan])], dKan:dP.kan, dShi:dP.shi, dShi2:dP.shi, nK, kuubou, y, bm:m, bd:d, KANGO, total, effectiveTotal:effectiveTotalForLuck, allRounds, dKan:dP.kan, adjG2, meishikiShi:[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])], mKan:mP.kan, mShi:mP.shi, yKan:yP.kan, yShi:yP.shi};
   updateNengun();
 
   document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});

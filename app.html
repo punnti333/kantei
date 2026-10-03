@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610021700';
+var APP_VERSION = '202610031100';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -6178,23 +6178,35 @@ function closeSanjuChart(){
 <script src="https://codoc.jp/js/cms.js" data-usercode="YhOlOTkM4A" defer></script>
 <script>
 /* 会員判定。無料期間は設けず、購読者だけが使えます。
-   作者用の合言葉つきURL（?key=nara）で開くと、この端末が覚えます。 */
+   作者用の合言葉（2026-10-03 変更）：三命クロス法と同じ合言葉・同じ仕組み。
+   合言葉そのものはファイルに書かず、SHA-256 のハッシュだけを置く。
+   ?key=合言葉 を一度つけて開くとこの端末が覚え、アドレス欄から ?key=… を消して開き直す。
+   同じ punnti333.github.io の上にあるので、どちらか一方で一度開けば両方で作者扱いになる。 */
 (function(){
   const UNLOCK_MARK='開門';
-  const OWNER_KEY='nara';
-  // 以前の合言葉も通す。すでに記録を持っている端末は、入り直さずにそのまま使えます。
-  const OWNER_KEYS=['nara','ナラちゃん'];
+  const OWNER_HASH='68ae097a7f525fb662ade852b98e48dbc3aa330ad17b8a8f3226f10b1809f3de';
   const gate=document.getElementById('member-gate');
   const entry=document.getElementById('codoc-entry-4atnND16iw');
   function open(){ if(gate) gate.classList.remove('on'); }
   try{
     const q=new URLSearchParams(location.search);
-    if(OWNER_KEYS.includes(q.get('key'))) localStorage.setItem('owner_pass',OWNER_KEY);
-    const saved=localStorage.getItem('owner_pass');
-    if(OWNER_KEYS.includes(saved)){
-      if(saved!==OWNER_KEY) localStorage.setItem('owner_pass',OWNER_KEY);  // 静かに書き換える
-      open(); return;
+    if(q.has('key')){
+      const k=(q.get('key')||'').trim();
+      q.delete('key');
+      const clean=location.pathname+(q.toString()?'?'+q.toString():'')+location.hash;
+      const done=()=>location.replace(clean);   // ?key を消して開き直す
+      if(window.crypto&&crypto.subtle){
+        crypto.subtle.digest('SHA-256',new TextEncoder().encode(k)).then(buf=>{
+          const hex=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+          if(hex===OWNER_HASH) localStorage.setItem('owner_pass',OWNER_HASH);
+          done();
+        }).catch(done);
+      }else done();
+      return;
     }
+    const saved=localStorage.getItem('owner_pass');
+    if(saved===OWNER_HASH){ open(); return; }
+    if(saved) localStorage.removeItem('owner_pass');   // 旧合言葉の記録は消す
   }catch(e){}
   // 2026-08-21 修正。三命クロス法で、購読者が締め出される不具合が出たため、
   // こちらも同じ弱点を先に潰しておく。

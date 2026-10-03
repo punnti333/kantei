@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610031200';
+var APP_VERSION = '202610031500';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -6152,7 +6152,7 @@ function closeSanjuChart(){
 <!-- ===== 会員ゲート（月1,000円・卒業生向け） ===== -->
 <div id="member-gate" class="on">
   <div class="gate-inner">
-    <div class="gate-title">八字鑑定シート</div>
+    <div class="gate-title" onclick="ownerTap()" style="-webkit-user-select:none;user-select:none;">八字鑑定シート</div>
     <div class="gate-sub">受講生様へ ── 講座と一緒にお使いください</div>
     <div class="gate-box">
       <h3>このシートでできること</h3>
@@ -6173,22 +6173,25 @@ function closeSanjuChart(){
     <div class="codoc-wrap">
       <div id="codoc-entry-4atnND16iw" class="codoc-entries">ご案内をお出ししています</div>
     </div>
-    <div style="text-align:center;margin-top:18px;"><span onclick="ownerEnter()" style="font-size:11px;opacity:.35;cursor:pointer;">作者</span></div>
   </div>
 </div>
 <script>
-/* 作者用：合言葉を画面から入れる（2026-10-03 追加）。
-   ホーム画面に追加したアイコンは保存領域がブラウザと別なので、?key= を使えない。
-   その場合に備え、会員案内の一番下の小さな文字から合言葉を入れられるようにする。 */
-function ownerEnter(){
-  const k=(prompt('作者用の合言葉')||'').trim(); if(!k) return;
-  if(!(window.crypto&&crypto.subtle)){ alert('この画面では確認できません'); return; }
+/* 作者用（2026-10-03 追加）：ホーム画面のアイコンは保存領域がSafariと別で、?key= も付けられない。
+   そのため、会員案内のタイトル「八字鑑定シート」を3秒以内に5回押すと、合言葉を入れられるようにする。
+   画面には何も表示しない（お客さんには見えない）。 */
+let _ownerTaps=[];
+function ownerTap(){
+  const now=Date.now(); _ownerTaps=_ownerTaps.filter(t=>now-t<3000); _ownerTaps.push(now);
+  if(_ownerTaps.length<5) return;
+  _ownerTaps=[];
+  const k=(prompt('合言葉')||'').trim(); if(!k) return;
+  if(!(window.crypto&&crypto.subtle)) return;
   crypto.subtle.digest('SHA-256',new TextEncoder().encode(k)).then(buf=>{
     const hex=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
     if(hex==='68ae097a7f525fb662ade852b98e48dbc3aa330ad17b8a8f3226f10b1809f3de'){
       try{ localStorage.setItem('owner_pass',hex); }catch(e){}
       location.reload();
-    }else alert('合言葉が違います');
+    }
   });
 }
 </script>

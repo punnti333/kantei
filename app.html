@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610081300';
+var APP_VERSION = '202610081600';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -5665,7 +5665,23 @@ const PROG_ASPECTS=[[0,'合','☌','hard'],[60,'セクスタイル','⚹','soft'
 // オーブは天体ごと（動きの遅さに応じて）。角度の種類では変えない。
 const PROG_ORB={Sun:1,Moon:2};
 const PROG_COLOR={hard:'#e0453c',soft:'#7ab4d8'};
-const PROG_GLYPH_COLOR='#9ed687';   // 緑。トランジット（金）・ネイタル（生成り）と区別する
+const PROG_GLYPH_COLOR='#9ed687';
+// 吉星の救い（2026-10-08 追加）：トランジットの木星（と土星以遠）が、ネイタルの太陽か月に
+// 吉角を作るとき、その日の盤に紫の実線で引く（2026-10-08：桃色は赤と紛らわしいため紫に変更）。
+// 凶角（金・赤の実線）・プログレス（緑の点＋破線）と見分けられる色にしている。
+// 東洋12要素・T-N判定・一覧表には影響しない、盤だけの層。
+// 2026-10-08 改訂：個人天体（金星など）は外し、木星・土星・天王星・海王星・冥王星にした。
+//   木星：0度（合）と120度　／　土星以遠：120度だけ（0度は凶角の「合」として既に金の線で引いている）
+const GOOD_BODIES=['Jupiter','Saturn','Uranus','Neptune','Pluto'];
+const GOOD_TARGETS=['Sun','Moon'];
+const GOOD_ASPECTS_OF=b=> b==='Jupiter' ? [[0,'合','☌'],[120,'トライン','△']] : [[120,'トライン','△']];
+const GOOD_ORB={Jupiter:3,Saturn:3,Uranus:2,Neptune:2,Pluto:2};
+const GOOD_COLOR='#b48cff';
+function sjGoodNoteHTML(good){
+  if(!good || !good.length) return '';
+  return '<div style="font-size:13px;color:'+GOOD_COLOR+';text-align:center;margin-top:6px;">'
+    +'紫の線＝吉星の救い：'+good.map(a=>'T'+SJ_NAME[a.t]+a.mark+'N'+SJ_NAME[a.n]+'（'+a.orb.toFixed(1)+'°）').join('　')+'</div>';
+}   // 緑。トランジット（金）・ネイタル（生成り）と区別する
 
 function sjLon(body,date){
   return Astronomy.Ecliptic(Astronomy.GeoVector(Astronomy.Body[body],date,true)).elon;
@@ -5909,6 +5925,22 @@ function sjRenderChartSVG(natal,date,main){
   // trに直接足すが、SJ_TRANSを回すループには含まれないので既存の判定には影響しない。
   const progLon={};
   PROG_BODIES.forEach(b=>{ progLon[b]=sjProgressedLon(b,natal._birthY,natal._birthM,natal._birthD,date); tr[b]=progLon[b]; });
+  // 吉星の救い（2026-10-08 追加）。成立している吉星だけを盤に置く。
+  const onChartGood=[], goodHit=[];
+  GOOD_BODIES.forEach(t=>{
+    const lon=(tr[t]!==undefined)?tr[t]:sjLon(t,date);
+    GOOD_TARGETS.forEach(n=>{
+      const sp=sjSep(lon,natal[n]);
+      GOOD_ASPECTS_OF(t).forEach(([a2,nm,mark])=>{
+        const o=Math.abs(sp-a2);
+        if(o<=GOOD_ORB[t]){
+          onChartGood.push({t,n,nm,mark,orb:o});
+          // 木星は普段盤に無いので、成立したときだけ置く（土星以遠はもともと置いてある）
+          if(!SJ_TRANS.includes(t) && !goodHit.includes(t)){ goodHit.push(t); tr[t]=lon; }
+        }
+      });
+    });
+  });
 
   // ソーラーサイン：出生太陽のサインの先頭を左（180°の位置）に置く
   const asc=Math.floor(natal.Sun/30)*30;
@@ -5977,7 +6009,7 @@ function sjRenderChartSVG(natal,date,main){
   };
   // プログレス太陽・月も、実トランジット5天体と同じ輪（R_TR）に置くので、
   // 重なり回避のためキー一覧に加えて一緒にcalcPlacementする（2026-08-26 追加）。
-  const trPlaced=calcPlacement(tr,SJ_TRANS.concat(PROG_BODIES),R_TR);
+  const trPlaced=calcPlacement(tr,SJ_TRANS.concat(PROG_BODIES).concat(goodHit),R_TR);
   const naPlaced=calcPlacement(natal,SJ_BODIES,R_NA);
   // 線が天体の記号（文字）にかぶって読みにくいとの指摘（2026-08-28）。
   // 記号はfont-size17のテキストで背景の塗りつぶしを持たないため、線を後で
@@ -6045,6 +6077,13 @@ function sjRenderChartSVG(natal,date,main){
     g+=`<line x1="${lx1.toFixed(1)}" y1="${ly1.toFixed(1)}" x2="${lx2.toFixed(1)}" y2="${ly2.toFixed(1)}" `
       +`stroke="${PROG_COLOR[a.kind]}" stroke-width="2" opacity="0.9" stroke-dasharray="6,3"/>`;
   });
+  // 吉星の救い（紫の実線）
+  onChartGood.forEach(a=>{
+    const {x:x1,y:y1}=trPlaced[a.t], {x:x2,y:y2}=naPlaced[a.n];
+    const [lx1,ly1,lx2,ly2]=shrinkLine(x1,y1,x2,y2,GLYPH_GAP);
+    g+=`<line x1="${lx1.toFixed(1)}" y1="${ly1.toFixed(1)}" x2="${lx2.toFixed(1)}" y2="${ly2.toFixed(1)}" `
+      +`stroke="${GOOD_COLOR}" stroke-width="2.4" opacity="0.95"/>`;
+  });
   // 天体を描く（位置は上で計算済みのものをそのまま使う）
   const renderGlyphs=(placed,keys,cls,glyphColor)=>{
     keys.forEach(b=>{
@@ -6064,8 +6103,12 @@ function sjRenderChartSVG(natal,date,main){
       +`fill="${PROG_GLYPH_COLOR}" ${hit?'font-weight="700"':''}>${SJ_GLYPH[b]}</text>`;
   });
 
+  goodHit.forEach(b=>{
+    const {x,y}=trPlaced[b];
+    g+=`<text x="${x.toFixed(1)}" y="${(y+6).toFixed(1)}" text-anchor="middle" font-size="17" fill="${GOOD_COLOR}" font-weight="700">${SJ_GLYPH[b]}</text>`;
+  });
   const svg=`<svg viewBox="0 0 420 420" style="width:100%;max-width:420px;height:auto;">${g}</svg>`;
-  return {svg,onChart,dayPrimary};
+  return {svg,onChart,dayPrimary,good:onChartGood};
 }
 
 function sjBuildChart(natal,year){
@@ -6085,8 +6128,8 @@ function sjBuildChart(natal,year){
     if(n>bestN || (n===bestN && sum<bestSum)){ bestN=n; bestSum=sum; date=dt; }
   }
   const overlapN=bestN;                     // その日、同時にオーブ内だった◆の本数（2026-08-25 追加：下部の説明文用）
-  const {svg,onChart,dayPrimary}=sjRenderChartSVG(natal,date);
-  return {svg,list,date,onChart,dayPrimary,overlapN};
+  const {svg,onChart,dayPrimary,good}=sjRenderChartSVG(natal,date);
+  return {svg,list,date,onChart,dayPrimary,overlapN,good};
 }
 
 // 月を足す（月末日のずれを吸収する）。いったん移動先の月の1日に飛んでから、
@@ -6161,9 +6204,9 @@ function sjOnMonthOrDayChange(){
 // （以前は初期表示時の1本のまま固定されていて、日付を送ると盤と表の内容がずれていた）。
 function sjUpdateChartView(){
   const st=window._sanjuChartState; if(!st) return;
-  const {svg,onChart,dayPrimary}=sjRenderChartSVG(st.natal,st.date);
+  const {svg,onChart,dayPrimary,good}=sjRenderChartSVG(st.natal,st.date);
   const svgBox=document.getElementById('sanju-svg-box');
-  if(svgBox) svgBox.innerHTML=svg;
+  if(svgBox) svgBox.innerHTML=svg+sjGoodNoteHTML(good);
   const rowsBody=document.getElementById('sanju-rows-body');
   if(rowsBody && st.slowList) rowsBody.innerHTML=sjBuildRowsHTML(st.slowList,onChart,dayPrimary);
   const {n}=sjCountOverlap(st.natal,st.date);
@@ -6187,7 +6230,7 @@ function sjUpdateChartView(){
 function openSanjuChart(year,weak){
   const d=window._nengunData; if(!d) return;
   const natal=sjNatal(d.y,d.bm,d.bd);
-  const {svg,list,date,onChart,dayPrimary,overlapN}=sjBuildChart(natal,year);
+  const {svg,list,date,onChart,dayPrimary,overlapN,good}=sjBuildChart(natal,year);
   const box=document.getElementById('sanju-modal');
   const body=document.getElementById('sanju-body');
   if(!box||!body) return;
@@ -6266,7 +6309,7 @@ function openSanjuChart(year,weak){
           +sjDayOptions(year,date.getUTCMonth()+1,date.getUTCDate())+'</select>'
       +'</div>';
     body.innerHTML=
-      '<div style="text-align:center;margin-bottom:8px;" id="sanju-svg-box">'+svg+'</div>'
+      '<div style="text-align:center;margin-bottom:8px;" id="sanju-svg-box">'+svg+sjGoodNoteHTML(good)+'</div>'
       +navHtml
       +'<table style="width:100%;border-collapse:collapse;">'+rows+'</table>'
       +gcHtml

@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610071200';
+var APP_VERSION = '202610071700';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2298,10 +2298,23 @@ const NEN_TSUHEN_THEME={
   '印綬':['学んで基礎を固める','講座を受ける。資格の勉強をする。先生や経験者に教わり、知識を整理する。']
 };
 function nenTsuhenBoxHTML(nK, yr){
+  const ks=getYearKanShi(yr); if(!ks) return '';
+  return tsuhenThemeBoxHTML(nK, ks.kan, '');
+}
+// 大運・年運で共用（2026-10-07）。head は日干の横に添える文字（大運なら「主役 丁」など）
+// 枠だけ（見出しなし）。lab は枠の中の先頭に添える小見出し（大運の「天干 丁（主役）」など）
+function tsuhenThemeFrameHTML(nK, kan, lab, strong){
+  const ts=getTsuuhensei(nK,kan), th=NEN_TSUHEN_THEME[ts]; if(!th) return '';
+  return '<div style="margin-top:6px;padding:10px 12px;border:1px solid rgba(201,164,76,'+(strong?'.75':'.3')+');border-radius:8px;background:rgba(201,164,76,'+(strong?'.08':'.03')+');line-height:1.8;'+(strong?'':'opacity:.8;')+'">'+
+    (lab?'<div style="font-size:12.5px;color:var(--kin2);">'+lab+'</div>':'')+
+    '<div><b style="color:var(--kin);font-size:15px;">'+ts+'</b>　<b>'+th[0]+'</b></div>'+
+    '<div style="font-size:14px;margin-top:2px;">'+th[1]+'</div>'+
+  '</div>';
+}
+function tsuhenThemeBoxHTML(nK, kan, head){
   try{
-    const ks=getYearKanShi(yr); if(!ks) return '';
-    const ts=getTsuuhensei(nK,ks.kan), th=NEN_TSUHEN_THEME[ts]; if(!th) return '';
-    return '<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;font-weight:700;color:var(--kin2);">日干 '+nK+'</div>'+
+    const ts=getTsuuhensei(nK,kan), th=NEN_TSUHEN_THEME[ts]; if(!th) return '';
+    return '<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;font-weight:700;color:var(--kin2);">日干 '+nK+(head?'<span style="margin-left:12px;">'+head+'</span>':'')+'</div>'+
       '<div style="margin-top:4px;padding:10px 12px;border:1px solid rgba(201,164,76,.45);border-radius:8px;background:rgba(201,164,76,.05);line-height:1.8;">'+
         '<div><b style="color:var(--kin);font-size:15px;">'+ts+'</b>　<b>'+th[0]+'</b></div>'+
         '<div style="font-size:14px;margin-top:2px;">'+th[1]+'</div>'+
@@ -2313,6 +2326,13 @@ function toggleNenTsuhen(yr){
   const row=document.getElementById('nents-'+yr); if(!row) return;
   const open=row.style.display!=='none';
   document.querySelectorAll('.nents-row').forEach(function(r){ r.style.display='none'; });
+  if(!open) row.style.display='';
+}
+// 大運の「〇歳〜」を押すと、その行の下に主役の通変星のテーマを開く（年運と同じ動き）
+function toggleDaiTsuhen(id){
+  const row=document.getElementById(id); if(!row) return;
+  const open=row.style.display!=='none';
+  document.querySelectorAll('.dts-row').forEach(function(r){ r.style.display='none'; });
   if(!open) row.style.display='';
 }
 function updateNengun(){
@@ -4994,7 +5014,7 @@ function calculate(){
     const shiMark=markOf(shiTsuuhen_d, false);
     const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
-      '<td class="dai-age" style="'+tdSty+'font-size:18px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'font-weight:700;')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;white-space:nowrap;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
+      '<td class="dai-age" onclick="toggleDaiTsuhen(\'dts-'+R.startYear+'-'+SI+'\')" style="cursor:pointer;'+tdSty+'font-size:18px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'font-weight:700;')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;white-space:nowrap;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
       '<td class="dai-ym" style="'+tdSty+'font-size:18px;white-space:nowrap;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜'+((!isSub&&R.tsugikiun)?'<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">接</span>':'')+'</td>'+
       '<td class="dai-kanshi" style="'+tdSty+'font-size:21px;font-family:Shippori Mincho,serif;'+nowSty+'">'+
         '<span class="dai-ks">'+
@@ -5017,7 +5037,24 @@ function calculate(){
           ? (tags.replace(/<[^>]*>/g,'').trim() ? '<span class="dai-tags" style="opacity:.55;">'+tags+'</span>' : '')
           : '<span class="dai-tags">'+tags+'</span>')+
       '</td>'+
-      '</tr>';
+      '</tr>'+
+      // 通変星のテーマ（2026-10-07 追加）：この区間の主役（大運まとめと同じ5分類の決め方）で出す
+      (function(){
+        const _B2K={寅:'甲',卯:'乙',辰:'戊',巳:'丙',午:'丁',未:'己',申:'庚',酉:'辛',戌:'戊',亥:'壬',子:'癸',丑:'己'};
+        const _sk=segZk||_B2K[r.shi];
+        const _gk=KAN_GOGYO[r.kan], _gs=KAN_GOGYO[_sk]||SHI_GOGYO[r.shi];
+        const _useKan=(_gk===_gs)||gen(_gs,_gk)||ove(_gk,_gs);
+        // 2026-10-07 改訂：主役・脇役の印は付けず、「天干」「地支」の文言だけで並べる（天干→地支の順）。
+        // 天干と地支（蔵干）が同じ通変星になるときは、枠を1つにまとめる。
+        const _lk='天干 '+r.kan, _ls='地支 '+r.shi+'（'+_sk+'）';
+        const _same=getTsuuhensei(nK,r.kan)===getTsuuhensei(nK,_sk);
+        const _frames=_same
+          ? tsuhenThemeFrameHTML(nK,r.kan,_lk+'・'+_ls,true)
+          : tsuhenThemeFrameHTML(nK,r.kan,_lk,true)+tsuhenThemeFrameHTML(nK,_sk,_ls,true);
+        return '<tr id="dts-'+R.startYear+'-'+SI+'" class="dts-row" style="display:none;"><td colspan="3" style="padding:4px 10px 12px;">'+
+          '<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;font-weight:700;color:var(--kin2);">日干 '+nK+'</div>'+
+          _frames+'</td></tr>';
+      })();
   })).join('');
 
   // 四柱それぞれの採用蔵干（小山内流・簡易蔵干表）。

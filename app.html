@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610081600';
+var APP_VERSION = '202610081700';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -5677,6 +5677,54 @@ const GOOD_TARGETS=['Sun','Moon'];
 const GOOD_ASPECTS_OF=b=> b==='Jupiter' ? [[0,'合','☌'],[120,'トライン','△']] : [[120,'トライン','△']];
 const GOOD_ORB={Jupiter:3,Saturn:3,Uranus:2,Neptune:2,Pluto:2};
 const GOOD_COLOR='#b48cff';
+// その年の救い（2026-10-08 追加）：盤の日付と関係なく、その年のどこかで成り立つ救いを、
+// 入る日・正確な日・抜ける日つきで一覧にする（凶角の一覧と同じ、1日ずつ調べる方法）。
+function sjFindGood(natal,year){
+  const ev=[];
+  const md=dt=>(dt.getUTCMonth()+1)+'/'+dt.getUTCDate();
+  GOOD_BODIES.forEach(t=>{
+    const prev=sjLon(t,new Date(Date.UTC(year-1,11,31,3,0)));
+    const arr=[], dates=[];
+    for(let i=0;i<366;i++){
+      const dt=new Date(Date.UTC(year,0,1+i,3,0));
+      if(dt.getUTCFullYear()!==year) break;
+      arr.push(sjLon(t,dt)); dates.push(dt);
+    }
+    GOOD_TARGETS.forEach(n=>{
+      GOOD_ASPECTS_OF(t).forEach(([ang,nm,mark])=>{
+        const orb=GOOD_ORB[t];
+        const carryIn=(Math.abs(sjSep(prev,natal[n])-ang)<=orb);
+        let inOrb=false, enter=null, last=null, best=null, first=true;
+        for(let i=0;i<arr.length;i++){
+          const o=Math.abs(sjSep(arr[i],natal[n])-ang);
+          if(o<=orb){
+            if(!inOrb){ inOrb=true; enter=dates[i]; best={o,dt:dates[i]}; }
+            else if(o<best.o) best={o,dt:dates[i]};
+            last=dates[i];
+          }else if(inOrb){
+            ev.push({t,n,mark,enter,last,best,carry:(first&&carryIn),toEnd:false});
+            inOrb=false; first=false;
+          }
+        }
+        if(inOrb) ev.push({t,n,mark,enter,last,best,carry:(first&&carryIn),toEnd:true});
+      });
+    });
+  });
+  ev.sort((a,b)=>a.enter-b.enter);
+  return ev.map(e=>({...e,
+    label:'T'+SJ_NAME[e.t]+e.mark+'N'+SJ_NAME[e.n],
+    // 年末をまたぐものは、正確な日が翌年になることがあるので「翌年に続く」とだけ出す
+    span:(e.carry?'年初から':md(e.enter))+'〜'+(e.toEnd?'年末まで（翌年に続く）':md(e.last)+'（正確 '+md(e.best.dt)+'）')}));
+}
+function sjGoodListHTML(natal,year){
+  const L=sjFindGood(natal,year);
+  return '<div style="margin-top:12px;padding:8px 10px;border:1px solid '+GOOD_COLOR+'55;border-radius:8px;">'
+    +'<div style="font-size:13px;font-weight:700;color:'+GOOD_COLOR+';margin-bottom:4px;">この年の救い</div>'
+    +(L.length
+      ? L.map(e=>'<div style="font-size:13px;line-height:1.8;"><span style="color:'+GOOD_COLOR+';">'+e.label+'</span>　'+e.span+'</div>').join('')
+      : '<div style="font-size:13px;opacity:.7;">この年は、太陽・月への救いの角度はありません。</div>')
+    +'</div>';
+}
 function sjGoodNoteHTML(good){
   if(!good || !good.length) return '';
   return '<div style="font-size:13px;color:'+GOOD_COLOR+';text-align:center;margin-top:6px;">'
@@ -6325,6 +6373,7 @@ function openSanjuChart(year,weak){
         +'border-top:1px solid rgba(224,69,60,.35);padding-top:10px;" id="sanju-date-caption">'
         +(date.getUTCMonth()+1)+'月'+date.getUTCDate()+'日 — '
         +'この一年でいちばん凶角が重なっている日（'+overlapN+'本が同時にオーブ内）</p>'
+      +sjGoodListHTML(natal,year)
       ;
     // ナビゲーション用の状態を保存（2026-08-26 追加）。年をまたいだ移動はしない。
     // slowListは日付移動のたび一覧表を描き直すために保持（2026-09-15 追加）。

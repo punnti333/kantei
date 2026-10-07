@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610071900';
+var APP_VERSION = '202610081200';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4309,84 +4309,107 @@ const KUUBOU_SHOKAN_GETSU =
 // ===== 判定 =====
 // kuubou   … ['子','丑'] のような配列
 // pillars  … [{label:'年柱', kan, shi}, ...]（日柱は蔵干で見るので zk を渡す）
-function judgeKuubou(kuubou, nK, pillars, zkDay){
+// 2026-10-07 改訂（本 139〜141ページに合わせる）
+//  ・陽干日は空亡の陽の支、陰干日は陰の支が真空。2026-10-08：かぴさんの判断で、半空も無視せず「弱めに出る」とし、
+//    真空は「特に強く出る」として区別する（本の「半空は無視してよい」は採らない）。
+//  ・真空の支が命中の柱にあれば、その柱そのものが消される＝天干の通変星と地支蔵干の通変星の両方が空亡。
+//    （日柱の天干は日干そのものなので、蔵干だけを見る）
+//  ・戌亥・辰巳の五行は、真空の支の五行で決まる。
+//  zkAll … ZK_ADOPT（各柱の採用蔵干）。古い呼び出し（日柱の蔵干の文字だけ）にも対応。
+const SHI_YO = {子:1,寅:1,辰:1,午:1,申:1,戌:1, 丑:0,卯:0,巳:0,未:0,酉:0,亥:0};
+const KUU_SHI_GOGYO = {戌:'土',亥:'水',辰:'土',巳:'火'};
+function judgeKuubou(kuubou, nK, pillars, zkAll){
   const key = kuubou.join('');
-  const gs  = KUUBOU_GOGYO[key] || [];
+  const zkOf = (lab) => (zkAll && typeof zkAll==='object') ? zkAll[lab] : (lab==='日柱' ? zkAll : null);
+  const nkYo = KAN_INYO[nK]==='陽' || KAN_INYO[nK]===1 || KAN_INYO[nK]===true || '甲丙戊庚壬'.includes(nK);
+  const shinku = kuubou.find(sh => (SHI_YO[sh]===1) === nkYo) || kuubou[0];
+  const hanku  = kuubou.find(sh => sh!==shinku);
 
-  // --- 従：空亡の五行が、日干から見て何星か ---
+  // --- 従：空亡の五行（戌亥・辰巳は真空の支で決まる） ---
+  let gs = KUUBOU_GOGYO[key] || [];
+  if(gs.length>1 && KUU_SHI_GOGYO[shinku]) gs=[KUU_SHI_GOGYO[shinku]];
   const tsu = tsuhenMap(KAN_GOGYO[nK]);
   const rev = {};
   for(const k in tsu) rev[tsu[k]] = k;
-  const gogyoSide = gs.map(g => ({
-    gogyo:g, hoshi:rev[g], text:KUUBOU_GOGYO_TXT[rev[g]] || ''
-  }));
+  const gogyoSide = gs.map(g => ({ gogyo:g, hoshi:rev[g], text:KUUBOU_GOGYO_TXT[rev[g]] || '' }));
 
-  // --- 主：空亡している柱 ---
-  const hit = [];
-  for(const p of pillars){
-    if(!p || !kuubou.includes(p.shi)) continue;
-    // 日柱の天干は日干そのもの（＝自分）なので通変星が無い。採用蔵干で見る。
-    const useKan = (p.label === '日柱') ? zkDay : p.kan;
-    const src    = (p.label === '日柱') ? '蔵干' : '天干';
-    if(!useKan){ hit.push({...p, tsuuhen:null, src, data:null}); continue; }
-    let t = getTsuuhensei(nK, useKan);
+  const starOf = (kan, lab) => {
+    let t = getTsuuhensei(nK, kan);
     if(t === '偏印') t = '倒食';        // 本書の呼び方に合わせる
     let data = KUUBOU_TSUHEN[t] || null;
-    // 2026-09-27 追加：傷官の本文は「年柱に傷官があって空亡していると」で始まる、
-    // 年柱専用の説明。年柱以外で出すと内容が合わないため、柱ごとに差し替える。
-    //   月柱：月柱（両親・兄弟・実家／青年期／社会の土台）の一般的な読み方
-    //         （本の文章ではない。かぴさん確認済みの文言）
-    //   日柱・時柱：該当する説明がないため本文は出さない（救いの条件だけ出す）
-    if(t === '傷官' && data && p.label !== '年柱'){
-      data = { ...data, txt: (p.label === '月柱') ? KUUBOU_SHOKAN_GETSU : '' };
+    // 傷官の本文は年柱専用の説明。月柱は別の文言、日柱・時柱は本文なし（救いだけ）
+    if(t === '傷官' && data && lab !== '年柱'){
+      data = { ...data, txt: (lab === '月柱') ? KUUBOU_SHOKAN_GETSU : '' };
     }
-    hit.push({ label:p.label, kan:p.kan, shi:p.shi, useKan, src,
-               tsuuhen:t, data });
-  }
+    return { tsuuhen:t, data };
+  };
 
-  return { key, gogyoSide, hit, uncertain: gs.length > 1 };
+  // --- 主：真空の支がある柱 ---
+  const hit = [], half = [];
+  for(const p of pillars){
+    if(!p || !kuubou.includes(p.shi)) continue;
+    const isShin = (p.shi === shinku);
+    const parts = [];
+    if(p.label !== '日柱' && p.kan) parts.push({ part:'天干', kan:p.kan, ...starOf(p.kan, p.label) });
+    const zk = zkOf(p.label);
+    if(zk) parts.push({ part:'蔵干', kan:zk, ...starOf(zk, p.label) });
+    // 天干と蔵干が同じ星なら1つにまとめる
+    if(parts.length===2 && parts[0].tsuuhen===parts[1].tsuuhen){
+      parts[0].part='天干・蔵干'; if(parts[0].kan!==parts[1].kan) parts[0].kan=parts[0].kan+'・'+parts[1].kan; parts.pop();
+    }
+    (isShin ? hit : half).push({ label:p.label, kan:p.kan, shi:p.shi, parts, shin:isShin });
+  }
+  return { key, shinku, hanku, gogyoSide, hit, half };
 }
 
 // ===== 表示 =====
+// 2026-10-08 改訂：最初に「この人はどうなのか」を一文で出す。真空は特に強く、半空は弱めに出るとして両方読む。
+// 月柱の空亡には、柱としての意味（心のよりどころ）を一文添える（本140ページの月支空亡を、やわらかく言いかえたもの）。
+const KUUBOU_GETSU_TXT =
+  '家庭や親のもとに、心から安らげる居場所を感じにくい。人に囲まれていても、どこか満たされない思いを抱えやすい。'
+  + '一人の時間を大切にし、自分なりの心のよりどころを持つと落ち着く。';
 function renderKuubou(res){
   if(!res) return '';
+  const all = res.hit.concat(res.half);
+  const labOf = h => h.label + 'の' + h.shi + '（' + (h.shin ? '真空' : '半空') + '）';
+  const stars = h => h.parts.map(x => x.tsuuhen).join('・');
 
-  // --- 主：空亡した柱 ---
-  const hitHtml = res.hit.length ? res.hit.map(h => {
-    const D = h.data;
-    if(!D) return '<div class="kb-item"><div class="kb-head"><b>'
-      + h.label + '（' + h.shi + '）</b></div></div>';
-    return '<div class="kb-item">'
-      + '<div class="kb-head"><b>' + h.label + '（' + h.shi + '）</b>'
-      +   '<span class="kb-tsu">' + h.tsuuhen + ' 空亡</span>'
-      +   '<span class="kb-src">' + h.src + ' ' + h.useKan + '</span>'
-      + '</div>'
+  let lead;
+  if(all.length){
+    lead = all.map(h => '<b>' + labOf(h) + '</b>：この柱の星（' + stars(h) + '）の力が'
+                + (h.shin ? '<b>強く</b>弱まります。' : 'やや弱まります。')).join('<br>');
+  }else{
+    lead = '命式の中に空亡の支はありません。';
+  }
+
+  const partHtml = (h, x) => {
+    const D = x.data || {};
+    return '<div class="kb-item"' + (h.shin ? '' : ' style="opacity:.8;"') + '>'
+      + '<div class="kb-head"><b>' + h.label + '　' + x.part + ' ' + x.kan + '</b>'
+      +   '<span class="kb-tsu">' + x.tsuuhen + '</span>'
+      +   '<span class="kb-src">' + (h.shin ? '真空' : '半空（弱めに）') + '</span></div>'
       + (D.txt ? '<div class="kb-body">' + D.txt + '</div>' : '')
       + (D.add  ? '<div class="kb-add">'  + D.add  + '</div>' : '')
       + (D.save ? '<div class="kb-save">救い　' + D.save + '</div>' : '')
       + (D.tekigyo ? '<div class="kb-add">適業　' + D.tekigyo + '</div>' : '')
       + '</div>';
-  }).join('') : '<div class="kb-none">命式に空亡の支はありません。</div>';
-
-  // --- 従：五行としての空亡 ---
-  const gsHtml = res.gogyoSide.map(g =>
-    '<div class="kb-g">'
-    + '<div class="kb-g-head"><b>' + g.hoshi + '空亡</b>'
-    +   '<span class="kb-src">' + res.key + '＝' + g.gogyo + '</span></div>'
-    + '<div class="kb-body">' + g.text + '</div>'
-    + '</div>').join('')
-    + (res.uncertain
-       ? '<div class="kb-note">※' + res.key
-         + 'に決まった五行はありません。何れが真空かでその五行が決まります。</div>'
-       : '');
+  };
+  const pillarHtml = h =>
+    (h.label === '月柱'
+      ? '<div class="kb-item"' + (h.shin ? '' : ' style="opacity:.8;"') + '><div class="kb-head"><b>月柱（' + h.shi + '）の空亡</b>'
+        + '<span class="kb-src">' + (h.shin ? '真空' : '半空（弱めに）') + '</span></div>'
+        + '<div class="kb-body">' + KUUBOU_GETSU_TXT + '</div></div>'
+      : '')
+    + h.parts.map(x => partHtml(h, x)).join('');
+  const bodyHtml = all.map(pillarHtml).join('');
 
   return '<div class="card kuubou-card">'
        + '<div class="lamp">空亡</div>'
        + '<div class="kb-key">' + res.key + '</div>'
-       + '<div class="kb-sec">空亡した柱</div>'
-       + hitHtml
-       + '<div class="kb-sec kb-sec2">五行としての空亡（参考）</div>'
-       + gsHtml
+       + '<div style="font-size:13px;opacity:.8;margin-top:2px;">真空 <b>' + res.shinku + '</b>（特に強く出る）　半空 ' + res.hanku + '（弱めに出る）</div>'
+       + '<div style="font-size:11.5px;opacity:.6;margin-top:2px;">※日干と陰陽が同じ支（真空）は、特に強く出ます</div>'
+       + '<div style="margin-top:12px;padding:10px 12px;border-left:3px solid var(--kin);background:rgba(201,164,76,.07);font-size:14.5px;line-height:1.8;">' + lead + '</div>'
+       + bodyHtml
        + '</div>';
 }
 
@@ -5350,7 +5373,7 @@ function calculate(){
     ${renderKuubou(judgeKuubou(kuubou, nK,
         [{label:'年柱',kan:yP.kan,shi:yP.shi},{label:'月柱',kan:mP.kan,shi:mP.shi},
          {label:'日柱',kan:dP.kan,shi:dP.shi}].concat(hUnknown?[]:[{label:'時柱',kan:hP.kan,shi:hP.shi}]),
-        ZK_ADOPT['日柱']))}
+        ZK_ADOPT))}
     <div class="card" style="text-align:center;">
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
         <button onclick="newPerson()" style="font-family:'Shippori Mincho',serif;font-size:15px;

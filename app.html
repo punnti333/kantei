@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610081200';
+var APP_VERSION = '202610081300';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -4368,6 +4368,20 @@ function judgeKuubou(kuubou, nK, pillars, zkAll){
 const KUUBOU_GETSU_TXT =
   '家庭や親のもとに、心から安らげる居場所を感じにくい。人に囲まれていても、どこか満たされない思いを抱えやすい。'
   + '一人の時間を大切にし、自分なりの心のよりどころを持つと落ち着く。';
+// 2026-10-08 追加：通変星ごとの「ひとこと」（本の文章をやわらかく一行にしたもの）。
+// 本の文章は「▼ 本の文章」を押したときだけ開く。救いはいつも出す。
+const KUUBOU_SHORT = {
+  比肩:'自分の力が空回りしやすく、父や配偶者との縁に影響が出やすい。',
+  劫財:'兄弟や仲間との関係で苦労しやすく、付き合い方に注意が要る。',
+  食神:'健康や、母・配偶者の実家との縁に影響が出やすい。',
+  傷官:'先祖や家を受け継ぐ縁が薄く、故郷を離れやすい。',
+  偏財:'父との縁が薄く、お金の出入りが安定しにくい。',
+  正財:'財運が長続きしにくく、配偶者との縁に影響が出やすい。',
+  偏官:'目上や上司の引き立てを受けにくい。女性は夫との縁が薄めになりやすい。',
+  正官:'地位や評価を得にくく、女性は夫との縁に影響が出やすい。',
+  印綬:'親から受け継ぐものに恵まれにくく、母との縁に影響が出やすい。',
+  倒食:'家や先祖から受け継ぐものが続きにくく、望みが空回りしやすい。'
+};
 function renderKuubou(res){
   if(!res) return '';
   const all = res.hit.concat(res.half);
@@ -4384,14 +4398,15 @@ function renderKuubou(res){
 
   const partHtml = (h, x) => {
     const D = x.data || {};
-    return '<div class="kb-item"' + (h.shin ? '' : ' style="opacity:.8;"') + '>'
-      + '<div class="kb-head"><b>' + h.label + '　' + x.part + ' ' + x.kan + '</b>'
-      +   '<span class="kb-tsu">' + x.tsuuhen + '</span>'
-      +   '<span class="kb-src">' + (h.shin ? '真空' : '半空（弱めに）') + '</span></div>'
-      + (D.txt ? '<div class="kb-body">' + D.txt + '</div>' : '')
+    const full = (D.txt ? '<div class="kb-body">' + D.txt + '</div>' : '')
       + (D.add  ? '<div class="kb-add">'  + D.add  + '</div>' : '')
+      + (D.tekigyo ? '<div class="kb-add">適業　' + D.tekigyo + '</div>' : '');
+    return '<div class="kb-item"' + (h.shin ? '' : ' style="opacity:.8;"') + '>'
+      + '<div class="kb-head"><b>' + x.part + ' ' + x.kan + '</b>'
+      +   '<span class="kb-tsu">' + x.tsuuhen + '</span></div>'
+      + '<div class="kb-body">' + (KUUBOU_SHORT[x.tsuuhen] || '') + '</div>'
       + (D.save ? '<div class="kb-save">救い　' + D.save + '</div>' : '')
-      + (D.tekigyo ? '<div class="kb-add">適業　' + D.tekigyo + '</div>' : '')
+      + (full ? '<details style="margin-top:4px;"><summary style="cursor:pointer;font-size:12px;color:var(--kin2);list-style:none;opacity:.85;">▼ 本の文章</summary>' + full + '</details>' : '')
       + '</div>';
   };
   const pillarHtml = h =>

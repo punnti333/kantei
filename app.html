@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610083200';
+var APP_VERSION = '202610083400';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1961,20 +1961,17 @@ function openYearBannenreki(Y){
       +'td.st{border-top:3px solid #111;}td.nd{background:#f3f3f3;}'
       +'h2{font-size:13px;margin:6px 0 3px;border-left:4px solid #333;padding-left:6px;}.note{font-size:11px;color:#333;margin:2px 0 6px;}'
       +'.pb{page-break-after:always;}.cols{display:flex;gap:12px;}.cols>div{flex:1;}'
-      +'@media print{body{margin:0;}.noprint{display:none;}@page{size:A4 portrait;margin:6mm;}}'
+      +'@media print{body{margin:0;}.noprint{display:none;}@page{size:A4 portrait;margin:6mm;}'+'td,th{padding:0 2px;}td.dc{font-size:11px;line-height:1.15;}td.mk{font-size:13px;}th.dn{font-size:10px;}.head{padding:3px 10px;margin-bottom:3px;}.head .y{font-size:20px;}.head .e,.head .k{font-size:16px;}'+'.note{font-size:10px;margin:1px 0 3px;}h2{font-size:12px;margin:4px 0 2px;}table{margin-bottom:4px;}}'
       +'</style></head><body>'
       +'<div class="noprint" style="margin-bottom:8px;"><button onclick="print()">印刷する</button></div>'
       +'<div class="head"><span class="y">'+Y+'年</span><span class="e">'+brEra(Y)+'</span><span class="s">'+(BR_STAR[honmeiStar(Y,3,1)[0]]||'')+'</span><span class="k">'+yKan+yShi+'年</span></div>'
-      +'<div class="note">年は立春、月は節入りで切り替わります（太線の日が節入り。時刻より前に生まれた人は前の月）。午後11時以降に生まれた人は、次の日の日干支で見ます（下の注意を参照）。</div>'
+      +'<div class="note">年は立春、月は節入りで切り替わります（太線の日が節入り。時刻より前に生まれた人は前の月）。23時以降に生まれた人は翌日の日干支で見ます。</div>'
       +table(months.slice(0,6))
       +'<div class="pb"></div>'
       +'<div class="head"><span class="y">'+Y+'年</span><span class="e">'+brEra(Y)+'</span><span class="k">'+yKan+yShi+'年（つづき）</span></div>'
       +table(months.slice(6,12))
       +'<h2>時刻干支表</h2><table class="ht"><tr><th style="width:52px;">日干＼時刻</th>'+tl.map(t=>'<th style="font-size:9.5px;white-space:normal;">'+t+'</th>').join('')+'</tr>'+hb+'</table>'
-      +'<div class="note" style="border:1px solid #999;padding:3px 8px;line-height:1.5;"><b>午後11時〜12時に生まれた人の注意</b><br>'
-        +'・時柱は、この表のとおりです。<br>'
-        +'・日柱は、<b>次の日</b>の日干支を使います（このシートの決まり。本によっては当日の日干支を使います）。<br>'
-        +'例：癸亥の日の23時30分生まれ → 日柱は次の日の<b>甲子</b>、時柱は<b>甲子</b></div>'
+      +'<div class="note">午後11時〜12時の時柱は、次の子の刻の干支です。このシートでは、23時以降に生まれた人は日柱も翌日で見ます（時柱の干支は同じ）。</div>'
       +'<h2>月支の蔵干（小山内流）<span style="font-size:11px;font-weight:400;">　節入りの日を1日目と数える</span></h2>'
       +'<div class="cols"><div><table>'+zkRows.slice(0,4).join('')+'</table></div><div><table>'+zkRows.slice(4,8).join('')+'</table></div><div><table>'+zkRows.slice(8).join('')+'</table></div></div>'
       +'</body></html>';

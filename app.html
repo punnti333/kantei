@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610083500';
+var APP_VERSION = '202610083600';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1903,6 +1903,17 @@ function goSanmei(){
 const BR_SETSU=['立春','啓蟄','清明','立夏','芒種','小暑','立秋','白露','寒露','立冬','大雪','小寒'];
 const BR_CHUU =['雨水','春分','穀雨','小満','夏至','大暑','処暑','秋分','霜降','小雪','冬至','大寒'];
 const BR_STAR =['','一白水星','二黒土星','三碧木星','四緑木星','五黄土星','六白金星','七赤金星','八白土星','九紫火星'];
+// 九星の盤（2026-10-08 追加）：南を上にした3×3の表。中央の星から 乾→兌→艮→離→坎→坤→震→巽 の順に飛ぶ。
+function brBoard(c,big){
+  const K=['','一','二','三','四','五','六','七','八','九'];
+  const v=n=>K[((c-1+n)%9+9)%9+1];
+  const g=[[v(8),v(4),v(6)],[v(7),v(0),v(2)],[v(3),v(5),v(1)]];   // 上段：南東・南・南西／中段：東・中央・西／下段：北東・北・北西
+  const sz=big?13:10;
+  return '<table class="bd" style="width:auto;margin:1px auto;border-collapse:collapse;font-size:'+sz+'px;">'
+    +'<tr><td colspan="3" style="border:none;font-size:8px;line-height:1;padding:0;">南</td></tr>'
+    +g.map((r,i)=>'<tr>'+r.map((x,j)=>'<td style="border:1px solid #888;width:'+(sz+3)+'px;height:'+(sz+2)+'px;padding:0;line-height:1.1;'+(i===1&&j===1?'font-weight:800;background:#eee;':'')+'">'+x+'</td>').join('')+'</tr>').join('')
+    +'</table>';
+}
 function brEra(y){ if(y>=2019) return '令和'+(y-2018===1?'元':y-2018)+'年'; if(y>=1989) return '平成'+(y-1988===1?'元':y-1988)+'年'; if(y>=1926) return '昭和'+(y-1925===1?'元':y-1925)+'年'; return '大正'+(y-1911)+'年'; }
 function openYearBannenreki(Y){
   try{
@@ -1922,7 +1933,7 @@ function openYearBannenreki(Y){
         const dp=dayPillar(yy,mm,d);
         days.push({kanshi:dp.kan+dp.shi, w:wk[new Date(Date.UTC(yy,mm-1,d)).getUTCDay()]});
       }
-      months.push({yy,mm,kanshi:mp.kan+mp.shi,star:BR_STAR[getsumeiStar(yy,mm,15)]||'',
+      months.push({yy,mm,kanshi:mp.kan+mp.shi,star:BR_STAR[getsumeiStar(yy,mm,15)]||'', starN:getsumeiStar(yy,mm,15),
         setsu:su?{n:BR_SETSU[k],...jst(su)}:null, chuu:cu?{n:BR_CHUU[k],...jst(cu)}:null, days});
     }
     const table=(list)=>{
@@ -1931,6 +1942,7 @@ function openYearBannenreki(Y){
       let h='<table><tr><th class="side">月</th>'+L.map(o=>'<th class="mh">'+(o.mm===1?(o.yy)+'年 ':'')+o.mm+'月</th>').join('')+'<th class="side">月</th></tr>';
       h+='<tr><th class="side">月干支</th>'+L.map(o=>'<td class="mk">'+o.kanshi+'</td>').join('')+'<th class="side">月干支</th></tr>';
       h+='<tr><th class="side">九星</th>'+L.map(o=>'<td class="ms">'+o.star+'</td>').join('')+'<th class="side">九星</th></tr>';
+      h+='<tr><th class="side">月盤</th>'+L.map(o=>'<td style="padding:1px;">'+brBoard(o.starN,false)+'</td>').join('')+'<th class="side">月盤</th></tr>';
       h+='<tr><th class="side">節入</th>'+L.map(o=>'<td class="sk">'+(o.setsu?o.setsu.n+' '+o.setsu.d+'日 '+o.setsu.t:'')+'</td>').join('')+'<th class="side">節入</th></tr>';
       h+='<tr><th class="side">中気</th>'+L.map(o=>'<td class="sk">'+(o.chuu?o.chuu.n+' '+o.chuu.d+'日 '+o.chuu.t:'')+'</td>').join('')+'<th class="side">中気</th></tr>';
       for(let d=1;d<=31;d++){
@@ -1964,11 +1976,11 @@ function openYearBannenreki(Y){
       +'@media print{body{margin:0;}.noprint{display:none;}@page{size:A4 portrait;margin:6mm;}'+'td,th{padding:0 2px;}td.dc{font-size:11px;line-height:1.15;}td.mk{font-size:13px;}th.dn{font-size:10px;}.head{padding:3px 10px;margin-bottom:3px;}.head .y{font-size:20px;}.head .e,.head .k{font-size:16px;}'+'.note{font-size:10px;margin:1px 0 3px;}h2{font-size:12px;margin:4px 0 2px;}table{margin-bottom:4px;}}'
       +'</style></head><body>'
       +'<div class="noprint" style="margin-bottom:8px;"><button onclick="fitPages();print()">印刷する</button></div>'
-      +'<div class="page"><div class="head"><span class="y">'+Y+'年</span><span class="e">'+brEra(Y)+'</span><span class="s">'+(BR_STAR[honmeiStar(Y,3,1)[0]]||'')+'</span><span class="k">'+yKan+yShi+'年</span></div>'
+      +'<div class="page"><div class="head"><span class="y">'+Y+'年</span><span class="e">'+brEra(Y)+'</span><span class="s">'+(BR_STAR[honmeiStar(Y,3,1)[0]]||'')+'</span><span class="k">'+yKan+yShi+'年</span><span style="margin-left:10px;text-align:center;font-size:10px;">年盤'+brBoard(honmeiStar(Y,3,1)[0],true)+'</span></div>'
       +'<div class="note">年は立春、月は節入りで切り替わります（太線の日が節入り。時刻より前に生まれた人は前の月）。23時以降に生まれた人は翌日の日干支で見ます。</div>'
       +table(months.slice(0,6))
       +'</div><div class="page">'
-      +'<div class="head"><span class="y">'+Y+'年</span><span class="e">'+brEra(Y)+'</span><span class="k">'+yKan+yShi+'年（つづき）</span></div>'
+      +'<div class="head"><span class="y">'+Y+'年</span><span class="e">'+brEra(Y)+'</span><span class="s">'+(BR_STAR[honmeiStar(Y,3,1)[0]]||'')+'</span><span class="k">'+yKan+yShi+'年（つづき）</span></div>'
       +table(months.slice(6,12))
       +'<h2>時刻干支表</h2><table class="ht"><tr><th style="width:52px;">日干＼時刻</th>'+tl.map(t=>'<th style="font-size:9.5px;white-space:normal;">'+t+'</th>').join('')+'</tr>'+hb+'</table>'
       +'<div class="note">午後11時〜12時の時柱は、次の子の刻の干支です。このシートでは、23時以降に生まれた人は日柱も翌日で見ます（時柱の干支は同じ）。</div>'

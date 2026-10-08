@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610082000';
+var APP_VERSION = '202610082100';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2322,6 +2322,17 @@ function tsuhenThemeBoxHTML(nK, kan, head){
   }catch(e){ return ''; }
 }
 // 干支を押すと（2026-10-08：西暦→干支に変更。西暦はトランジット盤）、その年の行の下に通変星のテーマを開く（もう一度押すと閉じる。開くのは1つだけ）
+// 答え合わせを閉じる（2026-10-08 追加）：開いた中身を隠し、緑のボタンをもう一度出す
+function hideAnswer(bodyId,toggleId){
+  const b=document.getElementById(bodyId), t=document.getElementById(toggleId);
+  if(b) b.style.display='none'; if(t) t.style.display='';
+  if(t) t.scrollIntoView({block:'center'});
+}
+function hideShinjyoAnswer(cls){
+  const ban=document.getElementById('shinjyo-signal-banner'); if(ban && cls) ban.classList.remove(cls);
+  const tk=document.getElementById('tokurei-tokuchi-card'); if(tk) tk.style.display='none';
+  hideAnswer('shinjyo-answer-body','shinjyo-answer-toggle');
+}
 function toggleNenTsuhen(yr){
   const row=document.getElementById('nents-'+yr); if(!row) return;
   const open=row.style.display!=='none';
@@ -4707,7 +4718,7 @@ function calculate(){
         '<button onclick="document.getElementById(\'yojin-body\').style.display=\'block\';document.getElementById(\'yojin-toggle\').style.display=\'none\';" '+
         'style="font-family:\'Shippori Mincho\',serif;font-size:15px;background:#2e5e3e;border:1px solid #7fbf8f;color:#fff;border-radius:10px;padding:12px 26px;cursor:pointer;letter-spacing:.12em;">'+
         '答え合わせ（用神を見る）</button></div>'+
-      '<div id="yojin-body" style="display:none;margin-top:12px;font-size:15px;line-height:2;color:var(--washi);">'+rows+'</div>'+
+      '<div id="yojin-body" style="display:none;margin-top:12px;font-size:15px;line-height:2;color:var(--washi);">'+rows+'<div style="text-align:center;margin-top:12px;"><button type="button" onclick="hideAnswer(\'yojin-body\',\'yojin-toggle\')" style="font-size:12.5px;background:transparent;border:1px solid rgba(127,191,143,.6);color:#9fd3ad;border-radius:8px;padding:6px 16px;cursor:pointer;">▲ 閉じる（答えを隠す）</button></div></div>'+
     '</div>';
   })();
 
@@ -4925,7 +4936,7 @@ function calculate(){
           '<button onclick="document.getElementById(\'daiin-sum-body\').style.display=\'block\';document.getElementById(\'daiin-sum-toggle\').style.display=\'none\';" '+
           'style="font-family:\'Shippori Mincho\',serif;font-size:15px;background:#2e5e3e;border:1px solid #7fbf8f;color:#fff;border-radius:10px;padding:12px 22px;cursor:pointer;letter-spacing:.1em;">'+
           '答え合わせ（今の大運のまとめを見る）</button></div>'+
-        '<div id="daiin-sum-body" style="display:none;margin-top:14px;padding:14px 16px;border:1px solid rgba(201,164,76,.3);border-radius:10px;background:#0f0c0a;">'+body+'</div>';
+        '<div id="daiin-sum-body" style="display:none;margin-top:14px;padding:14px 16px;border:1px solid rgba(201,164,76,.3);border-radius:10px;background:#0f0c0a;">'+body+'<div style="text-align:center;margin-top:12px;"><button type="button" onclick="hideAnswer(\'daiin-sum-body\',\'daiin-sum-toggle\')" style="font-size:12.5px;background:transparent;border:1px solid rgba(127,191,143,.6);color:#9fd3ad;border-radius:8px;padding:6px 16px;cursor:pointer;">▲ 閉じる（答えを隠す）</button></div></div>';
     }catch(e){ return ''; }
   })();
 
@@ -5268,6 +5279,7 @@ function calculate(){
         `).join('')}
       </div>
       <div style="margin-top:14px;font-size:13px;color:var(--washi2);letter-spacing:.08em;line-height:1.8;opacity:.9;"></div>
+      <div style="text-align:center;margin-top:12px;"><button type="button" onclick="hideShinjyoAnswer('${cls}')" style="font-size:12.5px;background:transparent;border:1px solid rgba(127,191,143,.6);color:#9fd3ad;border-radius:8px;padding:6px 16px;cursor:pointer;">▲ 閉じる（答えを隠す）</button></div>
       </div>
     </div>
     ${yojinHtml}

@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610081700';
+var APP_VERSION = '202610082000';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2321,14 +2321,14 @@ function tsuhenThemeBoxHTML(nK, kan, head){
       '</div>';
   }catch(e){ return ''; }
 }
-// 西暦を押すと、その年の行の下に通変星のテーマを開く（もう一度押すと閉じる。開くのは1つだけ）
+// 干支を押すと（2026-10-08：西暦→干支に変更。西暦はトランジット盤）、その年の行の下に通変星のテーマを開く（もう一度押すと閉じる。開くのは1つだけ）
 function toggleNenTsuhen(yr){
   const row=document.getElementById('nents-'+yr); if(!row) return;
   const open=row.style.display!=='none';
   document.querySelectorAll('.nents-row').forEach(function(r){ r.style.display='none'; });
   if(!open) row.style.display='';
 }
-// 大運の「〇歳〜」を押すと、その行の下に主役の通変星のテーマを開く（年運と同じ動き）
+// 大運の干支を押すと（2026-10-08：「〇歳〜」→干支に変更）、その行の下に通変星のテーマを開く（年運と同じ動き）
 function toggleDaiTsuhen(id){
   const row=document.getElementById(id); if(!row) return;
   const open=row.style.display!=='none';
@@ -2498,11 +2498,11 @@ function updateNengun(){
 
     const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
     rows+='<tr style="'+bgSty+'">'+
-      '<td style="'+tdSty+'font-size:16px;cursor:pointer;'+txtSty+yearLineSty+'" onclick="toggleNenTsuhen('+yr+')">'+yr+'年</td>'+
+      '<td style="'+tdSty+'font-size:16px;cursor:pointer;'+txtSty+yearLineSty+'" onclick="openSanjuChart('+yr+(isSanjusatsu?'':isSanjuWeak?',true':',\'plain\'')+')" title="'+yr+'年のトランジット盤を見る">'+yr+'年</td>'+
       '<td style="'+tdSty+'position:relative;padding-left:20px;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
          (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三命殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':
           isSanjuWeak?'<span class="sanju-star-weak" onclick="openSanjuChart('+yr+',true)" title="要素2つ：'+_sanju.join('・')+'（参考。三命殺の成立には3つ以上が必要。押すとトランジットを表示）">☆</span>':'')+
-         '<span class="eto-click '+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'" onclick="openSanjuChart('+yr+',\'plain\')" title="'+yr+'年のトランジット盤を見る">'+
+         '<span class="eto-click '+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'" onclick="toggleNenTsuhen('+yr+')" title="'+yr+'年の通変星のテーマを見る">'+
            '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
            // 地支は「本気の蔵干」の五行で喜忌の色を付ける（2026-08-19 追加）。
            // 支そのものの五行ではなく本気を見るのは、支の中身＝蔵干で判断するため。
@@ -5052,9 +5052,9 @@ function calculate(){
     const shiMark=markOf(shiTsuuhen_d, false);
     const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
-      '<td class="dai-age" onclick="toggleDaiTsuhen(\'dts-'+R.startYear+'-'+SI+'\')" style="cursor:pointer;'+tdSty+'font-size:18px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'font-weight:700;')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;white-space:nowrap;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
+      '<td class="dai-age" style="'+tdSty+'font-size:18px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'font-weight:700;')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;white-space:nowrap;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
       '<td class="dai-ym" style="'+tdSty+'font-size:18px;white-space:nowrap;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜'+((!isSub&&R.tsugikiun)?'<span style="font-size:11px;color:#e0c478;border:1px solid #e0c478;border-radius:4px;padding:1px 5px;margin-left:3px;">接</span>':'')+'</td>'+
-      '<td class="dai-kanshi" style="'+tdSty+'font-size:21px;font-family:Shippori Mincho,serif;'+nowSty+'">'+
+      '<td class="dai-kanshi" onclick="toggleDaiTsuhen(\'dts-'+R.startYear+'-'+SI+'\')" style="cursor:pointer;'+tdSty+'font-size:21px;font-family:Shippori Mincho,serif;'+nowSty+'">'+
         '<span class="dai-ks">'+
           // 細分行は干支が上と同じになるので干は出さない。
           // ただし場所は空けておき、支の位置が上下でそろうようにする。

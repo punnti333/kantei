@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610083600';
+var APP_VERSION = '202610112200';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2154,7 +2154,7 @@ function getSangouGroup(shi){
 function getRelations(dShi, tShi, meishiki, extra){
   const tags=[];
   if(CHUU[dShi]===tShi) tags.push('沖');
-  // 刑：三刑の完成は命式全体で見る。部分刑は日支とのペアのみ（従来仕様）
+  // 刑：三刑の完成は命式全体で見る。それ以外の刑は日支・月支とのペアで見る
   {
     const ms=meishiki||[dShi];
     let kei=null;
@@ -2164,10 +2164,13 @@ function getRelations(dShi, tShi, meishiki, extra){
       if(rest.every(x=>ms.includes(x))) kei='三刑'; // 3支揃って成立
       break;
     }
+    // 2026-10-11 改訂（かぴさんの判断）：2支の刑・自刑・子卯刑は、沖と同じく「日支と月支」だけで見る。
+    // 以前は自刑・子卯刑だけ命式全体（年支・時支も）で見ていて、見る範囲がばらばらだった。
+    // 三刑（3支がそろう）の完成は、これまでどおり命式全体で見る。
+    // meishiki は [年支, 月支, 日支, 時支] の順で渡される。
     if(!kei){
-      if((KEI[dShi]||[]).includes(tShi)) kei='刑';                     // 日支との刑（従来）
-      else if(JIKEI.includes(tShi)&&ms.includes(tShi)) kei='刑';       // 自刑の成立
-      else if((tShi==='子'&&ms.includes('卯'))||(tShi==='卯'&&ms.includes('子'))) kei='刑'; // 子卯刑の成立
+      const mShi = (meishiki && meishiki.length>=3) ? meishiki[1] : null;
+      if([dShi, mShi].some(s=>s && (KEI[s]||[]).includes(tShi))) kei='刑';
     }
     if(kei) tags.push(kei);
   }
@@ -5097,7 +5100,52 @@ function calculate(){
     }catch(e){ return ''; }
   })();
 
-  const daiinRows=allRounds.filter(r=>!r.pre).flatMap(R=>splitRound(R).map((SEG,SI,SEGS)=>{
+  // ===== 彼方の年支の入れ替わりで行を分ける（2026-10-09 追加）=====
+  // 辰戌未丑の彼方の蔵干は、午（丁）の区間の途中で入れ替わる（順旋は始まって6年後、逆旋は2年後）。
+  // 区間の始まりだけで判定すると、後半の数年が本と違う印になるため、
+  // 地支が比劫の区間で、入れ替わりによって〇✕の印が実際に変わるときだけ、細分行を1行足す。
+  // それ以外の人は表が今と変わらない。
+  const kanataShiMarkOf=(zk)=>{
+    try{
+      const GO=['木','火','土','金','水'], nG=KAN_GOGYO[nK], nI=GO.indexOf(nG);
+      const toT=(g)=>['hikyu','shokusho','zai','kansat','insho'][((GO.indexOf(g)-nI)+5)%5];
+      const adj=new Set();
+      const dS=KAN_GOGYO[zokanDayShi(dP.shi,effH)]||SHI_GOGYO[dP.shi];
+      const hK=hUnknown?null:KAN_GOGYO[hP.kan];
+      const hS=hUnknown?null:(KAN_GOGYO[zokanHourShi(hP.shi,effH,shiIdx)]||SHI_GOGYO[hP.shi]);
+      [KAN_GOGYO[mP.kan],dS,...(hUnknown?[]:[hK])].forEach(g=>{if(g&&g!==nG)adj.add(g);});
+      if(!hUnknown&&hS!==nG){if(hK===nG||dS===nG)adj.add(hS);}
+      const at=new Set([...adj].map(toT));
+      const yt=toT(zk?KAN_GOGYO[zk]:SHI_GOGYO[yP.shi]);
+      if(yt==='hikyu') return '✕';
+      if(yt==='shokusho') return at.has('insho')?'〇':'✕';
+      if(yt==='insho')    return at.has('shokusho')?'〇':'✕';
+      if(yt==='kansat')   return at.has('zai')?'●':'✕';
+      if(yt==='zai')      return at.has('kansat')?'●':'✕';
+      return '';
+    }catch(e){ return ''; }
+  };
+  const splitRoundK=(R)=>{
+    const segs=splitRound(R), out=[];
+    segs.forEach((SEG,i)=>{
+      out.push(SEG);
+      const zk=SEG.zokan||null;
+      const g=zk?KAN_GOGYO[zk]:SHI_GOGYO[R.shi];
+      if(g!==KAN_GOGYO[nK]) return;                       // 地支が比劫の区間だけ
+      const len=(segs[i+1]?segs[i+1].age:((R.dispAge!=null?R.dispAge:R.age)+10))-SEG.age;
+      const z0=kanataZokan(SEG.age);
+      for(let k=1;k<len;k++){
+        const zk2=kanataZokan(SEG.age+k);
+        if(zk2!==z0){
+          if(kanataShiMarkOf(zk2)!==kanataShiMarkOf(z0))
+            out.push({age:SEG.age+k,startYear:SEG.startYear+k,zokan:SEG.zokan,seg:1,kanataSplit:true});
+          break;
+        }
+      }
+    });
+    return out;
+  };
+  const daiinRows=allRounds.filter(r=>!r.pre).flatMap(R=>splitRoundK(R).map((SEG,SI,SEGS)=>{
     const r=Object.assign({},R,{dispAge:SEG.age,startYear:SEG.startYear});
     const segZk=SEG.zokan;               // この区間の大運蔵干
     const isSub=(SEG.seg===1);           // 後半の細分行か

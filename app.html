@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610202340';
+var APP_VERSION = '202610210335';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2531,7 +2531,7 @@ function nenGetsuunHTML(d, yr){
       // 主役は大運のまとめと同じ5分類で決める（専旺・扶干・蓋頭＝天干、漏干・載脚＝地支の本気）。
       { const gk=KAN_GOGYO[o.kan], gs=KAN_GOGYO[honki];
         const useKan=(gk===gs)||gen(gs,gk)||ove(gk,gs);
-        if(imi && imi.has(useKan?gk:gs)) _el.push('忌神'); }
+        if(kiimiOf(useKan?gk:gs, d.KIIMI, useKan?gs:gk)==='imi') _el.push('忌神'); }
       if(rels.includes('沖') || CHUU[d.mShi]===o.shi || isTensenChichu(d.dKan,d.dShi,o.kan,o.shi) || isTensenChichu(d.mKan,d.mShi,o.kan,o.shi)) _el.push('冲');
       if(hAnken || kAnken) _el.push('暗剣殺');
       if(kGoou) _el.push('五黄殺');
@@ -2547,8 +2547,8 @@ function nenGetsuunHTML(d, yr){
            chuiWeak?'<span title="'+_el.join('・')+'" style="display:inline-block;margin-top:2px;font-size:10.5px;color:#e8837f;border:1px solid rgba(232,131,127,.6);border-radius:4px;padding:0 4px;opacity:.85;">注意</span>':'')+
           ((chui||chuiWeak)?'<span style="display:block;font-size:9.5px;opacity:.7;font-weight:400;white-space:normal;line-height:1.3;margin-top:1px;">'+_el.join('・')+'</span>':'')+'</td>'+
         '<td style="'+tdS+'"><span style="font-family:Shippori Mincho,serif;font-size:19px;white-space:nowrap;">'+
-          '<span style="'+kiimiColor(KAN_GOGYO[o.kan],d.KIIMI)+'">'+o.kan+'</span>'+
-          '<span style="'+kiimiColor(KAN_GOGYO[honki],d.KIIMI)+'">'+o.shi+'</span></span>'+
+          '<span style="'+kiimiColor(KAN_GOGYO[o.kan],d.KIIMI,KAN_GOGYO[honki])+'">'+o.kan+'</span>'+
+          '<span style="'+kiimiColor(KAN_GOGYO[honki],d.KIIMI,KAN_GOGYO[o.kan])+'">'+o.shi+'</span></span>'+
           (tags.length?'<div style="margin-top:2px;">'+tags.join('')+'</div>':'')+'</td>'+
         '<td style="'+tdS+'">'+tk+'<span style="opacity:.55;">／</span>'+ts+'</td>'+
         '<td style="'+tdS+'color:var(--kin2);white-space:nowrap;">'+palTxt+'</td>'+
@@ -2775,11 +2775,11 @@ function updateNengun(){
          (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三命殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':
           isSanjuWeak?'<span class="sanju-star-weak" onclick="openSanjuChart('+yr+',true)" title="要素2つ：'+_sanju.join('・')+'（参考。三命殺の成立には3つ以上が必要。押すとトランジットを表示）">☆</span>':'')+
          '<span class="eto-click '+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'" onclick="toggleNenTsuhen('+yr+')" title="'+yr+'年の通変星のテーマを見る">'+
-           '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI)+'">'+ks.kan+'</span>'+
+           '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI,KAN_GOGYO[(ZOKAN[ks.shi]||[])[0]])+'">'+ks.kan+'</span>'+
            // 地支は「本気の蔵干」の五行で喜忌の色を付ける（2026-08-19 追加）。
            // 支そのものの五行ではなく本気を見るのは、支の中身＝蔵干で判断するため。
            // 時刻による切替は使わない（年運に生まれ時刻は関係しないため常に本気）。
-           '<span style="'+kiimiColor(KAN_GOGYO[(ZOKAN[ks.shi]||[])[0]],d.KIIMI)+'">'+ks.shi+'</span>'+
+           '<span style="'+kiimiColor(KAN_GOGYO[(ZOKAN[ks.shi]||[])[0]],d.KIIMI,KAN_GOGYO[ks.kan])+'">'+ks.shi+'</span>'+
          '</span>'+
          tags+'</td>'+
       '<td style="'+tdSty+'font-size:15px;color:var(--kin2);'+txtSty+'"><span class="nengun-kaza"><span>'+palace+'</span>'+kaiMark+'</span></td>'+
@@ -3199,12 +3199,14 @@ function judgeType(nK, total, midType, yP, mP, dP, hP, hUnknown, zkAdopt){
 // 大運・年運の色分けに使う。when 付きの項目は、その命式で成立するものだけ拾う。
 // 「金・水」のように連記されたものは、それぞれ個別に拾う。
 function kishinImijinGogyo(res){
-  const ki = new Set(), imi = new Set();
-  if(!res) return { kishin: ki, imijin: imi };
+  const ki = new Set(), imi = new Set(), cond = {};
+  if(!res) return { kishin: ki, imijin: imi, cond };
   const ctx = res.ctx;
   const pick = (list, set) => {
     for(const e of list){
       if(typeof e.when === 'function' && !e.when(ctx)) continue;
+      // 2026-10-21 追加：needs 付きの項目は「条件つき」。同じ干支に needs の五行があれば喜神、なければ忌神。
+      if(e.needs){ for(const g of e.gogyo.split('・')) cond[g]=e.needs; continue; }
       for(const g of e.gogyo.split('・')) set.add(g);
     }
   };
@@ -3212,14 +3214,23 @@ function kishinImijinGogyo(res){
   pick(res.type.imijin, imi);
   // 両方に入った五行は喜神を優先する
   for(const g of ki) imi.delete(g);
-  return { kishin: ki, imijin: imi };
+  for(const g in cond){ ki.delete(g); imi.delete(g); }
+  return { kishin: ki, imijin: imi, cond };
 }
 
 // 五行に応じた色（喜神=青／忌神=赤／どちらでもない=そのまま）
-function kiimiColor(gogyo, sets){
+// 2026-10-21 改訂：partner（同じ干支のもう一文字の五行）を受け取り、条件つきの五行（cond）も判定する。
+function kiimiOf(gogyo, sets, partner){
   if(!sets) return '';
-  if(sets.kishin.has(gogyo)) return 'color:#7fb3e8;';
-  if(sets.imijin.has(gogyo)) return 'color:#e8837f;';
+  if(sets.cond && sets.cond[gogyo]) return (partner===sets.cond[gogyo]) ? 'ki' : 'imi';
+  if(sets.kishin.has(gogyo)) return 'ki';
+  if(sets.imijin.has(gogyo)) return 'imi';
+  return '';
+}
+function kiimiColor(gogyo, sets, partner){
+  const r=kiimiOf(gogyo, sets, partner);
+  if(r==='ki') return 'color:#7fb3e8;';
+  if(r==='imi') return 'color:#e8837f;';
   return '';
 }
 
@@ -3235,7 +3246,7 @@ function typeHosoku(res){
   const taikaG = ctx.taikaTop ? ctx.tsu[ctx.taikaTop] : null;
   const strongSide = (ctx.band==='強' || ctx.band==='中強');
   for(const g of CYCLE){
-    if(ks.kishin.has(g) || ks.imijin.has(g)) continue;
+    if(ks.kishin.has(g) || ks.imijin.has(g) || (ks.cond && ks.cond[g])) continue;
     const hoshi=rev[g];
     if(g===taikaG){ out[g]={ki:'✕',why:'大過している五行',hoshi}; continue; }
     const good = strongSide ? ['食傷','財星','官星'].includes(hoshi) : ['印星','比劫'].includes(hoshi);
@@ -3262,7 +3273,7 @@ function renderType(res){
 
   const rows = list => list.filter(show).map((k,i) => `
     <div class="k-row">
-      <div class="k-head"><b>${i+1}、${k.gogyo}（${k.hoshi}）</b> ${mark(k.gogyo)}</div>
+      <div class="k-head"><b>${i+1}、${k.gogyo}（${k.hoshi}）</b> ${mark(k.gogyo)}${k.needs?'<div style="font-size:12.5px;color:#e0c478;margin-top:2px;">※同じ干支に'+k.needs+'があるときは喜神、ないときは忌神（どちらにもなる五行）</div>':''}</div>
       <div class="k-body">${k.text}</div>
     </div>`).join('') || '<div class="k-none">該当なし</div>';
 
@@ -3812,7 +3823,9 @@ const TYPES = [
       { gogyo:'火', hoshi:'印星',
         text:'があれば木（官星）を洩らして土（比劫）を助け一挙両得。'
            + '<br>※それでなくても日干を激しく攻撃してくる官星が大過してますので、日干を助ける土と火を必要とします。火は木を漏らして、日干を助けて一石二鳥。' },
-      { gogyo:'金', hoshi:'食傷',
+      // 2026-10-21 追加（かぴさんの判断）：傾土の金は「どちらにもなる五行」。
+      // 同じ干支（大運は区切りの期間）に火があれば喜神、なければ忌神とする（沈金の木と同じ考え方）。
+      { gogyo:'金', hoshi:'食傷', needs:'火',
         text:'があれば木を制して好命。'
            + '<br>※旺木を伐採するには確かに金の食傷は良いが、これだけでは日干が益々漏気されてしまうので、その前に必ず印星の火を用いてからです。この順番を間違えると大失敗します。印星が一番良い、食傷は二番目。' }
     ],
@@ -3929,7 +3942,9 @@ const TYPES = [
       { gogyo:'土', hoshi:'印星',
         text:'があれば水（食傷）を制して金は沈まず。'
            + '<br>※水が多くて金が沈んでいますので、土で水を制して金を強めれば一石二鳥。' },
-      { gogyo:'木', hoshi:'財星',
+      // 2026-10-21 追加（かぴさんの判断）：沈金の木は「どちらにもなる五行」。
+      // 同じ干支（大運は区切りの期間）に土があれば喜神、なければ忌神とする（本・第11章と同じ）。
+      { gogyo:'木', hoshi:'財星', needs:'土',
         text:'があれば旺水を洩らして平均化し好命。'
            + '<br>※旺ずるものは剋すべからず漏らすべしの格言から、旺水を漏らすには木が一番楽ではありますが、この場合は沈金で日干が漏気させられて弱ってるので、日干に負担のかかる木を使うのは要注意です。もしも大運や行運で土が巡って来ていれば少しは救われますが、まずは「一」の印星を用いる事。' }
     ],
@@ -4965,7 +4980,8 @@ function calculate(){
     const ki=[], imi=[];
     CYCLE.forEach(g=>{
       let k, why;
-      if(KIIMI.kishin.has(g)){ k='○'; why='命式タイプ・'+tname; }
+      if(KIIMI.cond && KIIMI.cond[g]){ k='○'; why='命式タイプ・'+tname+'（同じ干支に'+KIIMI.cond[g]+'があるとき。ないときは忌神）'; }
+      else if(KIIMI.kishin.has(g)){ k='○'; why='命式タイプ・'+tname; }
       else if(KIIMI.imijin.has(g)){ k='✕'; why='命式タイプ・'+tname; }
       else if(HOSOKU[g]){ k=HOSOKU[g].ki; why=HOSOKU[g].why; }
       else return;
@@ -5039,11 +5055,12 @@ function calculate(){
       // 扶抑だけで決めると、赤青の表示と逆になる命式があったため。どちらにも入らない五行は「中立」。
       // 2026-10-01 改訂：本に書かれていない五行は、補足（大過／扶抑の目安）で喜神・忌神を決める。
       // 以前は「中立」扱いで総合も中立になっていたが、補足の判定を使う方が実態に合う。
-      const kiOf=(k)=>{const g=KAN_GOGYO[k]; if(KIIMI.kishin.has(g))return '○'; if(KIIMI.imijin.has(g))return '✕'; return HOSOKU[g]?HOSOKU[g].ki:'－';};
+      // 2026-10-21 改訂：p＝同じ干支のもう一文字。条件つきの五行（沈金の木など）は p の五行で決める。
+      const kiOf=(k,p)=>{const g=KAN_GOGYO[k]; const r=kiimiOf(g,KIIMI,p?KAN_GOGYO[p]:null); if(r==='ki')return '○'; if(r==='imi')return '✕'; return HOSOKU[g]?HOSOKU[g].ki:'－';};
       const isHosokuKi=(k)=>{const g=KAN_GOGYO[k]; return !KIIMI.kishin.has(g)&&!KIIMI.imijin.has(g)&&!!HOSOKU[g];};
       const kiTxt=(m)=>m==='○'?'喜神':m==='✕'?'忌神':'どちらでもない';
-      const mainT=nameT(mainKan), mainKi=kiOf(mainKan);
-      const subT=nameT(subKan), subKi=kiOf(subKan);
+      const mainT=nameT(mainKan), mainKi=kiOf(mainKan,subKan);
+      const subT=nameT(subKan), subKi=kiOf(subKan,mainKan);
       // 地支の関係
       const ms=[yP.shi,mP.shi,dP.shi,...(hUnknown?[]:[hP.shi])];
       const rels=getRelations(dP.shi,R.shi,ms);
@@ -5149,6 +5166,7 @@ function calculate(){
       const _ordf=(a)=>_ord.filter(g=>a.includes(g)).join('・');
       const shinLine='<div style="font-size:13px;margin:-2px 0 8px;padding:5px 10px;border-radius:6px;background:rgba(236,227,208,.06);" title="（　）は本に書かれていない五行の補足">'+
         '<b>'+nK+'</b>：<b>'+_lv+'</b>　喜神 <b style="color:#7fb3e8;">'+_fmt(KIIMI.kishin)+'</b>'+(_hk.length?'<span style="color:#7fb3e8;opacity:.75;">（'+_ordf(_hk)+'）</span>':'')+
+        Object.keys(KIIMI.cond||{}).map(g=>'<span style="color:#e0c478;">　'+g+'＝'+KIIMI.cond[g]+'と一緒なら喜神・なければ忌神</span>').join('')+
         '　忌神 <b style="color:#e8837f;">'+_fmt(KIIMI.imijin)+'</b>'+(_hi.length?'<span style="color:#e8837f;opacity:.75;">（'+_ordf(_hi)+'）</span>':'')+
         '</div>';
       // 次の切り替わり（2026-10-01 追加）：今が前半の区間なら後半の区間、そうでなければ次の大運を1行で示す。
@@ -5170,7 +5188,7 @@ function calculate(){
           if(gk2===gs2){ty2='専旺';uk2=true;} else if(gen(gs2,gk2)){ty2='扶干';uk2=true;} else if(ove(gk2,gs2)){ty2='蓋頭';uk2=true;}
           else if(gen(gk2,gs2)){ty2='漏干';uk2=false;} else {ty2='載脚';uk2=false;}
           const mk=uk2?R2.kan:k2, sk=uk2?k2:R2.kan;
-          const mKi=kiOf(mk), sKi=kiOf(sk), cnt=(ty2==='扶干'||ty2==='漏干');
+          const mKi=kiOf(mk,sk), sKi=kiOf(sk,mk), cnt=(ty2==='扶干'||ty2==='漏干');
           const b2 = mKi==='○' ? ((ty2==='専旺'||!cnt||sKi==='○')?'吉':'吉寄り') : mKi==='✕' ? ((ty2==='専旺'||!cnt||sKi==='✕')?'凶':'凶寄り') : '中立';
           const kc = mKi==='○'?'#7fb3e8':mKi==='✕'?'#e8837f':'#b0a898';
           return '<div style="margin-top:8px;font-size:13px;padding:6px 10px;border:1px dashed rgba(236,227,208,.3);border-radius:6px;">'+
@@ -5378,11 +5396,11 @@ function calculate(){
           '<span style="color:#e0c478;font-size:13px;margin-right:2px;'+(isSub?'visibility:hidden;':'')+'">'+kanMark+'</span>'+
           // 天戦地冲の下線は、干と支の2文字だけに絞る
           '<span class="'+(isTensenChichu(dP.kan,dP.shi,r.kan,r.shi)?'tensen':(isTensenChichu(mP.kan,mP.shi,r.kan,r.shi)?'tensen-m':''))+'">'+
-            '<span style="'+(isSub?'visibility:hidden;':'')+kiimiColor(KAN_GOGYO[r.kan],KIIMI)+'">'+r.kan+'</span>'+
+            '<span style="'+(isSub?'visibility:hidden;':'')+kiimiColor(KAN_GOGYO[r.kan],KIIMI,KAN_GOGYO[segZk||(ZOKAN[r.shi]||[])[0]])+'">'+r.kan+'</span>'+
             '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
             '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
           '</span>'+
-          (segZk?'<span class="dai-zk" style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI)||'color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,.5);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
+          (segZk?'<span class="dai-zk" style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI,KAN_GOGYO[r.kan])||'color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,.5);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
         '</span>'+
         // 2026-09-30 改訂：後半の区間の行にも、地支そのものの関係（沖・刑・合・三合・月冲・空亡）を薄く表示する。
         // 地支は10年間同じなので、これらの関係は区間が変わっても続いている。

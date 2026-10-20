@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610201515';
+var APP_VERSION = '202610201530';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2515,12 +2515,16 @@ function nenGetsuunHTML(d, yr){
         (aMark?'<span class="nengun-kaza-mark red" title="'+(hAnken&&kAnken?'本命・傾斜暗剣殺':kAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+aMark+'</span>':'')+
         (kGoou?'<span class="nengun-kaza-mark blue" title="傾斜五黄殺">●</span>':'');
       // 「注意」の印（2026-10-20 改訂、かぴさんの判断）：年運の三命殺（★☆）と同じ考え方で、次の7項目を数える。
-      //   四柱推命：忌神（干支の天干・地支とも忌神）／冲（日支の沖・月冲・天戦地冲）／空亡（2026-10-20 追加）
+      //   四柱推命：忌神（干支の主役が忌神）／冲（日支の沖・月冲・天戦地冲）／空亡（2026-10-20 追加）
       //   九星気学：暗剣殺（本命か傾斜）／五黄殺（傾斜五黄殺）／本命坎宮／本命艮宮／本命中宮
       // 3つ以上＝「注意」（赤）、2つ＝薄い印。120人×10年の試算で、3つ以上は約3.5%（2〜3年に1回）、2つ以上は約21.8%（1年に約2.6か月）。
       const imi = d.KIIMI && d.KIIMI.imijin;
       const _el=[];
-      if(imi && imi.has(KAN_GOGYO[o.kan]) && imi.has(KAN_GOGYO[honki])) _el.push('忌神');
+      // 忌神：月の干支の「主役」が忌神なら1つ（2026-10-20 改訂、かぴさんの判断）。
+      // 主役は大運のまとめと同じ5分類で決める（専旺・扶干・蓋頭＝天干、漏干・載脚＝地支の本気）。
+      { const gk=KAN_GOGYO[o.kan], gs=KAN_GOGYO[honki];
+        const useKan=(gk===gs)||gen(gs,gk)||ove(gk,gs);
+        if(imi && imi.has(useKan?gk:gs)) _el.push('忌神'); }
       if(rels.includes('沖') || CHUU[d.mShi]===o.shi || isTensenChichu(d.dKan,d.dShi,o.kan,o.shi) || isTensenChichu(d.mKan,d.mShi,o.kan,o.shi)) _el.push('冲');
       if(hAnken || kAnken) _el.push('暗剣殺');
       if(kGoou) _el.push('五黄殺');
@@ -2543,7 +2547,7 @@ function nenGetsuunHTML(d, yr){
         '<td style="'+tdS+'color:var(--kin2);white-space:nowrap;">'+palTxt+'</td>'+
       '</tr>';
     });
-    h+='</table><div style="font-size:11px;opacity:.6;margin-top:4px;line-height:1.6;">※月運は、年の中の「いつ動くか・いつ気をつけるか」を見る目安です。吉凶の土台は大運と年運で読みます。<span style="color:#fff;background:#c0392b;border-radius:3px;padding:0 3px;">注意</span>は、忌神（干支の天干・地支とも忌神）・冲（沖・月冲・天戦地冲）・空亡・暗剣殺・五黄殺・坎宮・艮宮・中宮のうち3つ以上が重なる月。枠だけの<span style="color:#e8837f;border:1px solid rgba(232,131,127,.6);border-radius:3px;padding:0 3px;">注意</span>は2つ重なる月です。回座の印は年運と同じです（<span style="color:#f0857a;">○</span>本命暗剣殺、<span style="color:#f0857a;">●</span>傾斜暗剣殺、<span style="color:#f0857a;">◎</span>両方、<span style="color:#7ab4d8;">●</span>傾斜五黄殺）。</div>';
+    h+='</table><div style="font-size:11px;opacity:.6;margin-top:4px;line-height:1.6;">※月運は、年の中の「いつ動くか・いつ気をつけるか」を見る目安です。吉凶の土台は大運と年運で読みます。<span style="color:#fff;background:#c0392b;border-radius:3px;padding:0 3px;">注意</span>は、忌神（干支の主役が忌神）・冲（沖・月冲・天戦地冲）・空亡・暗剣殺・五黄殺・坎宮・艮宮・中宮のうち3つ以上が重なる月。枠だけの<span style="color:#e8837f;border:1px solid rgba(232,131,127,.6);border-radius:3px;padding:0 3px;">注意</span>は2つ重なる月です。回座の印は年運と同じです（<span style="color:#f0857a;">○</span>本命暗剣殺、<span style="color:#f0857a;">●</span>傾斜暗剣殺、<span style="color:#f0857a;">◎</span>両方、<span style="color:#7ab4d8;">●</span>傾斜五黄殺）。</div>';
     return h;
   }catch(e){ return ''; }
 }

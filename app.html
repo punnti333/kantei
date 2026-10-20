@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610201400';
+var APP_VERSION = '202610201410';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2505,8 +2505,15 @@ function nenGetsuunHTML(d, yr){
       // 九星：その月の月盤での本命星の回座
       const mc=getsumeiStar(o.yy,o.mm,15);
       const pal=palaceOf2(mc,honmei), goou=palaceOf2(mc,5);
-      const anken = goou!=='中宮' && pal===OPP_PAL_K[goou];
-      const palTxt = pal + (anken?'<span style="color:#f0857a;margin-left:2px;" title="本命暗剣殺">○</span>':'');
+      // 年運の回座と同じ印にそろえる（2026-10-20）：◎＝本命・傾斜とも暗剣殺、●＝傾斜暗剣殺、○＝本命暗剣殺、青い●＝傾斜五黄殺
+      const keisha=keishaPalace(d.y,d.bm,d.bd,SEX==='male');
+      const hAnken = goou!=='中宮' && pal===OPP_PAL_K[goou];
+      const kAnken = goou!=='中宮' && keisha===OPP_PAL_K[goou];
+      const kGoou  = goou!=='中宮' && keisha===goou && honmei!==5;
+      const aMark  = hAnken&&kAnken?'◎':kAnken?'●':hAnken?'○':'';
+      const palTxt = pal +
+        (aMark?'<span class="nengun-kaza-mark red" title="'+(hAnken&&kAnken?'本命・傾斜暗剣殺':kAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+aMark+'</span>':'')+
+        (kGoou?'<span class="nengun-kaza-mark blue" title="傾斜五黄殺">●</span>':'');
       const bg = isNow ? 'background:rgba(201,164,76,.15);font-weight:700;' : '';
       h+='<tr style="'+bg+'">'+
         '<td style="'+tdS+'white-space:nowrap;">'+o.mm+'月<span style="display:block;font-size:10.5px;opacity:.65;font-weight:400;">'+stTxt+(isNow?' 今':'')+'</span></td>'+
@@ -2518,7 +2525,7 @@ function nenGetsuunHTML(d, yr){
         '<td style="'+tdS+'color:var(--kin2);white-space:nowrap;">'+palTxt+'</td>'+
       '</tr>';
     });
-    h+='</table><div style="font-size:11px;opacity:.6;margin-top:4px;line-height:1.6;">※月運は、年の中の「いつ動くか・いつ気をつけるか」を見る目安です。吉凶の土台は大運と年運で読みます。回座の<span style="color:#f0857a;">○</span>は本命暗剣殺。</div>';
+    h+='</table><div style="font-size:11px;opacity:.6;margin-top:4px;line-height:1.6;">※月運は、年の中の「いつ動くか・いつ気をつけるか」を見る目安です。吉凶の土台は大運と年運で読みます。回座の印は年運と同じです（<span style="color:#f0857a;">○</span>本命暗剣殺、<span style="color:#f0857a;">●</span>傾斜暗剣殺、<span style="color:#f0857a;">◎</span>両方、<span style="color:#7ab4d8;">●</span>傾斜五黄殺）。</div>';
     return h;
   }catch(e){ return ''; }
 }

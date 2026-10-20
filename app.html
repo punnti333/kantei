@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610201410';
+var APP_VERSION = '202610201450';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -2514,9 +2514,19 @@ function nenGetsuunHTML(d, yr){
       const palTxt = pal +
         (aMark?'<span class="nengun-kaza-mark red" title="'+(hAnken&&kAnken?'本命・傾斜暗剣殺':kAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+aMark+'</span>':'')+
         (kGoou?'<span class="nengun-kaza-mark blue" title="傾斜五黄殺">●</span>':'');
-      const bg = isNow ? 'background:rgba(201,164,76,.15);font-weight:700;' : '';
+      // 「注意」の印（2026-10-20 追加）：干支が天干・地支とも忌神（赤い字）で、
+      // 沖・月冲・天戦地冲・三刑・暗剣殺（本命／傾斜）・傾斜五黄殺のどれかが重なる月。
+      const imi = d.KIIMI && d.KIIMI.imijin;
+      const bothImi = !!(imi && imi.has(KAN_GOGYO[o.kan]) && imi.has(KAN_GOGYO[honki]));
+      const hard = rels.includes('沖') || rels.includes('三刑') ||
+                   (CHUU[d.mShi]===o.shi) ||
+                   isTensenChichu(d.dKan,d.dShi,o.kan,o.shi) || isTensenChichu(d.mKan,d.mShi,o.kan,o.shi) ||
+                   hAnken || kAnken || kGoou;
+      const chui = bothImi && hard;
+      const bg = isNow ? 'background:rgba(201,164,76,.15);font-weight:700;' : (chui ? 'background:rgba(232,131,127,.08);' : '');
       h+='<tr style="'+bg+'">'+
-        '<td style="'+tdS+'white-space:nowrap;">'+o.mm+'月<span style="display:block;font-size:10.5px;opacity:.65;font-weight:400;">'+stTxt+(isNow?' 今':'')+'</span></td>'+
+        '<td style="'+tdS+'white-space:nowrap;">'+o.mm+'月<span style="display:block;font-size:10.5px;opacity:.65;font-weight:400;">'+stTxt+(isNow?' 今':'')+'</span>'+
+          (chui?'<span style="display:inline-block;margin-top:2px;font-size:10.5px;font-weight:700;color:#fff;background:#c0392b;border-radius:4px;padding:0 5px;">注意</span>':'')+'</td>'+
         '<td style="'+tdS+'"><span style="font-family:Shippori Mincho,serif;font-size:19px;white-space:nowrap;">'+
           '<span style="'+kiimiColor(KAN_GOGYO[o.kan],d.KIIMI)+'">'+o.kan+'</span>'+
           '<span style="'+kiimiColor(KAN_GOGYO[honki],d.KIIMI)+'">'+o.shi+'</span></span>'+
@@ -2525,7 +2535,7 @@ function nenGetsuunHTML(d, yr){
         '<td style="'+tdS+'color:var(--kin2);white-space:nowrap;">'+palTxt+'</td>'+
       '</tr>';
     });
-    h+='</table><div style="font-size:11px;opacity:.6;margin-top:4px;line-height:1.6;">※月運は、年の中の「いつ動くか・いつ気をつけるか」を見る目安です。吉凶の土台は大運と年運で読みます。回座の印は年運と同じです（<span style="color:#f0857a;">○</span>本命暗剣殺、<span style="color:#f0857a;">●</span>傾斜暗剣殺、<span style="color:#f0857a;">◎</span>両方、<span style="color:#7ab4d8;">●</span>傾斜五黄殺）。</div>';
+    h+='</table><div style="font-size:11px;opacity:.6;margin-top:4px;line-height:1.6;">※月運は、年の中の「いつ動くか・いつ気をつけるか」を見る目安です。吉凶の土台は大運と年運で読みます。<span style="color:#fff;background:#c0392b;border-radius:3px;padding:0 3px;">注意</span>は、干支が天干・地支とも忌神（赤い字）で、沖・月冲・天戦地冲・三刑・暗剣殺・傾斜五黄殺のどれかが重なる月です。回座の印は年運と同じです（<span style="color:#f0857a;">○</span>本命暗剣殺、<span style="color:#f0857a;">●</span>傾斜暗剣殺、<span style="color:#f0857a;">◎</span>両方、<span style="color:#7ab4d8;">●</span>傾斜五黄殺）。</div>';
     return h;
   }catch(e){ return ''; }
 }

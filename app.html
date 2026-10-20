@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610201530';
+var APP_VERSION = '202610202340';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1362,14 +1362,21 @@ function simRinsetsuKango(nK, yP, mP, dP, hP, hUnknown, zkDay, zkHour){
   return { touched, items, before:sum('before'), after:sum('after') };
 }
 
+// 得地（通根）専用の蔵干表（2026-10-20 小山内流にそろえる）
+// 寅・巳・申・亥は小山内流どおり本気のみ（旧表の二番目＝丙・庚・壬・甲は根に数えない）。
+// 辰・戌・未・丑は本気＋余気（余気は0.4）。子・卯・午・酉は余気も本気と同じ五行なので本気のみ。
+// 本『かぴ流 四柱推命』第6章・付録「強弱の計算用紙」の表と同じ。
+// 根の点：本気1、余気0.4（辰戌未丑の余気4：本気6の割合に合わせる）
+const TOKUCHI_W=[1,0.4];
+const TOKUCHI_ZK={子:['癸'],丑:['己','癸'],寅:['甲'],卯:['乙'],辰:['戊','乙'],巳:['丙'],午:['丁'],未:['己','丁'],申:['庚'],酉:['辛'],戌:['戊','辛'],亥:['壬']};
 function getTokuchi(nK,shis,toucans){
   const nG=KAN_GOGYO[nK];let score=0,det=[];
   const toucanSet=new Set(toucans||[]);
   for(const s of shis){
     let w=0;
-    (ZOKAN[s]||[]).forEach((zk,idx)=>{
+    (TOKUCHI_ZK[s]||[]).forEach((zk,idx)=>{
       if(KAN_GOGYO[zk]===nG){
-        let wt=ZOKAN_W[idx]||0.3;
+        let wt=TOKUCHI_W[idx]||0;
         if(toucanSet.has(zk)) wt*=2; // 透干：同じ蔵干が天干に出ていれば通根力倍増
         w+=wt;
       }

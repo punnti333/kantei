@@ -517,6 +517,13 @@ table.kgsim th{white-space:nowrap;}
 /* ===== 空亡 ここまで ===== */
 
 
+
+/* ===== 本版：練習モード（答えを隠す）2026-10-24 ===== */
+#result.practice .ans:not(.shown){color:transparent!important;text-shadow:none!important;background:rgba(127,191,143,.18);border-radius:4px;cursor:pointer;}
+#result.practice .ans:not(.shown) *{color:transparent!important;border-color:transparent!important;background:transparent!important;}
+#result.practice .p-ts.ans:not(.shown){opacity:1!important;}
+#practice-note{display:none;margin:0 0 12px;padding:8px 12px;border:1px dashed #7fbf8f;border-radius:8px;font-size:12.5px;color:#9fd3ad;line-height:1.7;}
+#result.practice #practice-note{display:block;}
 </style>
 </head>
 <body>
@@ -528,6 +535,13 @@ table.kgsim th{white-space:nowrap;}
   </header>
   <div class="card">
     <div class="form-title">生年月日時を入力</div>
+    <div id="book-examples" style="margin:-4px 0 16px;padding:10px 12px;border:1px dashed rgba(201,164,76,.45);border-radius:10px;">
+      <div style="font-size:12.5px;color:var(--kin2);letter-spacing:.08em;margin-bottom:8px;">本の例を入れて答え合わせ</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button type="button" onclick="loadBookExample('hanako')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(201,164,76,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">花子さん<span style="display:block;font-size:11.5px;opacity:.75;">1985年6月1日 10時・女性</span></button>
+        <button type="button" onclick="loadBookExample('b')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(201,164,76,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">Bさん<span style="display:block;font-size:11.5px;opacity:.75;">1987年6月26日 12時・男性</span></button>
+      </div>
+    </div>
     <div class="fields">
       <div class="field">
         <label>生年（西暦）</label>
@@ -1670,6 +1684,22 @@ function placeNameOf(v){
   if(typeof v==='string'&&PLACE_LON[v]!==undefined) return v;
   return NO_PLACE;
 }
+/* 本版：本の例の人を入れる（2026-10-24 追加）。時刻は標準時（補正なし）で、本と同じ答えになるようにする */
+const BOOK_EXAMPLES={
+  hanako:{y:1985,m:6,d:1,time:'10:00',sex:'female',name:'花子さん'},
+  b:{y:1987,m:6,d:26,time:'12:00',sex:'male',name:'Bさん'}
+};
+function loadBookExample(k){
+  const e=BOOK_EXAMPLES[k]; if(!e) return;
+  document.getElementById('inp-y').value=e.y;
+  document.getElementById('inp-m').value=e.m;
+  document.getElementById('inp-d').value=e.d;
+  document.getElementById('inp-time').value=e.time;
+  document.getElementById('inp-pref').value=NO_PLACE;
+  const nm=document.getElementById('inp-name'); if(nm) nm.value=e.name;
+  setHUnknown(false); setTimeMode('jst'); setSex(e.sex);
+  calculate();
+}
 function usePerson(i){
   const p=loadPeople()[i]; if(!p) return;
   document.getElementById('inp-y').value=p.y;
@@ -2008,6 +2038,106 @@ function openYearBannenreki(Y){
 // 年運の欄の干支と西暦は、指定の年を右から6番目に置いて自動で入れる（過去5年・未来6年）。
 // ほかの欄は空欄のまま。本の目的どおり、手で埋めて使う。
 const KANTEI_YOSHI_HTML="<!doctype html>\n<html lang=\"ja\"><head><meta charset=\"utf-8\"><title>鑑定シート<\/title>\n<style>\n@page{size:A4;margin:0}\n*{box-sizing:border-box}\nbody{margin:0;font-family:\"Noto Sans CJK JP\",\"Noto Sans JP\",\"Hiragino Kaku Gothic ProN\",\"Yu Gothic\",\"Meiryo\",\"IPAGothic\",sans-serif;color:#000}\n.page{position:relative;width:210mm;height:297mm;padding:19mm 0 0 15.5mm}\ntable{border-collapse:collapse;table-layout:fixed;width:179mm}\ntd{border:0.3mm solid #000;padding:0;vertical-align:middle;text-align:center;overflow:hidden}\n.blk{border:0.8mm solid #000}\n.thk-l{border-left:0.8mm solid #000}\n.thk-b{border-bottom:0.8mm solid #000}\n.dash-b{border-bottom:0.3mm dashed #000}\n.lab{font-size:9.5pt}\n.sm{font-size:7.5pt}\n.v{line-height:1.45}\n.big{font-size:13pt;font-weight:700}\n.gap{height:2.7mm}\n/* 上の表 */\n.kubo div{height:5.95mm;line-height:5.95mm;font-size:8pt;border-bottom:0.3mm dashed #000}\n.kubo div:last-child{border-bottom:none}\n.birth{text-align:left;font-size:10pt;font-weight:700}\n.birth .r{display:flex;height:8.9mm;align-items:center;padding:0 2mm}\n.birth .r span{display:inline-block}\n.paren{display:flex;justify-content:space-between;padding:0 1.5mm 1.5mm;font-size:10pt}\n.yojin{height:100%;display:flex;flex-direction:column;font-size:8pt}\n.yojin .t{height:6mm;line-height:6mm;border-bottom:0.3mm dashed #000;margin:0 1mm}\n.yojin .g{text-align:left;padding:1mm 0 0 1.6mm;line-height:1.35}\n.top4 td.k{vertical-align:top;font-size:8pt;padding-top:0.6mm}\n.right{vertical-align:top}\n.right .box{border-bottom:0.3mm solid #000;display:flex;align-items:center;justify-content:center}\n.right .box:last-child{border-bottom:none}\n/* 大運・年運 */\n.un td{font-size:10pt}\n.un .shi{font-size:12.5pt;font-weight:700}\n.t3{border-left:0.8mm solid #000}\n.title{font-size:13pt;font-weight:700;line-height:1.35}\n.kanrow td{border-bottom:0.3mm dashed #000}\n.kanlab{font-size:8pt}\n.cho{font-size:7.5pt;letter-spacing:0.5pt}\n.nob td{border-bottom:none}\n.nob+tr td{border-top:none}\n.year td{font-size:8pt}\n.year td.yr{text-align:right;padding-right:1.2mm}\n.season{font-size:10pt}\n/* 下の欄 */\n.astro{position:relative;height:45.9mm;width:179.8mm}\n.astro .row{position:absolute;left:5.5mm;font-size:11pt;font-weight:700}\n.astro .line{position:absolute;left:19.5mm;width:97mm;border-bottom:0.3mm dashed #000}\n.astro svg{position:absolute;left:125mm;top:0;width:50mm;height:45.9mm}\n@media print{.noprint{display:none}}\n.noprint{position:fixed;top:8px;right:8px;z-index:9}\n.noprint button{font-size:15px;padding:8px 18px}\n<\/style><\/head>\n<body><div class=\"noprint\"><button onclick=\"print()\">印刷する<\/button><\/div><div class=\"page\">\n\n<!-- 上の表 -->\n<table class=\"blk\">\n<colgroup><col style=\"width:14.4mm\"><col style=\"width:14.6mm\"><col style=\"width:14.4mm\"><col style=\"width:14.4mm\"><col style=\"width:14.6mm\"><col style=\"width:18.35mm\"><col style=\"width:18.35mm\"><col style=\"width:18.35mm\"><col style=\"width:18.35mm\"><col style=\"width:9mm\"><col style=\"width:24.2mm\"><\/colgroup>\n<tr style=\"height:18mm\">\n <td class=\"lab\" style=\"font-size:11pt\">空亡<\/td>\n <td class=\"lab v sm\" style=\"font-size:8.5pt\">節入日<br>より<\/td>\n <td class=\"lab\" style=\"font-size:8.5pt\">節入日<\/td>\n <td class=\"lab\" style=\"font-size:11pt\">立運<\/td>\n <td class=\"lab\" style=\"font-size:11pt\">九星<\/td>\n <td colspan=\"4\" class=\"thk-l thk-b birth\">\n  <div class=\"r dash-b\" style=\"margin:0 1.2mm;padding:0 0.8mm\"><span style=\"width:26mm\">西暦<\/span><span style=\"width:16mm\">年<\/span><span style=\"width:17mm\">月<\/span><span>日<\/span><\/div>\n  <div class=\"r\"><span style=\"width:33mm\">出生時間<\/span><span style=\"width:16mm\">時<\/span><span>分<\/span><\/div>\n <\/td>\n <td class=\"thk-l\"><\/td>\n <td rowspan=\"4\" class=\"right thk-l\" style=\"padding:0\">\n  <div class=\"box\" style=\"height:59.6mm;align-items:flex-end;padding-bottom:3mm\"><span class=\"big\">様<\/span><\/div>\n  <div class=\"box\" style=\"height:10.2mm\"><span style=\"font-size:11pt;font-weight:700\">男・女<\/span><\/div>\n  <div class=\"box\" style=\"height:6.8mm\"><span style=\"font-size:9pt\">鑑定日<\/span><\/div>\n  <div style=\"height:20.4mm;position:relative\">\n   <div style=\"position:absolute;right:3mm;top:2mm;font-size:9pt\">年<\/div>\n   <div style=\"position:absolute;left:1mm;right:1mm;top:9.8mm;border-bottom:0.3mm dashed #000\"><\/div>\n   <div style=\"position:absolute;left:0;right:0;top:12.5mm;font-size:10pt\">/<\/div>\n  <\/div>\n <\/td>\n<\/tr>\n<tr style=\"height:35.7mm\">\n <td class=\"kubo\" style=\"vertical-align:top\"><div>子丑<\/div><div>寅卯<\/div><div>辰巳<\/div><div>午未<\/div><div>申酉<\/div><div>戌亥<\/div><\/td>\n <td class=\"v\" style=\"font-size:10.5pt\">日<br>目<br>生<\/td>\n <td style=\"vertical-align:top;padding-top:9mm;font-size:11pt\">/<\/td>\n <td class=\"v\" style=\"font-size:10.5pt;line-height:1.55\">順<br>行<br>・<br>逆<br>行<\/td>\n <td><\/td>\n <td class=\"thk-l\" style=\"vertical-align:bottom\"><div class=\"paren\"><span>(<\/span><span>)<\/span><\/div><\/td>\n <td style=\"vertical-align:bottom\"><div class=\"paren\"><span>(<\/span><span>)<\/span><\/div><\/td>\n <td style=\"vertical-align:bottom\"><div class=\"paren\"><span>(<\/span><span>)<\/span><\/div><\/td>\n <td style=\"vertical-align:bottom\"><div class=\"paren\"><span>(<\/span><span>)<\/span><\/div><\/td>\n <td class=\"thk-l v\" style=\"font-size:11pt\">干<br>支<\/td>\n<\/tr>\n<tr style=\"height:31.8mm\">\n <td class=\"thk-b\" style=\"vertical-align:bottom;padding-bottom:3.5mm;font-size:10.5pt\">歳<\/td>\n <td class=\"thk-b v\" style=\"vertical-align:bottom;padding-bottom:3.5mm;font-size:10.5pt\">歳<br>運<\/td>\n <td class=\"thk-b\"><\/td>\n <td class=\"thk-b v\" style=\"font-size:10.5pt;line-height:1.55\">強<br>中<br>弱<\/td>\n <td class=\"thk-b\"><div class=\"yojin\"><div class=\"t\">用神<\/div><div class=\"g\">木<br>火<br>土<br>金<br>水<\/div><\/div><\/td>\n <td class=\"thk-l\"><\/td><td><\/td><td><\/td><td><\/td>\n <td class=\"thk-l v\" style=\"font-size:11pt\">通<br>変<br>星<\/td>\n<\/tr>\n<tr style=\"height:12.1mm\" class=\"top4\">\n <td class=\"k\">干合<\/td><td class=\"k\">支合<\/td><td class=\"k\">沖<\/td><td class=\"k\">刑<\/td><td class=\"k\">三合<\/td>\n <td class=\"thk-l\"><\/td><td><\/td><td><\/td><td><\/td>\n <td class=\"thk-l v\" style=\"font-size:7pt;line-height:1.2\">十<br>二<br>運<\/td>\n<\/tr>\n<\/table>\n\n<div class=\"gap\"><\/div>\n\n<!-- 大運 -->\n<table class=\"blk un\">\n<colgroup><col span=\"12\" style=\"width:13.66mm\"><col style=\"width:15.08mm\"><\/colgroup>\n<tr style=\"height:12mm\" class=\"nob\">\n <td><\/td><td><\/td><td><\/td><td class=\"t3\"><\/td><td><\/td><td><\/td><td class=\"t3\"><\/td><td><\/td><td><\/td><td class=\"t3\"><\/td><td><\/td><td><\/td>\n <td rowspan=\"5\" class=\"t3 title\">大<br>運<\/td>\n<\/tr>\n<tr style=\"height:11mm\">\n <td class=\"shi\">丑<\/td><td class=\"shi\">子<\/td><td class=\"shi\">亥<\/td><td class=\"shi t3\">戌<\/td><td class=\"shi\">酉<\/td><td class=\"shi\">申<\/td><td class=\"shi t3\">未<\/td><td class=\"shi\">午<\/td><td class=\"shi\">巳<\/td><td class=\"shi t3\">辰<\/td><td class=\"shi\">卯<\/td><td class=\"shi\">寅<\/td>\n<\/tr>\n<tr style=\"height:5.9mm\" class=\"kanrow\">\n <td><span class=\"cho\">調・非<\/span><\/td><td><span class=\"cho\">調・非<\/span><\/td><td><span class=\"cho\">調・非<\/span><\/td><td class=\"t3\"><span class=\"cho\">調・非<\/span><\/td><td><span class=\"cho\">調・非<\/span><\/td><td><span class=\"cho\">調・非<\/span><\/td><td class=\"t3\"><span class=\"cho\">調・非<\/span><\/td><td><span class=\"cho\">調・非<\/span><\/td><td><span class=\"cho\">調・非<\/span><\/td><td class=\"t3\"><span class=\"cho\">調・非<\/span><\/td><td><span class=\"cho\">調・非<\/span><\/td><td><span class=\"cho\">調・非<\/span><\/td>\n<\/tr>\n<tr style=\"height:19mm\">\n <td><\/td><td><\/td><td><\/td><td class=\"t3\"><\/td><td><\/td><td><\/td><td class=\"t3\"><\/td><td><\/td><td><\/td><td class=\"t3\"><\/td><td><\/td><td><\/td>\n<\/tr>\n<tr style=\"height:6mm\" class=\"season\">\n <td colspan=\"3\">水冬<\/td><td colspan=\"3\" class=\"t3\">金秋<\/td><td colspan=\"3\" class=\"t3\">火夏<\/td><td colspan=\"3\" class=\"t3\">木春<\/td>\n<\/tr>\n<tr style=\"height:6.8mm\">\n <td><\/td><td><\/td><td><\/td><td class=\"t3\"><\/td><td><\/td><td><\/td><td class=\"t3\"><\/td><td><\/td><td><\/td><td class=\"t3\"><\/td><td><\/td><td><\/td>\n <td class=\"t3\" style=\"font-size:9pt\">年齢<\/td>\n<\/tr>\n<\/table>\n\n<div class=\"gap\"><\/div>\n\n<!-- 年運 -->\n<table class=\"blk un\">\n<colgroup><col span=\"12\" style=\"width:13.66mm\"><col style=\"width:15.08mm\"><\/colgroup>\n<tr style=\"height:14mm\">\n <td class=\"shi v\">{{K0}}<\/td><td class=\"shi v\">{{K1}}<\/td><td class=\"shi v\">{{K2}}<\/td><td class=\"shi v\">{{K3}}<\/td><td class=\"shi v\">{{K4}}<\/td><td class=\"shi v\">{{K5}}<\/td><td class=\"shi v\">{{K6}}<\/td><td class=\"shi v\">{{K7}}<\/td><td class=\"shi v\">{{K8}}<\/td><td class=\"shi v\">{{K9}}<\/td><td class=\"shi v\">{{K10}}<\/td><td class=\"shi v\">{{K11}}<\/td>\n <td rowspan=\"4\" class=\"t3 title\">年<br>運<\/td>\n<\/tr>\n<tr style=\"height:7mm\" class=\"year\">\n <td>{{Y0}}年<\/td><td>{{Y1}}年<\/td><td>{{Y2}}年<\/td><td>{{Y3}}年<\/td><td>{{Y4}}年<\/td><td>{{Y5}}年<\/td><td>{{Y6}}年<\/td><td>{{Y7}}年<\/td><td>{{Y8}}年<\/td><td>{{Y9}}年<\/td><td>{{Y10}}年<\/td><td>{{Y11}}年<\/td>\n<\/tr>\n<tr style=\"height:17.8mm\" class=\"kanrow\">\n <td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td>\n<\/tr>\n<tr style=\"height:6mm\">\n <td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td>\n<\/tr>\n<tr style=\"height:7.8mm\">\n <td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td><td><\/td>\n <td class=\"t3\" style=\"font-size:9pt\">年齢<\/td>\n<\/tr>\n<\/table>\n\n<!-- 占星術と五角形 -->\n<div class=\"astro blk\" style=\"border-top:none\">\n <div class=\"row\" style=\"top:5mm\">太陽<\/div><div class=\"line\" style=\"top:10.2mm\"><\/div>\n <div class=\"row\" style=\"top:15mm\">月<\/div><div class=\"line\" style=\"top:20.2mm\"><\/div>\n <div class=\"row\" style=\"top:25mm\">ASC<\/div><div class=\"line\" style=\"top:30.2mm\"><\/div>\n <div class=\"row\" style=\"top:35mm\">MC<\/div><div class=\"line\" style=\"top:40.2mm\"><\/div>\n <svg viewBox=\"0 0 50 45.9\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Noto Sans CJK JP,Noto Sans JP,Hiragino Kaku Gothic ProN,Yu Gothic,Meiryo,sans-serif\" font-size=\"2.2\" text-anchor=\"middle\">\n  <defs>\n   <marker id=\"ah\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"5\" markerHeight=\"5\" orient=\"auto\"><path d=\"M0 0L10 5L0 10z\" fill=\"#000\"/><\/marker>\n  <\/defs>\n  <!-- 円の中心 -->\n  <g fill=\"#fff\" stroke=\"#000\" stroke-width=\"0.3\">\n   <circle cx=\"25\" cy=\"12\" r=\"3\"/>\n   <circle cx=\"36.7\" cy=\"20.6\" r=\"3\"/>\n   <circle cx=\"32.2\" cy=\"34.4\" r=\"3\"/>\n   <circle cx=\"17.8\" cy=\"34.4\" r=\"3\"/>\n   <circle cx=\"13.3\" cy=\"20.6\" r=\"3\"/>\n  <\/g>\n  <!-- 相生（外回り） -->\n  <g fill=\"none\" stroke=\"#000\" stroke-width=\"0.3\" marker-end=\"url(#ah)\">\n   <path d=\"M27.9 12.8 Q33.5 14.6 35.6 17.8\"/>\n   <path d=\"M37.3 23.6 Q37.4 28.6 34.6 32.4\"/>\n   <path d=\"M29.2 35.6 Q25 37 20.9 35.6\"/>\n   <path d=\"M15.3 32.3 Q12.5 28.6 12.7 23.6\"/>\n   <path d=\"M14.4 17.8 Q16.5 14.6 22.1 12.8\"/>\n  <\/g>\n  <!-- 相剋（星形） -->\n  <g fill=\"none\" stroke=\"#000\" stroke-width=\"0.25\" stroke-dasharray=\"0.8 0.6\" marker-end=\"url(#ah)\">\n   <path d=\"M26 14.9 L31.2 31.5\"/>\n   <path d=\"M34.2 22.4 L20.3 32.6\"/>\n   <path d=\"M29.7 32.6 L15.8 22.4\"/>\n   <path d=\"M18.8 31.5 L24 14.9\"/>\n   <path d=\"M16.3 20.6 L33.7 20.6\"/>\n  <\/g>\n  <!-- 星の名前 -->\n  <g>\n   <text x=\"25\" y=\"4.6\">劫比<\/text><text x=\"25\" y=\"7.2\">財肩<\/text>\n   <text x=\"44\" y=\"20.2\">傷食<\/text><text x=\"44\" y=\"22.8\">官神<\/text>\n   <text x=\"35\" y=\"40.6\">正偏<\/text><text x=\"35\" y=\"43.2\">財財<\/text>\n   <text x=\"15\" y=\"40.6\">正偏<\/text><text x=\"15\" y=\"43.2\">官官<\/text>\n   <text x=\"6\" y=\"20.2\">印偏<\/text><text x=\"6\" y=\"22.8\">綬印<\/text>\n  <\/g>\n <\/svg>\n<\/div>\n\n<\/div><\/body><\/html>\n";
+/* 本版：記入済み鑑定用紙（2026-10-24 追加）。用紙の窓の中で動く。F＝アプリで計算した値 */
+function BOOK_FILLER(F){
+  function run(){
+  const page=document.querySelector('.page'); const P=page.getBoundingClientRect();
+  const MM=96/25.4, INK='#1a1a8a', HAND='"Klee One","Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+  function box(el){const r=el.getBoundingClientRect();return {l:r.left-P.left,t:r.top-P.top,w:r.width,h:r.height};}
+  function txt(x,y,s,o){o=o||{};const d=document.createElement('div');d.innerHTML=s;
+    d.style.cssText='position:absolute;left:'+x+'px;top:'+y+'px;font-family:'+HAND+';color:'+INK+';font-size:'+(o.size||11)+'pt;line-height:'+(o.lh||1.1)+';white-space:nowrap;text-align:center;';
+    const a=o.align||'center';d.style.transform=a==='center'?'translate(-50%,-50%)':a==='right'?'translate(-100%,-50%)':'translate(0,-50%)';page.appendChild(d);return d;}
+  function circ(x,y,rw,rh){const d=document.createElement('div');d.style.cssText='position:absolute;left:'+(x-rw)+'px;top:'+(y-rh)+'px;width:'+(2*rw)+'px;height:'+(2*rh)+'px;border:1.6px solid '+INK+';border-radius:50%;';page.appendChild(d);}
+  function inCell(el,s,o){o=o||{};const b=box(el);const fx=o.fx==null?0.5:o.fx,fy=o.fy==null?0.5:o.fy;return txt(b.l+b.w*fx,b.t+b.h*fy,s,o);}
+  const tbls=document.querySelectorAll('table'); const T=tbls[0],D=tbls[1],N=tbls[2];
+  const R=i=>T.rows[i].cells;
+  const pc=[R(1)[5],R(1)[6],R(1)[7],R(1)[8]], sc=[R(2)[5],R(2)[6],R(2)[7],R(2)[8]];
+  const COL={丑:0,子:1,亥:2,戌:3,酉:4,申:5,未:6,午:7,巳:8,辰:9,卯:10,寅:11};
+  const today=new Date(), Y=F.Y;
+  // --- 右の欄：名前・男女・鑑定日 ---
+  const rb=R(0)[7].querySelectorAll(':scope > div');
+  if(F.name){const nb=box(rb[0]);txt(nb.l+nb.w*0.5,nb.t+nb.h*0.62,F.name,{size:Math.min(12,Math.floor(60/F.name.length))});}
+  {const mb=box(rb[1]);circ(mb.l+mb.w*0.5+(F.sex==='female'?3.9:-3.9)*MM,mb.t+mb.h*0.5,2.6*MM,2.6*MM);}
+  {const kb=box(rb[3]);txt(kb.l+kb.w*0.38,kb.t+3.3*MM,String(today.getFullYear()),{size:10});
+   txt(kb.l+kb.w*0.30,kb.t+13.6*MM,String(today.getMonth()+1),{size:10});txt(kb.l+kb.w*0.72,kb.t+13.6*MM,String(today.getDate()),{size:10});}
+  // --- 生年月日・時刻 ---
+  {const rows=R(0)[5].querySelectorAll('.r');const s0=rows[0].querySelectorAll('span'),s1=rows[1].querySelectorAll('span');
+   const ro=(sp,dx)=>{const b=box(sp);return [b.l+b.w-dx*MM,b.t+b.h/2];};let p;
+   p=ro(s0[0],3);txt(p[0],p[1],String(F.y),{align:'right'});p=ro(s0[1],4);txt(p[0],p[1],String(F.m),{align:'right'});p=ro(s0[2],5);txt(p[0],p[1],String(F.d),{align:'right'});
+   if(F.time){const hm=F.time.split(':');p=ro(s1[0],5);txt(p[0],p[1],String(+hm[0]),{align:'right'});p=ro(s1[1],5);txt(p[0],p[1],String(+hm[1]),{align:'right'});}
+   else {p=ro(s1[0],5);txt(p[0],p[1],'不明',{size:9,align:'right'});}}
+  // --- 命式（時・日・月・年）---
+  F.pillars.forEach((k,i)=>{ if(!k) return;
+    inCell(pc[i],k.kan,{fy:0.26,size:17});inCell(pc[i],k.shi,{fy:0.58,size:17});if(k.zk)inCell(pc[i],k.zk,{fy:0.9,size:10.5});
+    inCell(sc[i],k.ts,{fy:0.3,size:11});inCell(sc[i],k.ss,{fy:0.72,size:11});
+    inCell(R(3)[5+i],k.juni,{fy:0.55,size:13}); });
+  {const b=box(pc[1]);circ(b.l+b.w/2,b.t+b.h*0.26,4.3*MM,4.3*MM);}
+  // --- 空亡・節入り・九星・歳 ---
+  {const PAIRS=['子丑','寅卯','辰巳','午未','申酉','戌亥'];const idx=PAIRS.findIndex(x=>x.indexOf(F.kuubou[0])>=0&&x.indexOf(F.kuubou[1])>=0);
+   if(idx>=0){const ds=R(1)[0].querySelectorAll('div');const b=box(ds[idx]);circ(b.l+b.w/2,b.t+b.h/2,4.6*MM,2.5*MM);}}
+  if(F.setsuDays!=null) inCell(R(1)[1],String(F.setsuDays),{fy:0.14,size:11});
+  if(F.setsu){const b=box(R(1)[2]);txt(b.l+b.w*0.3,b.t+11*MM,String(F.setsu[0]));txt(b.l+b.w*0.7,b.t+11*MM,String(F.setsu[1]));}
+  inCell(R(1)[4],F.kyusei[0]+'<br>'+F.kyusei[1]+'<br>'+F.kyusei[2],{size:11,lh:1.5});
+  inCell(R(2)[0],String(Y-F.y),{fy:0.4,size:13});
+  // --- 五角形：上が日干の五行、時計回りに相生の順。日干に隣接した五行を☐で囲む ---
+  {const svg=document.querySelector('.astro svg'),NS='http://www.w3.org/2000/svg',G=['木','火','土','金','水'];
+   const i0=G.indexOf(F.nG);const pts=[[25,12],[36.7,20.6],[32.2,34.4],[17.8,34.4],[13.3,20.6]];
+   pts.forEach((q,j)=>{const g=G[(i0+j)%5];const t=document.createElementNS(NS,'text');t.setAttribute('x',q[0]);t.setAttribute('y',q[1]+1.25);t.setAttribute('font-size','3.6');t.setAttribute('font-weight','600');t.setAttribute('fill',INK);t.textContent=g;svg.appendChild(t);
+     if(F.adj.indexOf(g)>=0){const r=document.createElementNS(NS,'rect');r.setAttribute('x',q[0]-4.6);r.setAttribute('y',q[1]-4.6);r.setAttribute('width',9.2);r.setAttribute('height',9.2);r.setAttribute('fill','none');r.setAttribute('stroke',INK);r.setAttribute('stroke-width','0.45');svg.appendChild(r);}});}
+  // --- 強中弱・用神の〇✖ ---
+  {const b=box(R(2)[3]);const off=F.strength==='sig-strong'?-5.75:F.strength==='sig-weak'?5.75:0;circ(b.l+b.w/2,b.t+b.h/2+off*MM,2.9*MM,2.9*MM);}
+  {const g=R(2)[4].querySelector('.g');const b=box(g);['木','火','土','金','水'].forEach((x,i)=>{const v=F.yojin[x];const m=v==='○'?'〇':v==='✕'?'✖':'';
+    if(m) txt(b.l+6.6*MM,b.t+1*MM+(i+0.5)*3.81*MM,m,{size:8.5,align:'left'});});}
+  // --- 立運・順行逆行 ---
+  {const b=box(R(1)[3]);circ(b.l+b.w/2,b.t+b.h/2+(F.junko?-8.6:8.6)*MM,3.0*MM,6.2*MM);}
+  inCell(R(2)[1],String(F.kiun),{fy:0.3,size:13});
+  // --- 大運 ---
+  const used={};
+  if(F.month&&COL[F.month.shi]!=null){inCell(D.rows[0].cells[COL[F.month.shi]],F.month.kan,{fy:0.6,size:15});used[F.month.shi]=1;}
+  const rounds=[];F.dai.forEach(s=>{if(!s.sub)rounds.push({main:s,subs:[]});else if(rounds.length)rounds[rounds.length-1].subs.push(s);});
+  rounds.forEach(rd=>{const a=rd.main;const c=COL[a.shi];if(c==null||used[a.shi]||a.age>100)return;used[a.shi]=1;
+    const segs=[a].concat(rd.subs);
+    inCell(D.rows[0].cells[c],a.kan,{fy:0.6,size:15});inCell(D.rows[0].cells[c],a.km||'',{fx:0.84,fy:0.6,size:8});
+    inCell(D.rows[5].cells[c],String(a.age),{size:10.5});
+    const sms=segs.map(x=>x.sm||'');
+    if(segs.length===1||sms.every(x=>x===sms[0])) inCell(D.rows[1].cells[c],sms[0],{fx:0.84,size:8});
+    else {inCell(D.rows[1].cells[c],sms[0],{fx:0.84,fy:0.3,size:7});inCell(D.rows[1].cells[c],sms[1],{fx:0.84,fy:0.72,size:7});}
+    if(a.ky==='✕'&&a.sy==='✕'){const sp=D.rows[2].cells[c].querySelector('.cho');const tn=sp&&sp.firstChild;if(tn){const rg=document.createRange();rg.setStart(tn,2);rg.setEnd(tn,3);const r=rg.getBoundingClientRect();circ(r.left-P.left+r.width/2,r.top-P.top+r.height/2,1.8*MM,1.8*MM);}}
+    inCell(D.rows[3].cells[c],a.kts,{fy:0.2,size:9});
+    if(segs.length===1||segs.every(x=>x.sts===a.sts)) inCell(D.rows[3].cells[c],a.sts,{fy:0.62,size:9});
+    else {inCell(D.rows[3].cells[c],segs[0].sts+' '+segs[0].age+'〜',{fy:0.55,size:7.5});inCell(D.rows[3].cells[c],segs[1].sts+' '+segs[1].age+'〜',{fy:0.82,size:7.5});}
+  });
+  // --- 年運：右から6番目が鑑定年 ---
+  F.years.forEach((x,i)=>{inCell(N.rows[2].cells[i],x.ts,{fy:0.28,size:10});inCell(N.rows[3].cells[i],x.pal,{size:8.5});inCell(N.rows[4].cells[i],String(x.age),{size:10});
+    if(x.tsugi){const b=box(N.rows[4].cells[i]);circ(b.l+b.w/2,b.t+b.h/2,3.2*MM,2.6*MM);}
+    if(x.newDai){const b=box(N.rows[0].cells[i]);txt(b.l+b.w/2,b.t-1.6*MM,x.newDai,{size:8});}});
+  }
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>setTimeout(run,50)); else window.addEventListener('load',run);
+}
+
+function openFilledYoshi(Y){
+  try{
+    const F=window.BOOK_FORM; if(!F){ alert('先に「判断」を押して、命式を出してください。'); return; }
+    Y=+Y||new Date().getFullYear();
+    let html=KANTEI_YOSHI_HTML;
+    const years=[];
+    const mains=(F.dai||[]).filter(x=>!x.sub);
+    for(let i=0;i<12;i++){
+      const yr=Y+6-i, ks=getYearKanShi(yr);
+      html=html.replace('{{K'+i+'}}',ks.kan+'<br>'+ks.shi).replace('{{Y'+i+'}}',String(yr));
+      const nd=mains.find(x=>x.startYear===yr);
+      years.push({yr:yr, ts:getTsuuhensei(F.nK,ks.kan), pal:palaceOf2(yearCenter(yr),F.honmei), age:yr-F.y,
+        newDai:nd?nd.kan+nd.shi:'', tsugi:!!(nd&&nd.tsugi)});
+    }
+    const data=Object.assign({},F,{Y:Y,years:years});
+    html=html.replace('<\/head>','<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" rel="stylesheet"><\/head>');
+    html=html.replace('<title>鑑定シート<\/title>','<title>鑑定用紙（記入見本）<\/title>');
+    html=html.replace('<\/body>','<script>('+BOOK_FILLER.toString()+')('+JSON.stringify(data)+');<\/script><\/body>');
+    const w=window.open('','_blank');
+    if(!w){ alert('別の窓を開けませんでした。ポップアップを許可してください。'); return; }
+    w.document.open(); w.document.write(html); w.document.close();
+  }catch(e){ alert('記入見本を作れませんでした。'); }
+}
 function openKanteiYoshi(Y){
   try{
     Y=+Y||new Date().getFullYear();
@@ -5007,11 +5137,11 @@ function calculate(){
     const grp=(lab,col,list)=>'<div style="margin-bottom:8px;"><b style="color:'+col+';">'+lab+'</b>'+(list.length?list.join(''):'<div style="padding-left:1em;opacity:.6;">なし</div>')+'</div>';
     const rows=grp('喜神','#7fb3e8',ki)+grp('忌神','#e8837f',imi);
     return '<div id="yojin-card" class="card" style="margin-top:18px;">'+
-      '<div class="lamp">用神（喜神・忌神）</div>'+
+      '<div class="lamp">喜神・忌神（参考）</div>'+'<div style="margin-top:8px;font-size:12.5px;line-height:1.7;opacity:.85;text-align:center;">本の第6章（扶抑）の「助けになる五行」と違うときは、第12章を見てください</div>'+
       '<div id="yojin-toggle" style="margin-top:14px;text-align:center;">'+
         '<button onclick="document.getElementById(\'yojin-body\').style.display=\'block\';document.getElementById(\'yojin-toggle\').style.display=\'none\';" '+
         'style="font-family:\'Shippori Mincho\',serif;font-size:15px;background:#2e5e3e;border:1px solid #7fbf8f;color:#fff;border-radius:10px;padding:12px 26px;cursor:pointer;letter-spacing:.12em;">'+
-        '答え合わせ（用神を見る）</button></div>'+
+        '答え合わせ（喜神・忌神を見る）</button></div>'+
       '<div id="yojin-body" style="display:none;margin-top:12px;font-size:15px;line-height:2;color:var(--washi);">'+rows+'<div style="text-align:center;margin-top:12px;"><button type="button" onclick="hideAnswer(\'yojin-body\',\'yojin-toggle\')" style="font-size:12.5px;background:transparent;border:1px solid rgba(127,191,143,.6);color:#9fd3ad;border-radius:8px;padding:6px 16px;cursor:pointer;">▲ 閉じる（答えを隠す）</button></div></div>'+
     '</div>';
   })();
@@ -5281,6 +5411,7 @@ function calculate(){
     });
     return out;
   };
+  window._BOOK_DAI=[];
   const daiinRows=allRounds.filter(r=>!r.pre).flatMap(R=>splitRoundK(R).map((SEG,SI,SEGS)=>{
     const r=Object.assign({},R,{dispAge:SEG.age,startYear:SEG.startYear});
     const segZk=SEG.zokan;               // この区間の大運蔵干
@@ -5402,6 +5533,9 @@ function calculate(){
     };
     const kanMark=markOf(kanTsuuhen_d, true);
     const shiMark=markOf(shiTsuuhen_d, false);
+    window._BOOK_DAI.push({shi:r.shi,kan:r.kan,age:rowAge,sub:isSub,zk:segZk,km:kanMark,sm:shiMark,
+      kts:getTsuuhensei(nK,r.kan),sts:getTsuuhensei(nK,segZk||(ZOKAN[r.shi]||[])[0]),ky:kanYojin,sy:shiYojin,
+      startYear:r.startYear,startMonth:r.startMonth,tsugi:!!(!isSub&&R.tsugikiun)});
     const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
       '<td class="dai-age" style="'+tdSty+'font-size:18px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'font-weight:700;')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;white-space:nowrap;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
@@ -5410,11 +5544,11 @@ function calculate(){
         '<span class="dai-ks">'+
           // 細分行は干支が上と同じになるので干は出さない。
           // ただし場所は空けておき、支の位置が上下でそろうようにする。
-          '<span style="color:#e0c478;font-size:13px;margin-right:2px;'+(isSub?'visibility:hidden;':'')+'">'+kanMark+'</span>'+
+          '<span class="ans" style="color:#e0c478;font-size:13px;margin-right:2px;'+(isSub?'visibility:hidden;':'')+'">'+kanMark+'</span>'+
           // 天戦地冲の下線は、干と支の2文字だけに絞る
           '<span class="'+(isTensenChichu(dP.kan,dP.shi,r.kan,r.shi)?'tensen':(isTensenChichu(mP.kan,mP.shi,r.kan,r.shi)?'tensen-m':''))+'">'+
             '<span style="'+(isSub?'visibility:hidden;':'')+kiimiColor(KAN_GOGYO[r.kan],KIIMI,KAN_GOGYO[segZk||(ZOKAN[r.shi]||[])[0]])+'">'+r.kan+'</span>'+
-            '<span style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
+            '<span class="ans" style="color:#e0c478;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
             '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
           '</span>'+
           (segZk?'<span class="dai-zk" style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI,KAN_GOGYO[r.kan])||'color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,.5);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
@@ -5424,8 +5558,8 @@ function calculate(){
         // 2026-09-30 再改訂：後半の区間の行にも、上の行と同じタグをすべて薄く表示する。
         // 天干（干合・有情財など）も地支（沖・刑・月冲・空亡など）も、10年間同じなので関係は続いている。
         (isSub
-          ? (tags.replace(/<[^>]*>/g,'').trim() ? '<span class="dai-tags" style="opacity:.55;">'+tags+'</span>' : '')
-          : '<span class="dai-tags">'+tags+'</span>')+
+          ? (tags.replace(/<[^>]*>/g,'').trim() ? '<span class="dai-tags ans" style="opacity:.55;">'+tags+'</span>' : '')
+          : '<span class="dai-tags ans">'+tags+'</span>')+
       '</td>'+
       '</tr>'+
       // 通変星のテーマ（2026-10-07 追加）：この区間の主役（大運まとめと同じ5分類の決め方）で出す
@@ -5492,7 +5626,7 @@ function calculate(){
     // （opacityは親のぶんが子にも重なるため、子だけopacity:1にしても
     // 元の薄さが残ってしまう。ラッパー側で上書きする必要がある）（2026-09-03）。
     const shiJuniCell=
-      '<span class="p-juni" style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.5;'+(isDay?'opacity:1;':'')+'">'+
+      '<span class="p-juni ans" style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.5;'+(isDay?'opacity:1;':'')+'">'+
         '<span'+(isDay?' style="color:var(--kin);"':'')+'>'+getTsuuhensei(nK,ZOKAN[shi][0])+'</span>'+
         '<span>'+juni+'</span>'+
       '</span>';
@@ -5500,7 +5634,7 @@ function calculate(){
       '<div class="p-label">'+lbl+'</div>'+
       '<div class="p-kan-row">'+
         '<span class="p-kan">'+kan+'</span>'+
-        '<span class="p-ts" style="opacity:'+(ts?'1':'0')+';">'+(ts||'印')+'</span>'+
+        '<span class="p-ts ans" style="opacity:'+(ts?'1':'0')+';">'+(ts||'印')+'</span>'+
       '</div>'+
       '<div class="p-shi-row">'+
         '<span class="p-shi">'+shi+'</span>'+
@@ -5511,14 +5645,43 @@ function calculate(){
       '</div>';
   };
 
+  // ===== 本版：記入済み鑑定用紙のためのデータ（2026-10-24 追加）=====
+  try{
+    const effT=midType!==null?(midType==='strong'?TH_STRONG:TH_WEAK):total;
+    const yj={}; ['木','火','土','金','水'].forEach(g=>{ yj[g]=yojinHantei(nK,g,effT); });
+    const dSG=KAN_GOGYO[zokanDayShi(dP.shi,effH)]||SHI_GOGYO[dP.shi];
+    const hKG=hUnknown?null:KAN_GOGYO[hP.kan];
+    const hSG=hUnknown?null:(KAN_GOGYO[zokanHourShi(hP.shi,effH,shiIdx)]||SHI_GOGYO[hP.shi]);
+    const nG=KAN_GOGYO[nK], adj=new Set();
+    [KAN_GOGYO[mP.kan],dSG,...(hUnknown?[]:[hKG])].forEach(g=>{if(g&&g!==nG)adj.add(g);});
+    if(!hUnknown&&hSG!==nG){if(hKG===nG||dSG===nG)adj.add(hSG);}
+    const pl=(lbl,P,isDay)=>P?{kan:P.kan,shi:P.shi,zk:ZK_ADOPT[lbl]||'',ts:isDay?'（自分）':getTsuuhensei(nK,P.kan),
+      ss:getTsuuhensei(nK,(ZOKAN[P.shi]||[])[0]),juni:getJuni(nK,P.shi)}:null;
+    const st=mP.startUTC!=null?toJstYMD(mP.startUTC):null;
+    const tm=(document.getElementById('inp-time')||{}).value||'';
+    window.BOOK_FORM={
+      name:((document.getElementById('inp-name')||{}).value||'').trim(), sex:SEX, y:y, m:m, d:d,
+      time:hUnknown?null:tm, nK:nK, nG:nG, adj:[...adj], yojin:yj, strength:cls,
+      pillars:[hUnknown?null:pl('時柱',hP,false), pl('日柱',dP,true), pl('月柱',mP,false), pl('年柱',yP,false)],
+      kuubou:kuubou.slice(), setsuDays:daysAfterSetsu!=null?daysAfterSetsu+1:null, setsu:st?[st[1],st[2]]:null,
+      kyusei:[honmeiStar(y,m,d)[0], getsumeiStar(y,m,d), keishaPalace(y,m,d,SEX==='male')],
+      honmei:honmeiStar(y,m,d)[0], kiun:daiin.kiunDisp, junko:daiin.junko,
+      month:{kan:mP.kan,shi:mP.shi}, dai:(window._BOOK_DAI||[]).slice()
+    };
+  }catch(e){ window.BOOK_FORM=null; }
+
   document.getElementById('result').innerHTML=`
     <div class="card">
       <div class="form-title">八字命式
+        <button type="button" id="practice-btn" onclick="togglePractice()" style="margin-left:auto;font-family:'Shippori Mincho',serif;
+          font-size:12.5px;background:transparent;border:1.5px solid #7fbf8f;color:#9fd3ad;
+          border-radius:8px;padding:6px 12px;cursor:pointer;letter-spacing:.05em;white-space:nowrap;">練習モード</button>
         <button type="button" onclick="newPerson()" style="margin-left:auto;font-family:'Shippori Mincho',serif;
           font-size:12.5px;background:rgba(201,164,76,.10);border:1.5px solid var(--kin);color:var(--kin2);
           border-radius:8px;padding:6px 14px;cursor:pointer;letter-spacing:.05em;white-space:nowrap;">
           別の人で占う</button>
       </div>
+      <div id="practice-note">練習モード：通変星・十二運・空亡・大運の〇●✖と印が隠れています。緑の四角を押すと、一つずつ答えが出ます。<button type="button" onclick="showAllAns()" style="margin-left:8px;font-size:12px;background:transparent;border:1px solid #7fbf8f;color:#9fd3ad;border-radius:6px;padding:2px 8px;cursor:pointer;">全部見る</button></div>
       <div class="shichuu-disp">
         ${pil('年柱',yP.kan,yP.shi,false)}
         ${pil('月柱',mP.kan,mP.shi,false)}
@@ -5531,7 +5694,7 @@ function calculate(){
         '<div style="margin-top:10px;font-size:13px;color:#e08a7a;opacity:.95;">※ この日は節入り当日です（'+b.label+'）。この時刻をはさんで月柱'+(b.risshun?'と年柱':'')+'が切り替わります'+(hUnknown?'。時刻不明のため正午として計算しています':'')+'</div>':'';})()}
       <div style="margin-top:12px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
         <div style="font-size:14px;color:var(--kin);letter-spacing:.15em;">
-          空亡：<span style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${kuubouStr}</span>
+          空亡：<span class="ans" style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${kuubouStr}</span>
         </div>
         <div style="font-size:14px;color:var(--kin);letter-spacing:.15em;">
           今年の年齢：<span style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${new Date().getFullYear()-y}歳</span>
@@ -5623,6 +5786,7 @@ function calculate(){
       <div style="text-align:center;margin-top:12px;"><button type="button" onclick="hideShinjyoAnswer('${cls}')" style="font-size:12.5px;background:transparent;border:1px solid rgba(127,191,143,.6);color:#9fd3ad;border-radius:8px;padding:6px 16px;cursor:pointer;">▲ 閉じる（答えを隠す）</button></div>
       </div>
     </div>
+    ${yojinHtml}
     <!-- 得令・得地・隣接：身強身弱の内訳そのもの（答えが分かってしまう）なので、
          答え合わせボタンを押すまで一緒に隠す（2026-09-06 追加）。 -->
     <div id="tokurei-tokuchi-card" class="card" style="margin-top:18px;display:none;">
@@ -5701,7 +5865,7 @@ function calculate(){
         '<div style="margin-top:10px;font-size:13px;color:#e08a7a;opacity:.95;">※ この日は節入り当日です（'+b.label+'）。この時刻をはさんで月柱'+(b.risshun?'と年柱':'')+'が切り替わります'+(hUnknown?'。時刻不明のため正午として計算しています':'')+'</div>':'';})()}
       <div style="margin-top:12px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
         <div style="font-size:14px;color:var(--kin);letter-spacing:.15em;">
-          空亡：<span style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${kuubouStr}</span>
+          空亡：<span class="ans" style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${kuubouStr}</span>
         </div>
         <div style="font-size:14px;color:var(--kin);letter-spacing:.15em;">
           今年の年齢：<span style="font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);font-weight:700;">${new Date().getFullYear()-y}歳</span>
@@ -5781,12 +5945,19 @@ function calculate(){
             鑑定用紙を印刷</button>
         </div>
         <div style="font-size:11.5px;color:var(--washi2);opacity:.75;margin-top:6px;">本の付録と同じA4の鑑定用紙です。年運の欄には、この年を右から6番目にして干支と西暦が入ります（過去5年・未来6年）。</div>
+        <div style="margin-top:12px;display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;">
+          <button onclick="openFilledYoshi(+document.getElementById('yoshi-year').value)" style="font-family:'Shippori Mincho',serif;font-size:14px;
+            background:rgba(201,164,76,.10);border:1px solid var(--kin);color:var(--kin2);
+            border-radius:10px;padding:10px 20px;cursor:pointer;letter-spacing:.06em;">記入見本の鑑定用紙を見る</button>
+        </div>
+        <div style="font-size:11.5px;color:var(--washi2);opacity:.75;margin-top:6px;">本の手順どおりに、この方の答えを書き込んだ用紙です。自分で書いた用紙と見比べてください。上の年の入力欄の年が、年運の右から6番目に入ります。</div>
       </div>
     </div>
 
     
   `;
   document.getElementById('result').classList.add('show');
+  if(typeof applyPractice==='function') applyPractice();
 
   // 五行バランス図（五角形＋円）
   (function(){
@@ -6738,6 +6909,28 @@ function closeSanjuChart(){
 }
 
 
+</script>
+
+<script>
+/* 本版：練習モード（2026-10-24 追加）。答えを隠し、押すと一つずつ見せる */
+function applyPractice(){
+  let on=false; try{ on=localStorage.getItem('book_practice')==='1'; }catch(e){}
+  const r=document.getElementById('result'); if(r) r.classList.toggle('practice',on);
+  const b=document.getElementById('practice-btn');
+  if(b){ b.textContent=on?'練習モード：ON':'練習モード'; b.style.background=on?'#2e5e3e':'transparent'; b.style.color=on?'#fff':'#9fd3ad'; }
+}
+function togglePractice(){
+  let on=false; try{ on=localStorage.getItem('book_practice')==='1'; }catch(e){}
+  try{ localStorage.setItem('book_practice',on?'0':'1'); }catch(e){}
+  document.querySelectorAll('#result .ans.shown').forEach(e=>e.classList.remove('shown'));
+  applyPractice();
+}
+function showAllAns(){ document.querySelectorAll('#result .ans').forEach(e=>e.classList.add('shown')); }
+document.addEventListener('click',function(ev){
+  const r=document.getElementById('result'); if(!r||!r.classList.contains('practice')) return;
+  const a=ev.target.closest&&ev.target.closest('#result .ans:not(.shown)');
+  if(a){ a.classList.add('shown'); ev.stopPropagation(); ev.preventDefault(); }
+},true);
 </script>
 <!-- ===== 購入者ゲート（本用・買い切り1,480円） ===== -->
 <div id="member-gate" class="on">

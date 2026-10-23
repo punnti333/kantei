@@ -2922,9 +2922,28 @@ function updateNengun(){
     else if(isCenter){ bgSty='background:rgba(192,57,43,.15);border-left:3px solid var(--shu);'; txtSty='font-weight:700;'; }
     else if(isNow){ bgSty='background:rgba(201,164,76,.15);'; txtSty='font-weight:700;'; }
 
+    // ===== 本版：注意の年（第10章の決まり、2026-10-24 追加）=====
+    //   一つで注意：日柱併臨・歳運併臨・天戦地冲（日柱・月柱）・大運交替
+    //   二つで注意：沖（日支との沖・月冲）・空亡・月柱併臨（天戦地冲は沖を含むので沖とは別に数えない）
+    const _c1=[], _c2=[];
+    if(isHeirinN) _c1.push('日柱併臨');
+    if(isSaiHeirin) _c1.push('歳運併臨');
+    if(_tensenN) _c1.push('天戦地冲（日柱）');
+    if(_tensenM) _c1.push('天戦地冲（月柱）');
+    if(isDaiinKotai) _c1.push('大運交替');
+    if(CHUU[d.dShi]===ks.shi && !_tensenN) _c2.push('沖');
+    if(CHUU[d.mShi]===ks.shi && !_tensenM && d.mShi!==d.dShi) _c2.push('月冲');
+    if(isKuubou) _c2.push('空亡');
+    if(isHeirinM) _c2.push('月柱併臨');
+    const isChuuiYear = _c1.length>0 || _c2.length>=2;
+    const chuuiWhy = _c1.concat(_c2).join('・');
+    const chuuiHTML = isChuuiYear
+      ? '<span class="nen-chuui ans" onclick="var n=this.nextSibling;n.style.display=n.style.display===\'none\'?\'block\':\'none\';" style="display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:#fff;background:#c0392b;border-radius:4px;padding:0 5px;cursor:pointer;" title="押すと理由が出ます">注意</span>'+
+        '<span style="display:none;font-size:11px;color:#f0b0a8;font-weight:400;margin-top:2px;">'+chuuiWhy+'</span>'
+      : '';
     const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
     rows+='<tr style="'+bgSty+'">'+
-      '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
+      '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年'+chuuiHTML+'</td>'+
       '<td style="'+tdSty+'position:relative;padding-left:20px;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
          /* 本版：三命殺の★☆とトランジット盤は出さない（三命クロス法は本の範囲外） */
          '<span class="eto-click '+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'" onclick="toggleNenTsuhen('+yr+')" title="'+yr+'年の通変星のテーマを見る">'+

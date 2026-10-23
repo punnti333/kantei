@@ -2788,10 +2788,9 @@ function updateNengun(){
 
     const tdSty='padding:6px 10px;border-bottom:1px solid rgba(201,164,76,.1);';
     rows+='<tr style="'+bgSty+'">'+
-      '<td style="'+tdSty+'font-size:16px;cursor:pointer;'+txtSty+yearLineSty+'" onclick="openSanjuChart('+yr+(isSanjusatsu?'':isSanjuWeak?',true':',\'plain\'')+')" title="'+yr+'年のトランジット盤を見る">'+yr+'年</td>'+
+      '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年</td>'+
       '<td style="'+tdSty+'position:relative;padding-left:20px;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
-         (isSanjusatsu?'<span class="sanju-star" onclick="openSanjuChart('+yr+')" title="三命殺：'+_sanju.join('・')+'（押すとトランジットを表示）">★</span>':
-          isSanjuWeak?'<span class="sanju-star-weak" onclick="openSanjuChart('+yr+',true)" title="要素2つ：'+_sanju.join('・')+'（参考。三命殺の成立には3つ以上が必要。押すとトランジットを表示）">☆</span>':'')+
+         /* 本版：三命殺の★☆とトランジット盤は出さない（三命クロス法は本の範囲外） */
          '<span class="eto-click '+(isTensenChichu(d.dKan,d.dShi,ks.kan,ks.shi)?'tensen':(isTensenChichu(d.mKan,d.mShi,ks.kan,ks.shi)?'tensen-m':''))+'" onclick="toggleNenTsuhen('+yr+')" title="'+yr+'年の通変星のテーマを見る">'+
            '<span style="'+kiimiColor(KAN_GOGYO[ks.kan],d.KIIMI,KAN_GOGYO[(ZOKAN[ks.shi]||[])[0]])+'">'+ks.kan+'</span>'+
            // 地支は「本気の蔵干」の五行で喜忌の色を付ける（2026-08-19 追加）。
@@ -6622,7 +6621,7 @@ function sjUpdateChartView(){
 }
 
 // ★を押したときに開く
-function openSanjuChart(year,weak){
+function openSanjuChart(year,weak){ return; /* 本版では使わない */
   const d=window._nengunData; if(!d) return;
   const natal=sjNatal(d.y,d.bm,d.bd);
   const {svg,list,date,onChart,dayPrimary,overlapN,good}=sjBuildChart(natal,year);

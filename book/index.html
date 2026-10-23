@@ -535,6 +535,12 @@ table.kgsim th{white-space:nowrap;}
   </header>
   <div class="card">
     <div class="form-title">生年月日時を入力</div>
+        <div style="margin:0 0 14px;text-align:center;">
+          <button type="button" id="practice-btn" onclick="togglePractice()" style="font-family:'Shippori Mincho',serif;
+            font-size:14px;background:transparent;border:1.5px solid #7fbf8f;color:#9fd3ad;
+            border-radius:8px;padding:9px 16px;cursor:pointer;letter-spacing:.05em;">練習モードにする（答えを隠す）</button>
+          <div style="font-size:11.5px;color:var(--washi2);opacity:.75;margin-top:6px;">先に押しておくと、このあと「判断」や本の例のボタンを押したとき、通変星・十二運・空亡・大運の〇●✖などが隠れた状態で出ます。押すと一つずつ答えが見えます。</div>
+        </div>
     <div id="book-examples" style="margin:-4px 0 16px;padding:10px 12px;border:1px dashed rgba(201,164,76,.45);border-radius:10px;">
       <div style="font-size:12.5px;color:var(--kin2);letter-spacing:.08em;margin-bottom:8px;">本の例を入れて答え合わせ</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -5673,9 +5679,6 @@ function calculate(){
   document.getElementById('result').innerHTML=`
     <div class="card">
       <div class="form-title">八字命式
-        <button type="button" id="practice-btn" onclick="togglePractice()" style="margin-left:auto;font-family:'Shippori Mincho',serif;
-          font-size:12.5px;background:transparent;border:1.5px solid #7fbf8f;color:#9fd3ad;
-          border-radius:8px;padding:6px 12px;cursor:pointer;letter-spacing:.05em;white-space:nowrap;">練習モード</button>
         <button type="button" onclick="newPerson()" style="margin-left:auto;font-family:'Shippori Mincho',serif;
           font-size:12.5px;background:rgba(201,164,76,.10);border:1.5px solid var(--kin);color:var(--kin2);
           border-radius:8px;padding:6px 14px;cursor:pointer;letter-spacing:.05em;white-space:nowrap;">
@@ -6917,7 +6920,7 @@ function applyPractice(){
   let on=false; try{ on=localStorage.getItem('book_practice')==='1'; }catch(e){}
   const r=document.getElementById('result'); if(r) r.classList.toggle('practice',on);
   const b=document.getElementById('practice-btn');
-  if(b){ b.textContent=on?'練習モード：ON':'練習モード'; b.style.background=on?'#2e5e3e':'transparent'; b.style.color=on?'#fff':'#9fd3ad'; }
+  if(b){ b.textContent=on?'練習モード中（押すとやめる）':'練習モードにする（答えを隠す）'; b.style.background=on?'#2e5e3e':'transparent'; b.style.color=on?'#fff':'#9fd3ad'; }
 }
 function togglePractice(){
   let on=false; try{ on=localStorage.getItem('book_practice')==='1'; }catch(e){}
@@ -6925,6 +6928,7 @@ function togglePractice(){
   document.querySelectorAll('#result .ans.shown').forEach(e=>e.classList.remove('shown'));
   applyPractice();
 }
+document.addEventListener('DOMContentLoaded',applyPractice);
 function showAllAns(){ document.querySelectorAll('#result .ans').forEach(e=>e.classList.add('shown')); }
 document.addEventListener('click',function(ev){
   const r=document.getElementById('result'); if(!r||!r.classList.contains('practice')) return;

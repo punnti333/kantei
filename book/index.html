@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>八字鑑定シート（本版）</title>
+<title>四柱推命アプリ</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
 :root{--sumi:#14110f;--sumi2:#1d1916;--washi:#ece3d0;--washi2:#ded2b8;--shu:#c0392b;--shu2:#9b2418;--kin:#c9a44c;--kin2:#e0c478;}
@@ -545,7 +545,7 @@ table.kgsim th{white-space:nowrap;}
       <div style="font-size:12.5px;color:var(--kin2);letter-spacing:.08em;margin-bottom:8px;">本の例を入れて答え合わせ</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button type="button" onclick="loadBookExample('hanako')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(201,164,76,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">花子さん<span style="display:block;font-size:11.5px;opacity:.75;">1985年6月1日 10時・女性</span></button>
-        <button type="button" onclick="loadBookExample('b')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(201,164,76,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">Bさん<span style="display:block;font-size:11.5px;opacity:.75;">1987年6月26日 12時・男性</span></button>
+        <button type="button" onclick="loadBookExample('b')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(201,164,76,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">五郎さん<span style="display:block;font-size:11.5px;opacity:.75;">1987年6月26日 12時・男性</span></button>
       </div>
     </div>
     <div class="fields">
@@ -634,7 +634,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610220100';
+var APP_VERSION = '202610270200';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1693,7 +1693,7 @@ function placeNameOf(v){
 /* 本版：本の例の人を入れる（2026-10-24 追加）。時刻は標準時（補正なし）で、本と同じ答えになるようにする */
 const BOOK_EXAMPLES={
   hanako:{y:1985,m:6,d:1,time:'10:00',sex:'female',name:'花子さん'},
-  b:{y:1987,m:6,d:26,time:'12:00',sex:'male',name:'Bさん'}
+  b:{y:1987,m:6,d:26,time:'12:00',sex:'male',name:'五郎さん'}
 };
 function loadBookExample(k){
   const e=BOOK_EXAMPLES[k]; if(!e) return;
@@ -2060,7 +2060,7 @@ function BOOK_FILLER(F){
   const today=new Date(), Y=F.Y;
   // --- 右の欄：名前・男女・鑑定日 ---
   const rb=R(0)[7].querySelectorAll(':scope > div');
-  if(F.name){const nb=box(rb[0]);txt(nb.l+nb.w*0.5,nb.t+nb.h*0.62,F.name,{size:Math.min(12,Math.floor(60/F.name.length))});}
+  if(F.name){const nm=F.name.replace(/(さん|様)$/,'');const nb=box(rb[0]);txt(nb.l+nb.w*0.5,nb.t+nb.h*0.62,nm,{size:Math.min(12,Math.floor(60/nm.length))});}
   {const mb=box(rb[1]);circ(mb.l+mb.w*0.5+(F.sex==='female'?3.9:-3.9)*MM,mb.t+mb.h*0.5,2.6*MM,2.6*MM);}
   {const kb=box(rb[3]);txt(kb.l+kb.w*0.38,kb.t+3.3*MM,String(today.getFullYear()),{size:10});
    txt(kb.l+kb.w*0.30,kb.t+13.6*MM,String(today.getMonth()+1),{size:10});txt(kb.l+kb.w*0.72,kb.t+13.6*MM,String(today.getDate()),{size:10});}
@@ -2086,7 +2086,8 @@ function BOOK_FILLER(F){
   {const svg=document.querySelector('.astro svg'),NS='http://www.w3.org/2000/svg',G=['木','火','土','金','水'];
    const i0=G.indexOf(F.nG);const pts=[[25,12],[36.7,20.6],[32.2,34.4],[17.8,34.4],[13.3,20.6]];
    pts.forEach((q,j)=>{const g=G[(i0+j)%5];const t=document.createElementNS(NS,'text');t.setAttribute('x',q[0]);t.setAttribute('y',q[1]+1.25);t.setAttribute('font-size','3.6');t.setAttribute('font-weight','600');t.setAttribute('fill',INK);t.textContent=g;svg.appendChild(t);
-     if(F.adj.indexOf(g)>=0){const r=document.createElementNS(NS,'rect');r.setAttribute('x',q[0]-4.6);r.setAttribute('y',q[1]-4.6);r.setAttribute('width',9.2);r.setAttribute('height',9.2);r.setAttribute('fill','none');r.setAttribute('stroke',INK);r.setAttribute('stroke-width','0.45');svg.appendChild(r);}});}
+     if(F.adj.indexOf(g)>=0){const r=document.createElementNS(NS,'rect');r.setAttribute('x',q[0]-4.6);r.setAttribute('y',q[1]-4.6);r.setAttribute('width',9.2);r.setAttribute('height',9.2);r.setAttribute('fill','none');r.setAttribute('stroke',INK);r.setAttribute('stroke-width','0.45');svg.appendChild(r);}
+     if(F.cnt&&F.cnt[g]!=null){const cx=25,cy=24.4,vx=cx-q[0],vy=cy-q[1],L=Math.hypot(vx,vy),nx=q[0]+vx/L*6.4,ny=q[1]+vy/L*6.4;const bg=document.createElementNS(NS,'rect');bg.setAttribute('x',nx-1.4);bg.setAttribute('y',ny-1.9);bg.setAttribute('width',2.8);bg.setAttribute('height',3.6);bg.setAttribute('fill','#fff');svg.appendChild(bg);const n=document.createElementNS(NS,'text');n.setAttribute('x',nx);n.setAttribute('y',ny+1.15);n.setAttribute('text-anchor','middle');n.setAttribute('font-size','3.2');n.setAttribute('font-weight','600');n.setAttribute('fill',INK);n.textContent=String(F.cnt[g]);svg.appendChild(n);}});}
   // --- 強中弱・用神の〇✖ ---
   {const b=box(R(2)[3]);const off=F.strength==='sig-strong'?-5.75:F.strength==='sig-weak'?5.75:0;circ(b.l+b.w/2,b.t+b.h/2+off*MM,2.9*MM,2.9*MM);}
   {const g=R(2)[4].querySelector('.g');const b=box(g);['木','火','土','金','水'].forEach((x,i)=>{const v=F.yojin[x];const m=v==='○'?'〇':v==='✕'?'✖':'';
@@ -2097,7 +2098,7 @@ function BOOK_FILLER(F){
   // --- 大運 ---
   const used={};
   if(F.month&&COL[F.month.shi]!=null){inCell(D.rows[0].cells[COL[F.month.shi]],F.month.kan,{fy:0.6,size:15});used[F.month.shi]=1;}
-  const rounds=[];F.dai.forEach(s=>{if(!s.sub)rounds.push({main:s,subs:[]});else if(rounds.length)rounds[rounds.length-1].subs.push(s);});
+  const rounds=[];F.dai.filter(s=>!s.kx).forEach(s=>{if(!s.sub)rounds.push({main:s,subs:[]});else if(rounds.length)rounds[rounds.length-1].subs.push(s);});
   rounds.forEach(rd=>{const a=rd.main;const c=COL[a.shi];if(c==null||used[a.shi]||a.age>100)return;used[a.shi]=1;
     const segs=[a].concat(rd.subs);
     inCell(D.rows[0].cells[c],a.kan,{fy:0.6,size:15});inCell(D.rows[0].cells[c],a.km||'',{fx:0.84,fy:0.6,size:8});
@@ -5483,7 +5484,7 @@ function calculate(){
     };
     const kanMark=markOf(kanTsuuhen_d, true);
     const shiMark=markOf(shiTsuuhen_d, false);
-    window._BOOK_DAI.push({shi:r.shi,kan:r.kan,age:rowAge,sub:isSub,zk:segZk,km:kanMark,sm:shiMark,
+    window._BOOK_DAI.push({shi:r.shi,kan:r.kan,age:rowAge,sub:isSub,zk:segZk,km:kanTsuuhen_d==='hikyu'?'':kanMark,sm:shiTsuuhen_d==='hikyu'?'':shiMark,kx:!!SEG.kanataSplit,
       kts:getTsuuhensei(nK,r.kan),sts:getTsuuhensei(nK,segZk||(ZOKAN[r.shi]||[])[0]),ky:kanYojin,sy:shiYojin,
       startYear:r.startYear,startMonth:r.startMonth,tsugi:!!(!isSub&&R.tsugikiun)});
     const daiinMark='';
@@ -5616,7 +5617,8 @@ function calculate(){
       kuubou:kuubou.slice(), setsuDays:daysAfterSetsu!=null?daysAfterSetsu+1:null, setsu:st?[st[1],st[2]]:null,
       kyusei:[honmeiStar(y,m,d)[0], getsumeiStar(y,m,d), keishaPalace(y,m,d,SEX==='male')],
       honmei:honmeiStar(y,m,d)[0], kiun:daiin.kiunDisp, junko:daiin.junko,
-      month:{kan:mP.kan,shi:mP.shi}, dai:(window._BOOK_DAI||[]).slice()
+      month:{kan:mP.kan,shi:mP.shi}, dai:(window._BOOK_DAI||[]).slice(),
+      cnt:(function(){const c={木:0,火:0,土:0,金:0,水:0};[KAN_GOGYO[yP.kan],KAN_GOGYO[mP.kan],SHI_GOGYO[yP.shi],SHI_GOGYO[mP.shi],SHI_GOGYO[dP.shi]].concat(hUnknown?[]:[KAN_GOGYO[hP.kan],SHI_GOGYO[hP.shi]]).forEach(g=>{if(c[g]!=null)c[g]++;});return c;})()
     };
   }catch(e){ window.BOOK_FORM=null; }
 
@@ -6883,7 +6885,7 @@ document.addEventListener('click',function(ev){
 <!-- ===== 購入者ゲート（本用・買い切り1,480円） ===== -->
 <div id="member-gate" class="on">
   <div class="gate-inner">
-    <div class="gate-title" onclick="ownerTap()" style="-webkit-user-select:none;user-select:none;">八字鑑定シート（本版）</div>
+    <div class="gate-title" onclick="ownerTap()" style="-webkit-user-select:none;user-select:none;">四柱推命アプリ</div>
     <div class="gate-sub">『かぴ流 四柱推命』読者様へ ── 本と一緒にお使いください</div>
     <div class="gate-box">
       <h3>このシートでできること</h3>
@@ -6908,7 +6910,7 @@ document.addEventListener('click',function(ev){
 </div>
 <script>
 /* 作者用（2026-10-03 追加）：ホーム画面のアイコンは保存領域がSafariと別で、?key= も付けられない。
-   そのため、会員案内のタイトル「八字鑑定シート」を3秒以内に5回押すと、合言葉を入れられるようにする。
+   そのため、会員案内のタイトル「四柱推命アプリ」を3秒以内に5回押すと、合言葉を入れられるようにする。
    画面には何も表示しない（お客さんには見えない）。 */
 let _ownerTaps=[];
 function ownerTap(){

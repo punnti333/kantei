@@ -614,7 +614,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610270400';
+var APP_VERSION = '202610270410';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -5206,8 +5206,7 @@ function calculate(){
           const b2 = (function(){const a=kiOf(k2,R2.kan), b=kiOf(R2.kan,k2); return a==='○'?(b==='✕'?'吉寄り':'吉'):a==='✕'?(b==='○'?'凶寄り':'凶'):(b==='○'?'吉寄り':b==='✕'?'凶寄り':'中立');})();
           const kc = mKi==='○'?'#7fb3e8':mKi==='✕'?'#e8837f':'#b0a898';
           return '<div style="margin-top:8px;font-size:13px;padding:6px 10px;border:1px dashed rgba(236,227,208,.3);border-radius:6px;">'+
-            '<b>次</b>：'+st2+'年〜 '+lab+' → 主役 '+(uk2?R2.kan:R2.shi+'（'+k2+'）')+'＝'+nameT(mk)+
-            '（<span style="color:'+kc+';">'+(mKi==='○'?'喜神':mKi==='✕'?'忌神':'中立')+'</span>）　目安：<b>'+b2+'</b></div>';
+            '<b>次</b>：'+st2+'年〜 '+lab+' → 地支 '+R2.shi+'（'+k2+'）＝'+(kiOf(k2,R2.kan)==='○'?'喜神':kiOf(k2,R2.kan)==='✕'?'忌神':'中立')+'・天干 '+R2.kan+'＝'+(kiOf(R2.kan,k2)==='○'?'喜神':kiOf(R2.kan,k2)==='✕'?'忌神':'中立')+'　目安：<b>'+b2+'</b></div>';
         }catch(e){ return ''; }
       })();
       const startAge=(R.dispAge!=null?R.dispAge:R.age);
@@ -5216,11 +5215,9 @@ function calculate(){
         '<div style="font-size:15px;font-weight:700;color:var(--kin2);margin-bottom:8px;">今の大運：'+R.kan+R.shi+'（'+startAge+'歳〜・'+R.startYear+'年〜）'+'</div>'+
         shinLine+
         '<div style="font-size:14px;line-height:1.8;color:var(--washi);">'+
-          '<div><b>干支の種類（参考）</b>：'+type+'（'+(useKan?'天干':'地支')+'で読む'+(type==='専旺干支'?'。天干・地支どちらでも同じ':'')+'）</div>'+
-          roleRow('主役', (useKan?'天干':'地支'), (useKan?R.kan:R.shi), (useKan?'':mainKan), mainT, mainKi, true)+
-          (type!=='専旺干支'?roleRow('脇役', (useKan?'地支':'天干'), (useKan?R.shi:R.kan), (useKan?subKan:''), subT, subKi, false):'')+
-          (hasSub?'<div style="font-size:13px;opacity:.85;margin:-2px 0 6px 4px;">'+subNote+'</div>':'')+
-          '<div style="font-size:12px;opacity:.75;margin:0 0 6px 4px;">主役・脇役は参考です。総合は季節優先（地支6割・天干4割）で決めています。</div>'+
+          roleRow('地支', '季節・6割', R.shi, shiKan, nameT(shiKan), shiKi, true)+
+          roleRow('天干', '補助・4割', R.kan, '', nameT(R.kan), kanKi, false)+
+          '<div style="font-size:12px;opacity:.7;margin:2px 0 6px 4px;">干支の種類：'+type+'</div>'+
           '<div style="margin-top:6px;"><b>地支の関係（注意点）</b>：'+(shake.length?'<ul style="margin:4px 0 0 1.2em;padding:0;">'+shake.map(li).join('')+'</ul>':'特になし')+'</div>'+
           (good.length?'<div><b>良い関係</b>：<ul style="margin:4px 0 0 1.2em;padding:0;">'+good.map(li).join('')+'</ul></div>':'')+
           '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(201,164,76,.07);"><b>総合</b>：'+sum+'</div>'+

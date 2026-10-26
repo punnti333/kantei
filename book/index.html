@@ -634,7 +634,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610270400';
+var APP_VERSION = '202610270410';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -5296,7 +5296,6 @@ function calculate(){
         '<div style="font-size:14px;line-height:1.8;color:var(--washi);">'+
           roleRow('地支', '季節・6割', R.shi, shiKan, nameT(shiKan), shiKi, true)+
           roleRow('天干', '補助・4割', R.kan, '', nameT(R.kan), kanKi, false)+
-          '<div style="font-size:12px;opacity:.7;margin:2px 0 6px 4px;">参考：干支の種類は'+type+'</div>'+
           '<div style="margin-top:6px;"><b>地支の関係（注意点）</b>：'+(shake.length?'<ul style="margin:4px 0 0 1.2em;padding:0;">'+shake.map(li).join('')+'</ul>':'特になし')+'</div>'+
           (good.length?'<div><b>良い関係</b>：<ul style="margin:4px 0 0 1.2em;padding:0;">'+good.map(li).join('')+'</ul></div>':'')+
           '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(201,164,76,.07);"><b>総合</b>：'+sum+'</div>'+

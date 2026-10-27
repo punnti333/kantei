@@ -9,10 +9,10 @@
 <title>かぴ流 四柱推命アプリ</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
-:root{--sumi:#0e1822;--sumi2:#172331;--washi:#e6eef3;--washi2:#c9d7e0;--shu:#c0392b;--shu2:#9b2418;--kin:#5fb3c9;--kin2:#8fd3e3;}
+:root{--sumi:#0e1822;--sumi2:#172331;--washi:#f1ece0;--washi2:#d9d2c2;--shu:#c0392b;--shu2:#9b2418;--kin:#d4b05a;--kin2:#ecd28a;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--sumi);color:var(--washi);min-height:100vh;padding:0 0 60px;
-  background-image:radial-gradient(circle at 20% 10%,rgba(95,179,201,.08),transparent 45%),radial-gradient(circle at 80% 90%,rgba(95,179,201,.10),transparent 45%);}
+  background-image:radial-gradient(circle at 20% 10%,rgba(212,176,90,.08),transparent 45%),radial-gradient(circle at 80% 90%,rgba(212,176,90,.10),transparent 45%);}
 .wrap{max-width:860px;margin:0 auto;padding:0 20px;}
 /* ===== 大運の表：狭い画面での折り返し調整 ===== */
 #daiin-table td{vertical-align:top;}
@@ -39,7 +39,7 @@ background:linear-gradient(165deg,#172331 0%,#0e1822 55%,#0a131c 100%);}
 .gate-title{font-family:'Shippori Mincho',serif;font-size:26px;color:var(--kin2);
 text-align:center;letter-spacing:.2em;margin-bottom:8px;}
 .gate-sub{text-align:center;color:var(--washi2);font-size:13.5px;letter-spacing:.1em;margin-bottom:28px;line-height:2;}
-.gate-box{border:1px solid rgba(95,179,201,.35);border-radius:14px;padding:20px 18px;margin-bottom:22px;
+.gate-box{border:1px solid rgba(212,176,90,.35);border-radius:14px;padding:20px 18px;margin-bottom:22px;
 background:rgba(23,35,49,.6);}
 .gate-box h3{font-family:'Shippori Mincho',serif;font-size:17px;color:var(--kin2);
 letter-spacing:.1em;margin-bottom:12px;}
@@ -50,11 +50,11 @@ letter-spacing:.1em;margin-bottom:12px;}
 .codoc-wrap h1,.codoc-wrap h2,.codoc-wrap h3,.codoc-wrap p,.codoc-wrap div,.codoc-wrap span,.codoc-wrap li{color:#2a2a2a !important;font-family:sans-serif;}
 .codoc-bottom{display:none !important;}
 header{text-align:center;padding:46px 0 24px;}
-h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:clamp(36px,8vw,68px);letter-spacing:.16em;color:var(--washi);text-shadow:0 2px 0 #1f4a5c,0 0 30px rgba(95,179,201,.3);}
+h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:clamp(36px,8vw,68px);letter-spacing:.16em;color:var(--washi);text-shadow:0 2px 0 #3a2f12,0 0 30px rgba(212,176,90,.25);}
 h1 .k{color:var(--kin2);}
 .sub{margin-top:13px;letter-spacing:.22em;font-size:15px;color:var(--kin);opacity:.9;}
 .rule{height:1px;background:linear-gradient(90deg,transparent,var(--kin),transparent);margin:22px auto 0;max-width:480px;}
-.card{background:linear-gradient(160deg,var(--sumi2),#121e2b);border:1px solid rgba(95,179,201,.22);border-radius:14px;padding:30px 28px;margin-top:26px;box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04);}
+.card{background:linear-gradient(160deg,var(--sumi2),#121e2b);border:1px solid rgba(212,176,90,.22);border-radius:14px;padding:30px 28px;margin-top:26px;box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.04);}
 .form-title{font-family:'Shippori Mincho',serif;font-size:20px;letter-spacing:.2em;color:var(--kin2);margin-bottom:22px;display:flex;align-items:center;gap:10px;}
 .form-title::before{content:'';width:18px;height:2px;background:var(--shu);}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px;}
@@ -63,19 +63,19 @@ h1 .k{color:var(--kin2);}
 .field-full{grid-column:1/-1;}
 .save-row{display:flex;gap:10px;align-items:center;}
 .save-row input{flex:1;}
-.save-btn{padding:12px 18px;background:#0a131c;border:1px solid rgba(95,179,201,.45);
+.save-btn{padding:12px 18px;background:#0a131c;border:1px solid rgba(212,176,90,.45);
 border-radius:8px;color:var(--kin2);font-size:14px;letter-spacing:.1em;cursor:pointer;white-space:nowrap;}
-.save-btn:active{background:rgba(95,179,201,.15);}
+.save-btn:active{background:rgba(212,176,90,.15);}
 .people-wrap{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;}
 .people-empty{font-size:12.5px;color:var(--washi);opacity:.45;letter-spacing:.05em;}
-.pchip{display:inline-flex;align-items:center;background:rgba(95,179,201,.10);
-border:1px solid rgba(95,179,201,.45);border-radius:999px;padding:8px 12px;
+.pchip{display:inline-flex;align-items:center;background:rgba(212,176,90,.10);
+border:1px solid rgba(212,176,90,.45);border-radius:999px;padding:8px 12px;
 font-size:13px;color:var(--washi);cursor:pointer;letter-spacing:.03em;}
-.pchip:active{background:rgba(95,179,201,.22);}
+.pchip:active{background:rgba(212,176,90,.22);}
 .pchip .pname{font-weight:700;color:var(--kin2);margin-right:7px;}
 .pchip .pdel{margin-left:9px;opacity:.5;padding:0 3px;font-size:15px;}
-input,select{width:100%;padding:14px;font-weight:500;background:#0a131c;border:1px solid rgba(95,179,201,.28);border-radius:8px;color:var(--washi);font-size:17px;font-family:inherit;transition:border-color .2s,box-shadow .2s;}
-input:focus,select:focus{outline:none;border-color:var(--kin);box-shadow:0 0 0 3px rgba(95,179,201,.14);}
+input,select{width:100%;padding:14px;font-weight:500;background:#0a131c;border:1px solid rgba(212,176,90,.28);border-radius:8px;color:var(--washi);font-size:17px;font-family:inherit;transition:border-color .2s,box-shadow .2s;}
+input:focus,select:focus{outline:none;border-color:var(--kin);box-shadow:0 0 0 3px rgba(212,176,90,.14);}
 input[type=number]{-moz-appearance:textfield;}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .note-small{font-size:13px;color:var(--washi2);opacity:.65;margin-top:6px;letter-spacing:.05em;}
@@ -86,7 +86,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .shichuu-disp .pillar{direction:ltr;min-width:0;}
 .p-kan-row{display:flex;align-items:center;justify-content:center;gap:2px;height:36px;}
 .p-shi-row{margin-top:6px;height:36px;display:flex;align-items:center;justify-content:center;gap:2px;}
-.pillar{background:#0a131c;border:1px solid rgba(95,179,201,.18);border-radius:10px;padding:22px 18px;text-align:center;}
+.pillar{background:#0a131c;border:1px solid rgba(212,176,90,.18);border-radius:10px;padding:22px 18px;text-align:center;}
 .p-label{font-size:11px;letter-spacing:.2em;color:var(--kin);opacity:.8;margin-bottom:8px;font-weight:700;height:16px;}
 .p-kan-row{display:flex;align-items:center;justify-content:center;gap:4px;height:42px;}
 .p-kan{font-family:'Shippori Mincho',serif;font-size:34px;font-weight:700;color:var(--washi);line-height:1;}
@@ -96,7 +96,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .p-shi{font-family:'Shippori Mincho',serif;font-size:34px;font-weight:700;color:var(--washi2);line-height:1;}
 .p-juni{font-size:15px;color:var(--washi2);opacity:.75;white-space:nowrap;min-width:32px;text-align:left;vertical-align:top;position:relative;top:-8px;}
 .p-gogyo{font-size:12px;color:var(--kin);opacity:.7;margin-top:6px;letter-spacing:.1em;height:18px;}
-.pillar.day{border-color:rgba(95,179,201,.45);}
+.pillar.day{border-color:rgba(212,176,90,.45);}
 .p-label{font-size:11px;letter-spacing:.2em;color:var(--kin);opacity:.8;margin-bottom:8px;font-weight:700;}
 .p-kan{font-family:'Shippori Mincho',serif;font-size:54px;font-weight:700;color:var(--washi);line-height:1;}
 .pillar.day .p-kan{color:var(--kin2);}
@@ -114,8 +114,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .punch{margin-top:14px;font-family:'Shippori Mincho',serif;font-weight:700;font-size:clamp(15px,3.2vw,18px);letter-spacing:.06em;line-height:1.6;color:var(--washi);border-top:1px solid rgba(255,255,255,.14);border-bottom:1px solid rgba(255,255,255,.14);padding:12px 0;display:inline-block;}
 .sig-strong{background:radial-gradient(circle at 50% 0,rgba(91,122,79,.5),var(--sumi2));}
 .sig-strong .score-num,.sig-strong .verdict{color:#9ed687;text-shadow:0 0 24px rgba(120,200,90,.5);}
-.sig-mid{background:radial-gradient(circle at 50% 0,rgba(95,179,201,.35),var(--sumi2));}
-.sig-mid .score-num,.sig-mid .verdict{color:var(--kin2);text-shadow:0 0 24px rgba(143,211,227,.5);}
+.sig-mid{background:radial-gradient(circle at 50% 0,rgba(212,176,90,.35),var(--sumi2));}
+.sig-mid .score-num,.sig-mid .verdict{color:var(--kin2);text-shadow:0 0 24px rgba(236,210,138,.5);}
 .sig-weak{background:radial-gradient(circle at 50% 0,rgba(42,77,110,.5),var(--sumi2));}
 .sig-weak .score-num,.sig-weak .verdict{color:#7ab4d8;text-shadow:0 0 24px rgba(100,160,210,.5);}
 .score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px;}
@@ -128,7 +128,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
   .score-card .sc-val{font-size:28px;line-height:1.1;}
   .score-card .sc-note{font-size:13px;line-height:1.65;}
 }
-.score-card{background:#0a131c;border:1px solid rgba(95,179,201,.18);border-radius:10px;padding:18px 16px;text-align:center;}
+.score-card{background:#0a131c;border:1px solid rgba(212,176,90,.18);border-radius:10px;padding:18px 16px;text-align:center;}
 .sc-lab{font-size:12px;letter-spacing:.18em;color:var(--kin2);opacity:.85;margin-bottom:6px;font-weight:700;}
 .sc-val{font-family:'Shippori Mincho',serif;font-size:32px;font-weight:700;}
 .sc-note{font-size:13px;color:var(--washi2);opacity:.8;margin-top:6px;line-height:1.5;}
@@ -140,7 +140,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
   .score-card .sc-val{font-size:28px;line-height:1.1;}
   .score-card .sc-note{font-size:13px;line-height:1.65;}
 }
-.flow{margin-top:18px;background:#0a131c;border:1px solid rgba(95,179,201,.14);border-radius:10px;padding:16px 20px;font-size:15px;line-height:2.0;color:var(--washi2);}
+.flow{margin-top:18px;background:#0a131c;border:1px solid rgba(212,176,90,.14);border-radius:10px;padding:16px 20px;font-size:15px;line-height:2.0;color:var(--washi2);}
 .flow b{color:var(--kin2);font-weight:700;}
 .arr{color:var(--shu);margin:0 6px;}
 .flow table{width:100%;border-collapse:collapse;margin-top:10px;}
@@ -149,11 +149,11 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 line-height:1;margin:0;padding:0;flex:0 0 auto;transform:none;}
 .nengun-kaza-mark.red{color:#f0857a;font-size:13px;font-weight:700;}
 .nengun-kaza-mark.blue{color:#7ab4d8;font-size:11px;font-weight:700;}
-.flow td,.flow th{padding:7px 10px;font-size:14px;border-bottom:1px solid rgba(95,179,201,.1);}
+.flow td,.flow th{padding:7px 10px;font-size:14px;border-bottom:1px solid rgba(212,176,90,.1);}
 .flow th{color:var(--kin);letter-spacing:.1em;font-weight:700;font-size:12px;}
 .pos{color:#9ed687;}.neg{color:#f0857a;}.zer{color:var(--washi2);}
 /* 干合の試算表（2026-09-27 追加） */
-table.kgsim td{font-size:14px;padding:5px 6px;border-bottom:1px solid rgba(95,179,201,.08);vertical-align:top;}
+table.kgsim td{font-size:14px;padding:5px 6px;border-bottom:1px solid rgba(212,176,90,.08);vertical-align:top;}
 table.kgsim th{white-space:nowrap;}
 
 /* スマホ用（560px以下）：命式まわりを一元管理。!important の二重指定を解消 */
@@ -179,7 +179,7 @@ table.kgsim th{white-space:nowrap;}
 .type-name{
   font-family:'Shippori Mincho',serif;
   font-size:26px; font-weight:800;
-  color:#5fb3c9; letter-spacing:.08em;
+  color:#d4b05a; letter-spacing:.08em;
   margin-top:6px; line-height:1.3;
 }
 .type-yomi{
@@ -194,10 +194,10 @@ table.kgsim th{white-space:nowrap;}
 
 .type-count{
   font-size:13px; letter-spacing:.12em;
-  color:#5fb3c9; opacity:.85;
+  color:#d4b05a; opacity:.85;
   margin-top:10px; padding:6px 0;
-  border-top:1px solid rgba(95,179,201,.15);
-  border-bottom:1px solid rgba(95,179,201,.15);
+  border-top:1px solid rgba(212,176,90,.15);
+  border-bottom:1px solid rgba(212,176,90,.15);
 }
 
 .type-seijo{
@@ -211,8 +211,8 @@ table.kgsim th{white-space:nowrap;}
   border-radius:6px;
 }
 .type-warn{
-  background:rgba(95,179,201,.08);
-  border-left:2px solid rgba(95,179,201,.5);
+  background:rgba(212,176,90,.08);
+  border-left:2px solid rgba(212,176,90,.5);
 }
 .type-draft{
   background:rgba(255,255,255,.04);
@@ -226,9 +226,9 @@ table.kgsim th{white-space:nowrap;}
 .k-label{
   font-family:'Shippori Mincho',serif;
   font-size:16px; font-weight:700;
-  color:#5fb3c9; letter-spacing:.18em;
+  color:#d4b05a; letter-spacing:.18em;
   padding-bottom:6px;
-  border-bottom:1px solid rgba(95,179,201,.25);
+  border-bottom:1px solid rgba(212,176,90,.25);
 }
 .k-label.imi{ color:#b98a8a; border-bottom-color:rgba(185,138,138,.25); }
 
@@ -254,9 +254,9 @@ table.kgsim th{white-space:nowrap;}
   white-space:nowrap;
 }
 .k-on{
-  color:#5fb3c9;
-  background:rgba(95,179,201,.12);
-  border:1px solid rgba(95,179,201,.3);
+  color:#d4b05a;
+  background:rgba(212,176,90,.12);
+  border:1px solid rgba(212,176,90,.3);
 }
 .k-off{
   opacity:.45;
@@ -351,7 +351,7 @@ table.kgsim th{white-space:nowrap;}
 #sanju-modal .sj-inner{
   max-width:520px; margin:0 auto;
   background:linear-gradient(160deg,var(--sumi2),#121e2b);
-  border:1px solid rgba(95,179,201,.3); border-radius:14px; padding:18px 16px 22px;
+  border:1px solid rgba(212,176,90,.3); border-radius:14px; padding:18px 16px 22px;
   box-shadow:0 20px 60px rgba(0,0,0,.7);
 }
 #sanju-modal .sj-head{
@@ -361,19 +361,19 @@ table.kgsim th{white-space:nowrap;}
   font-family:'Shippori Mincho',serif; font-size:20px; letter-spacing:.12em; color:#f0a0a0;
 }
 #sanju-modal .sj-close{
-  background:none; border:1px solid rgba(95,179,201,.4); border-radius:8px;
+  background:none; border:1px solid rgba(212,176,90,.4); border-radius:8px;
   color:var(--washi); font-size:13px; padding:5px 14px; cursor:pointer;
 }
 /* 盤を月単位で前後させるナビゲーションボタン（2026-08-26 追加） */
 #sanju-modal .sj-nav-btn{
-  background:none; border:1px solid rgba(95,179,201,.35); border-radius:8px;
+  background:none; border:1px solid rgba(212,176,90,.35); border-radius:8px;
   color:var(--washi2); font-size:12px; padding:5px 10px; cursor:pointer;
   -webkit-tap-highlight-color:transparent;
 }
 #sanju-modal .sj-nav-btn:active{ opacity:.5; }
 /* 盤の日付を直接指定する入力欄（2026-08-26 追加） */
 #sanju-modal .sj-date-input{
-  background:rgba(255,255,255,.04); border:1px solid rgba(95,179,201,.35); border-radius:8px;
+  background:rgba(255,255,255,.04); border:1px solid rgba(212,176,90,.35); border-radius:8px;
   color:var(--washi2); font-size:12px; padding:4px 8px; color-scheme:dark;
 }
 /* プルダウンを開いたときの選択肢一覧が、環境によって白背景に白文字で
@@ -403,7 +403,7 @@ table.kgsim th{white-space:nowrap;}
 
 .kg-item{
   margin-top:14px; padding-top:14px;
-  border-top:1px solid rgba(95,179,201,.15);
+  border-top:1px solid rgba(212,176,90,.15);
 }
 .kg-item:first-of-type{ border-top:none; padding-top:6px; }
 
@@ -411,18 +411,18 @@ table.kgsim th{white-space:nowrap;}
   display:flex; align-items:center; flex-wrap:wrap; gap:8px;
   font-size:19px; font-family:'Shippori Mincho',serif;
 }
-.kg-ka{ color:#5fb3c9; font-size:20px; font-weight:700; }
+.kg-ka{ color:#d4b05a; font-size:20px; font-weight:700; }
 
 .kg-rank{
   font-size:12px; letter-spacing:.06em;
   padding:2px 9px; border-radius:11px; white-space:nowrap;
 }
-.kg-rank.kg-shin { color:#5fb3c9; background:rgba(95,179,201,.14); border:1px solid rgba(95,179,201,.45); }
+.kg-rank.kg-shin { color:#d4b05a; background:rgba(212,176,90,.14); border:1px solid rgba(212,176,90,.45); }
 .kg-rank.kg-jun  { color:#9fb8a8; background:rgba(159,184,168,.12); border:1px solid rgba(159,184,168,.35); }
 .kg-rank.kg-kirau{ color:#e8837f; background:rgba(232,131,127,.10); border:1px solid rgba(232,131,127,.35); }
 .kg-rank.kg-none { opacity:.55; border:1px solid rgba(255,255,255,.18); }
 
-.kg-name{ font-size:14px; color:#5fb3c9; opacity:.9; margin-top:6px; letter-spacing:.05em; }
+.kg-name{ font-size:14px; color:#d4b05a; opacity:.9; margin-top:6px; letter-spacing:.05em; }
 .kg-sei { font-size:14px; line-height:1.85; margin-top:6px; }
 
 .kg-shis{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
@@ -431,7 +431,7 @@ table.kgsim th{white-space:nowrap;}
   padding:3px 9px; border-radius:6px;
   border:1px solid rgba(255,255,255,.12);
 }
-.kg-shi.kg-shin { color:#5fb3c9; border-color:rgba(95,179,201,.45); background:rgba(95,179,201,.10); }
+.kg-shi.kg-shin { color:#d4b05a; border-color:rgba(212,176,90,.45); background:rgba(212,176,90,.10); }
 .kg-shi.kg-jun  { color:#9fb8a8; border-color:rgba(159,184,168,.35); background:rgba(159,184,168,.08); }
 .kg-shi.kg-kirau{ color:#e8837f; border-color:rgba(232,131,127,.35); background:rgba(232,131,127,.08); }
 .kg-shi.kg-none { opacity:.45; }
@@ -461,10 +461,10 @@ table.kgsim th{white-space:nowrap;}
   margin-top:10px; padding:8px 10px; border-radius:6px;
   font-size:13px; line-height:1.8;
 }
-.kg-extra-good{ background:rgba(95,179,201,.08);  border-left:2px solid rgba(95,179,201,.5); }
+.kg-extra-good{ background:rgba(212,176,90,.08);  border-left:2px solid rgba(212,176,90,.5); }
 .kg-extra-bad { background:rgba(232,131,127,.07); border-left:2px solid rgba(232,131,127,.5); }
 .kg-extra-head{ display:flex; align-items:center; gap:8px; }
-.kg-extra-good .kg-extra-head b{ color:#5fb3c9; }
+.kg-extra-good .kg-extra-head b{ color:#d4b05a; }
 .kg-extra-bad  .kg-extra-head b{ color:#e8837f; }
 .kg-extra-where{ font-size:11px; opacity:.7; }
 .kg-extra-body{ margin-top:4px; }
@@ -476,14 +476,14 @@ table.kgsim th{white-space:nowrap;}
 .kuubou-card{ margin-top:18px; }
 .kb-key{
   font-family:'Shippori Mincho',serif;
-  font-size:26px; font-weight:800; color:#5fb3c9;
+  font-size:26px; font-weight:800; color:#d4b05a;
   letter-spacing:.15em; margin-top:6px;
 }
 .kb-sec{
   font-family:'Shippori Mincho',serif;
-  font-size:15px; font-weight:700; color:#5fb3c9;
+  font-size:15px; font-weight:700; color:#d4b05a;
   letter-spacing:.15em; margin-top:18px; padding-bottom:6px;
-  border-bottom:1px solid rgba(95,179,201,.25);
+  border-bottom:1px solid rgba(212,176,90,.25);
 }
 .kb-sec2{ color:#9aa3a8; border-bottom-color:rgba(255,255,255,.14); }
 
@@ -503,8 +503,8 @@ table.kgsim th{white-space:nowrap;}
 .kb-save{
   font-size:13px; line-height:1.8; margin-top:8px;
   padding:8px 10px; border-radius:6px;
-  background:rgba(95,179,201,.08);
-  border-left:2px solid rgba(95,179,201,.5);
+  background:rgba(212,176,90,.08);
+  border-left:2px solid rgba(212,176,90,.5);
 }
 .kb-none{ font-size:14px; opacity:.55; margin-top:12px; }
 .kb-note{ font-size:12px; opacity:.65; margin-top:10px; line-height:1.7; }
@@ -542,11 +542,11 @@ table.kgsim th{white-space:nowrap;}
             border-radius:8px;padding:9px 16px;cursor:pointer;letter-spacing:.05em;">練習モードにする（答えを隠す）</button>
           <div style="font-size:11.5px;color:var(--washi2);opacity:.75;margin-top:6px;">先に押しておくと、このあと「判断」や本の例のボタンを押したとき、通変星・十二運・空亡・大運の〇●✖などが隠れた状態で出ます。押すと一つずつ答えが見えます。</div>
         </div>
-    <div id="book-examples" style="margin:-4px 0 16px;padding:10px 12px;border:1px dashed rgba(95,179,201,.45);border-radius:10px;">
+    <div id="book-examples" style="margin:-4px 0 16px;padding:10px 12px;border:1px dashed rgba(212,176,90,.45);border-radius:10px;">
       <div style="font-size:12.5px;color:var(--kin2);letter-spacing:.08em;margin-bottom:8px;">本の例を入れて答え合わせ</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button type="button" onclick="loadBookExample('hanako')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(95,179,201,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">花子さん<span style="display:block;font-size:11.5px;opacity:.75;">1985年6月1日 10時・女性</span></button>
-        <button type="button" onclick="loadBookExample('b')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(95,179,201,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">五郎さん<span style="display:block;font-size:11.5px;opacity:.75;">1987年6月26日 12時・男性</span></button>
+        <button type="button" onclick="loadBookExample('hanako')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(212,176,90,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">花子さん<span style="display:block;font-size:11.5px;opacity:.75;">1985年6月1日 10時・女性</span></button>
+        <button type="button" onclick="loadBookExample('b')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(212,176,90,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">五郎さん<span style="display:block;font-size:11.5px;opacity:.75;">1987年6月26日 12時・男性</span></button>
       </div>
     </div>
     <div class="fields">
@@ -571,7 +571,7 @@ table.kgsim th{white-space:nowrap;}
         <label>生まれた時刻</label>
         <div style="display:flex;gap:10px;align-items:center;">
           <input type="time" id="inp-time" value="12:00" style="flex:1;">
-          <button type="button" id="btn-hunknown" onclick="toggleHUnknown()" style="flex:1;padding:12px 6px;background:#0a131c;border:1px solid rgba(95,179,201,.28);border-radius:8px;color:var(--washi);font-size:15px;cursor:pointer;transition:border-color .2s;white-space:nowrap;">不明</button>
+          <button type="button" id="btn-hunknown" onclick="toggleHUnknown()" style="flex:1;padding:12px 6px;background:#0a131c;border:1px solid rgba(212,176,90,.28);border-radius:8px;color:var(--washi);font-size:15px;cursor:pointer;transition:border-color .2s;white-space:nowrap;">不明</button>
         </div>
       </div>
       <div class="field">
@@ -581,8 +581,8 @@ table.kgsim th{white-space:nowrap;}
       <div class="field field-full">
         <label>時刻の見方</label>
         <div style="display:flex;gap:10px;">
-          <button type="button" id="btn-tst" onclick="setTimeMode('tst')" style="flex:1;padding:12px 6px;background:#0a131c;border:1px solid rgba(95,179,201,.28);border-radius:8px;color:var(--washi);font-size:15px;cursor:pointer;transition:border-color .2s;">真太陽時（補正あり）</button>
-          <button type="button" id="btn-jst" onclick="setTimeMode('jst')" style="flex:1;padding:12px 6px;background:#0a131c;border:1px solid rgba(95,179,201,.28);border-radius:8px;color:var(--washi);font-size:15px;cursor:pointer;transition:border-color .2s;">標準時（補正なし）</button>
+          <button type="button" id="btn-tst" onclick="setTimeMode('tst')" style="flex:1;padding:12px 6px;background:#0a131c;border:1px solid rgba(212,176,90,.28);border-radius:8px;color:var(--washi);font-size:15px;cursor:pointer;transition:border-color .2s;">真太陽時（補正あり）</button>
+          <button type="button" id="btn-jst" onclick="setTimeMode('jst')" style="flex:1;padding:12px 6px;background:#0a131c;border:1px solid rgba(212,176,90,.28);border-radius:8px;color:var(--washi);font-size:15px;cursor:pointer;transition:border-color .2s;">標準時（補正なし）</button>
         </div>
         <div style="margin-top:8px;font-size:12px;color:var(--washi);opacity:.55;line-height:1.7;">
           真太陽時：生まれた土地の経度差と均時差で時刻を補正します。日の変わり目はどちらも23時です。
@@ -591,8 +591,8 @@ table.kgsim th{white-space:nowrap;}
       <div class="field">
         <label>性別</label>
         <div style="display:flex;gap:10px;">
-          <button type="button" id="btn-male" onclick="setSex('male')" style="flex:1;padding:14px;background:#0a131c;border:1px solid rgba(95,179,201,.28);border-radius:8px;color:var(--washi);font-size:16px;cursor:pointer;transition:border-color .2s;">男</button>
-          <button type="button" id="btn-female" onclick="setSex('female')" style="flex:1;padding:14px;background:#0a131c;border:1px solid rgba(95,179,201,.28);border-radius:8px;color:var(--washi);font-size:16px;cursor:pointer;transition:border-color .2s;">女</button>
+          <button type="button" id="btn-male" onclick="setSex('male')" style="flex:1;padding:14px;background:#0a131c;border:1px solid rgba(212,176,90,.28);border-radius:8px;color:var(--washi);font-size:16px;cursor:pointer;transition:border-color .2s;">男</button>
+          <button type="button" id="btn-female" onclick="setSex('female')" style="flex:1;padding:14px;background:#0a131c;border:1px solid rgba(212,176,90,.28);border-radius:8px;color:var(--washi);font-size:16px;cursor:pointer;transition:border-color .2s;">女</button>
         </div>
       </div>
       <div class="field field-full">
@@ -607,8 +607,8 @@ table.kgsim th{white-space:nowrap;}
           名前を入力すると、ふりがなは自動で入ります（違っていれば書き換えてください。空欄のままでも保存できます）。
         </div>
         <div style="display:flex;gap:8px;margin-top:10px;align-items:stretch;">
-          <input type="text" id="inp-people-filter" placeholder="名前検索（名前かふりがな）" lang="ja" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="renderPeople()" oncompositionupdate="setTimeout(renderPeople,0)" style="flex:1;box-sizing:border-box;padding:10px 12px;background:#0a131c;border:1px solid rgba(95,179,201,.28);border-radius:8px;color:var(--washi);font-size:14px;">
-          <button type="button" id="btn-people-edit" onclick="togglePeopleEdit()" style="flex:none;padding:10px 14px;background:#0a131c;border:1px solid rgba(95,179,201,.4);border-radius:8px;color:var(--kin2);font-size:13px;letter-spacing:.05em;cursor:pointer;white-space:nowrap;">整理する</button>
+          <input type="text" id="inp-people-filter" placeholder="名前検索（名前かふりがな）" lang="ja" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="renderPeople()" oncompositionupdate="setTimeout(renderPeople,0)" style="flex:1;box-sizing:border-box;padding:10px 12px;background:#0a131c;border:1px solid rgba(212,176,90,.28);border-radius:8px;color:var(--washi);font-size:14px;">
+          <button type="button" id="btn-people-edit" onclick="togglePeopleEdit()" style="flex:none;padding:10px 14px;background:#0a131c;border:1px solid rgba(212,176,90,.4);border-radius:8px;color:var(--kin2);font-size:13px;letter-spacing:.05em;cursor:pointer;white-space:nowrap;">整理する</button>
         </div>
         <div id="people-bulk-bar" style="display:none;margin-top:8px;">
           <button type="button" id="btn-people-bulk-del" onclick="delSelectedPeople()" style="width:100%;padding:10px 14px;background:rgba(192,57,43,.14);border:1px solid rgba(192,57,43,.5);border-radius:8px;color:#f0a0a0;font-size:13px;letter-spacing:.05em;cursor:pointer;">選んだ人をまとめて消す</button>
@@ -635,7 +635,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610271440';
+var APP_VERSION = '202610271450';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1543,9 +1543,9 @@ function effLabel(eff){return pad2(eff.getUTCHours())+':'+pad2(eff.getUTCMinutes
 function setTimeMode(mode){
   TIME_MODE=mode;
   const a=document.getElementById('btn-tst'),b=document.getElementById('btn-jst');
-  a.style.borderColor=mode==='tst'?'var(--kin)':'rgba(95,179,201,.28)';
+  a.style.borderColor=mode==='tst'?'var(--kin)':'rgba(212,176,90,.28)';
   a.style.color=mode==='tst'?'var(--kin2)':'var(--washi)';
-  b.style.borderColor=mode==='jst'?'var(--kin)':'rgba(95,179,201,.28)';
+  b.style.borderColor=mode==='jst'?'var(--kin)':'rgba(212,176,90,.28)';
   b.style.color=mode==='jst'?'var(--kin2)':'var(--washi)';
 }
 
@@ -1836,7 +1836,7 @@ function updatePeopleEditBar(count){
   const bulkBtn=document.getElementById('btn-people-bulk-del');
   if(!editBtn||!bulkBar||!bulkBtn) return;
   editBtn.textContent=PEOPLE_EDIT?'整理をやめる':'整理する';
-  editBtn.style.borderColor=PEOPLE_EDIT?'var(--kin)':'rgba(95,179,201,.4)';
+  editBtn.style.borderColor=PEOPLE_EDIT?'var(--kin)':'rgba(212,176,90,.4)';
   bulkBar.style.display=PEOPLE_EDIT?'block':'none';
   const n=PEOPLE_SELECTED.size;
   bulkBtn.textContent=n?('選んだ人をまとめて消す（'+n+'人）'):'消す人にチェックを入れてください';
@@ -1849,7 +1849,7 @@ function setHUnknown(v){ if(!!v!==H_UNKNOWN) toggleHUnknown(); }
 function toggleHUnknown(){
   H_UNKNOWN=!H_UNKNOWN;
   const btn=document.getElementById('btn-hunknown'),inp=document.getElementById('inp-time');
-  btn.style.borderColor=H_UNKNOWN?'var(--kin)':'rgba(95,179,201,.28)';
+  btn.style.borderColor=H_UNKNOWN?'var(--kin)':'rgba(212,176,90,.28)';
   btn.style.color=H_UNKNOWN?'var(--kin2)':'var(--washi)';
   inp.disabled=H_UNKNOWN; inp.style.opacity=H_UNKNOWN?.4:1;
 }
@@ -2244,9 +2244,9 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 function setSex(s){
   SEX=s;
-  document.getElementById('btn-male').style.borderColor=s==='male'?'var(--kin)':'rgba(95,179,201,.28)';
+  document.getElementById('btn-male').style.borderColor=s==='male'?'var(--kin)':'rgba(212,176,90,.28)';
   document.getElementById('btn-male').style.color=s==='male'?'var(--kin2)':'var(--washi)';
-  document.getElementById('btn-female').style.borderColor=s==='female'?'var(--kin)':'rgba(95,179,201,.28)';
+  document.getElementById('btn-female').style.borderColor=s==='female'?'var(--kin)':'rgba(212,176,90,.28)';
   document.getElementById('btn-female').style.color=s==='female'?'var(--kin2)':'var(--washi)';
 }
 
@@ -2638,11 +2638,11 @@ function nenGetsuunHTML(d, yr){
     }
     const endT=(function(){ const e=setsuOf(0,yr+1,2); return e?e.getTime():null; })();
     const pill=(t,c)=>'<span style="font-size:10.5px;color:'+c+';border:1px solid '+c+';border-radius:4px;padding:0 4px;margin:1px 2px 1px 0;display:inline-block;line-height:1.5;">'+t+'</span>';
-    const tdS='padding:5px 6px;border-bottom:1px solid rgba(95,179,201,.1);vertical-align:top;';
+    const tdS='padding:5px 6px;border-bottom:1px solid rgba(212,176,90,.1);vertical-align:top;';
     let h='<div style="margin-top:12px;font-family:\'Shippori Mincho\',serif;font-size:15px;font-weight:700;color:var(--kin2);">'+yr+'年の月運'+
       '<span style="font-size:11.5px;font-weight:400;opacity:.7;margin-left:8px;font-family:sans-serif;">節入りで切り替わります（2月〜翌1月）</span></div>'+
       '<table style="width:100%;border-collapse:collapse;margin-top:4px;font-size:13.5px;">'+
-      '<tr>'+['月','干支','通変星（干／支）'].map(t=>'<th style="color:var(--kin);font-size:11.5px;font-weight:400;text-align:left;padding:3px 6px;border-bottom:1px solid rgba(95,179,201,.25);">'+t+'</th>').join('')+'</tr>';
+      '<tr>'+['月','干支','通変星（干／支）'].map(t=>'<th style="color:var(--kin);font-size:11.5px;font-weight:400;text-align:left;padding:3px 6px;border-bottom:1px solid rgba(212,176,90,.25);">'+t+'</th>').join('')+'</tr>';
     list.forEach((o,i)=>{
       const nextT = i<11 ? (list[i+1].st?list[i+1].st.getTime():null) : endT;
       const isNow = o.st && nextT && nowT>=o.st.getTime() && nowT<nextT;
@@ -2657,7 +2657,7 @@ function nenGetsuunHTML(d, yr){
         tags.push(pill(t==='三'?'三合':t,c));
       });
       if(CHUU[d.mShi]===o.shi && !(d.mShi===d.dShi && rels.includes('沖'))) tags.push(pill('月冲','#f0857a'));
-      if((d.kuubou||[]).includes(o.shi)) tags.push(pill('空亡','#5fb3c9'));
+      if((d.kuubou||[]).includes(o.shi)) tags.push(pill('空亡','#d4b05a'));
       if(KANGO[d.nK]===o.kan) tags.push(pill('干合','#c78fff'));
       if(isTensenChichu(d.dKan,d.dShi,o.kan,o.shi)) tags.push(pill('天戦地冲（日）','#e0453c'));
       else if(isTensenChichu(d.mKan,d.mShi,o.kan,o.shi)) tags.push(pill('天戦地冲（月）','#e0453c'));
@@ -2675,7 +2675,7 @@ function nenGetsuunHTML(d, yr){
       if(CHUU[d.mShi]===o.shi && !tenM && d.mShi!==d.dShi) _el.push('月冲');
       if((d.kuubou||[]).includes(o.shi)) _el.push('空亡');
       const chui = _el.length>=2;
-      const bg = isNow ? 'background:rgba(95,179,201,.15);font-weight:700;' : (chui ? 'background:rgba(232,131,127,.08);' : '');
+      const bg = isNow ? 'background:rgba(212,176,90,.15);font-weight:700;' : (chui ? 'background:rgba(232,131,127,.08);' : '');
       h+='<tr style="'+bg+'">'+
         '<td style="'+tdS+'white-space:nowrap;">'+o.mm+'月<span style="display:block;font-size:10.5px;opacity:.65;font-weight:400;">'+stTxt+(isNow?' 今':'')+'</span>'+
           (chui?'<span title="'+_el.join('・')+'" style="display:inline-block;margin-top:2px;font-size:10.5px;font-weight:700;color:#fff;background:#c0392b;border-radius:4px;padding:0 5px;">注意</span>':'')+
@@ -2699,7 +2699,7 @@ function nenTsuhenBoxHTML(nK, yr){
 // 枠だけ（見出しなし）。lab は枠の中の先頭に添える小見出し（大運の「天干 丁（主役）」など）
 function tsuhenThemeFrameHTML(nK, kan, lab, strong){
   const ts=getTsuuhensei(nK,kan), th=NEN_TSUHEN_THEME[ts]; if(!th) return '';
-  return '<div style="margin-top:6px;padding:10px 12px;border:1px solid rgba(95,179,201,'+(strong?'.75':'.3')+');border-radius:8px;background:rgba(95,179,201,'+(strong?'.08':'.03')+');line-height:1.8;'+(strong?'':'opacity:.8;')+'">'+
+  return '<div style="margin-top:6px;padding:10px 12px;border:1px solid rgba(212,176,90,'+(strong?'.75':'.3')+');border-radius:8px;background:rgba(212,176,90,'+(strong?'.08':'.03')+');line-height:1.8;'+(strong?'':'opacity:.8;')+'">'+
     (lab?'<div style="font-size:12.5px;color:var(--kin2);">'+lab+'</div>':'')+
     '<div><b style="color:var(--kin);font-size:15px;">'+ts+'</b>　<b>'+th[0]+'</b></div>'+
     '<div style="font-size:14px;margin-top:2px;">'+th[1]+'</div>'+
@@ -2709,7 +2709,7 @@ function tsuhenThemeBoxHTML(nK, kan, head){
   try{
     const ts=getTsuuhensei(nK,kan), th=NEN_TSUHEN_THEME[ts]; if(!th) return '';
     return '<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;font-weight:700;color:var(--kin2);">日干 '+nK+(head?'<span style="margin-left:12px;">'+head+'</span>':'')+'</div>'+
-      '<div style="margin-top:4px;padding:10px 12px;border:1px solid rgba(95,179,201,.45);border-radius:8px;background:rgba(95,179,201,.05);line-height:1.8;">'+
+      '<div style="margin-top:4px;padding:10px 12px;border:1px solid rgba(212,176,90,.45);border-radius:8px;background:rgba(212,176,90,.05);line-height:1.8;">'+
         '<div><b style="color:var(--kin);font-size:15px;">'+ts+'</b>　<b>'+th[0]+'</b></div>'+
         '<div style="font-size:14px;margin-top:2px;">'+th[1]+'</div>'+
       '</div>';
@@ -2752,9 +2752,9 @@ function updateNengun(){
 
   let rows='<table style="width:100%;border-collapse:collapse;">'+
     '<tr>'+
-    '<th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(95,179,201,.2);text-align:left;">年</th>'+
-    '<th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(95,179,201,.2);text-align:left;">干支</th>'+
-    '<th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(95,179,201,.2);text-align:left;">年齢</th>'+
+    '<th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(212,176,90,.2);text-align:left;">年</th>'+
+    '<th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(212,176,90,.2);text-align:left;">干支</th>'+
+    '<th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(212,176,90,.2);text-align:left;">年齢</th>'+
     '</tr>';
 
   for(let yr=center-5;yr<=center+5;yr++){
@@ -2810,7 +2810,7 @@ function updateNengun(){
     const isDaiinKotai=!!nextDaiinData;
     const tags=[
       ...rels.map(t=>{
-        const c=(t==='沖'||t==='月冲')?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':t==='歳運併臨'?'#e0453c':t==='月柱併臨'?'#5fb3c9':'#9ed687';
+        const c=(t==='沖'||t==='月冲')?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':t==='歳運併臨'?'#e0453c':t==='月柱併臨'?'#d4b05a':'#9ed687';
         return '<span style="font-size:11px;color:'+c+';border:1px solid '+c+';border-radius:4px;padding:1px 5px;margin-left:3px;">'+t+'</span>';
       }),
       isKuubou?'<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>':'',
@@ -2821,8 +2821,8 @@ function updateNengun(){
       isMujoKansat?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>':'',
       isFukuKansat?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️奉官殺</span>':'',
       isMujoZai?'<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>':'',
-      isYujoZai?'<span style="font-size:11px;color:#8fd3e3;border:1px solid #8fd3e3;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情財</span>':'',
-      isYujoKansat?'<span style="font-size:11px;color:#8fd3e3;border:1px solid #8fd3e3;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>':'',
+      isYujoZai?'<span style="font-size:11px;color:#ecd28a;border:1px solid #ecd28a;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情財</span>':'',
+      isYujoKansat?'<span style="font-size:11px;color:#ecd28a;border:1px solid #ecd28a;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>':'',
       isHeirinN?'<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>':'',
       isHeirinM?'<span style="font-size:11px;color:#a0d8a0;border:1px solid #a0d8a0;border-radius:4px;padding:1px 5px;margin-left:3px;">🔶月柱併臨</span>':'',
       isSaiHeirin?'<span style="font-size:11px;color:#7ab4d8;border:1px solid #7ab4d8;border-radius:4px;padding:1px 5px;margin-left:3px;">🔵歳運併臨</span>':'',
@@ -2848,7 +2848,7 @@ function updateNengun(){
     let bgSty='', txtSty='';
     if(isCenter&&isNow){ bgSty='background:rgba(192,57,43,.2);border-left:3px solid var(--kin);'; txtSty='font-weight:700;'; }
     else if(isCenter){ bgSty='background:rgba(192,57,43,.15);border-left:3px solid var(--shu);'; txtSty='font-weight:700;'; }
-    else if(isNow){ bgSty='background:rgba(95,179,201,.15);'; txtSty='font-weight:700;'; }
+    else if(isNow){ bgSty='background:rgba(212,176,90,.15);'; txtSty='font-weight:700;'; }
 
     // ===== 本版：注意の年（第10章の決まり、2026-10-24 追加）=====
     //   一つで注意：日柱併臨・歳運併臨・天戦地冲（日柱・月柱）・大運交替
@@ -2869,7 +2869,7 @@ function updateNengun(){
       ? '<span class="nen-chuui ans" onclick="var n=this.nextSibling;n.style.display=n.style.display===\'none\'?\'block\':\'none\';" style="display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:#fff;background:#c0392b;border-radius:4px;padding:0 5px;cursor:pointer;" title="押すと理由が出ます">注意</span>'+
         '<span style="display:none;font-size:11px;color:#f0b0a8;font-weight:400;margin-top:2px;">'+chuuiWhy+'</span>'
       : '';
-    const tdSty='padding:6px 10px;border-bottom:1px solid rgba(95,179,201,.1);';
+    const tdSty='padding:6px 10px;border-bottom:1px solid rgba(212,176,90,.1);';
     rows+='<tr style="'+bgSty+'">'+
       '<td style="'+tdSty+'font-size:16px;'+txtSty+yearLineSty+'">'+yr+'年'+chuuiHTML+'</td>'+
       '<td style="'+tdSty+'position:relative;padding-left:20px;font-size:22px;font-family:Shippori Mincho,serif;'+txtSty+'">'+
@@ -3372,7 +3372,7 @@ function renderType(res){
 
   const rows = list => list.filter(show).map((k,i) => `
     <div class="k-row">
-      <div class="k-head"><b>${i+1}、${k.gogyo}（${k.hoshi}）</b> ${mark(k.gogyo)}${k.needs?'<div style="font-size:12.5px;color:#8fd3e3;margin-top:2px;">※同じ干支に'+k.needs+'があるときは喜神、ないときは忌神（どちらにもなる五行）</div>':''}</div>
+      <div class="k-head"><b>${i+1}、${k.gogyo}（${k.hoshi}）</b> ${mark(k.gogyo)}${k.needs?'<div style="font-size:12.5px;color:#ecd28a;margin-top:2px;">※同じ干支に'+k.needs+'があるときは喜神、ないときは忌神（どちらにもなる五行）</div>':''}</div>
       <div class="k-body">${k.text}</div>
     </div>`).join('') || '<div class="k-none">該当なし</div>';
 
@@ -3386,7 +3386,7 @@ function renderType(res){
     if(!gs.length) return '';
     const items=gs.map(g=>{const x=hs[g];
       return g+'（'+x.hoshi+'）＝'+(x.ki==='○'?'<b style="color:#7fb3e8;">喜神</b>':'<b style="color:#e8837f;">忌神</b>')+'（'+x.why+'）';});
-    return '<div style="margin-top:12px;padding:8px 12px;border-top:1px dashed rgba(230,238,243,.25);font-size:13px;line-height:1.8;opacity:.85;">'+
+    return '<div style="margin-top:12px;padding:8px 12px;border-top:1px dashed rgba(241,236,224,.25);font-size:13px;line-height:1.8;opacity:.85;">'+
       '<div style="font-size:12px;opacity:.8;">※表に書かれていない五行（補足）</div>'+items.map(s=>'<div>'+s+'</div>').join('')+'</div>';
   })();
 
@@ -3399,7 +3399,7 @@ function renderType(res){
     ${t.draft ? '<div class="type-draft">※このタイプの文章は本書に該当ページが無いため、他の五行の記述に倣って補ったものです。</div>' : ''}
     ${res.mismatch ? `<div class="type-warn">${res.mismatch}</div>` : ''}
     <div class="type-seijo">${t.seijo}</div>
-    ${t.kaisetsu ? `<details class="type-kaisetsu" style="margin-top:8px;font-size:13px;line-height:1.7;"><summary style="cursor:pointer;display:inline-block;padding:4px 12px;border:1px solid rgba(95,179,201,.5);border-radius:14px;font-size:12px;color:var(--kin2);list-style:none;">▼ 解説：なぜこの性格になるか</summary><div style="margin-top:6px;padding:8px 12px;border-left:3px solid rgba(95,179,201,.5);background:rgba(95,179,201,.06);"><div style="margin-bottom:8px;">${t.kaisetsu.sum}</div>${t.kaisetsu.items.map(it=>`<div style="margin:5px 0;padding-left:1em;text-indent:-1em;"><b style="color:var(--kin2);">◆ ${it[0]}</b>（${it[1].replace(/。$/,'')}）</div>`).join('')}<div style="margin-top:8px;opacity:.9;">※${t.kaisetsu.note}</div></div></details>` : ''}
+    ${t.kaisetsu ? `<details class="type-kaisetsu" style="margin-top:8px;font-size:13px;line-height:1.7;"><summary style="cursor:pointer;display:inline-block;padding:4px 12px;border:1px solid rgba(212,176,90,.5);border-radius:14px;font-size:12px;color:var(--kin2);list-style:none;">▼ 解説：なぜこの性格になるか</summary><div style="margin-top:6px;padding:8px 12px;border-left:3px solid rgba(212,176,90,.5);background:rgba(212,176,90,.06);"><div style="margin-bottom:8px;">${t.kaisetsu.sum}</div>${t.kaisetsu.items.map(it=>`<div style="margin:5px 0;padding-left:1em;text-indent:-1em;"><b style="color:var(--kin2);">◆ ${it[0]}</b>（${it[1].replace(/。$/,'')}）</div>`).join('')}<div style="margin-top:8px;opacity:.9;">※${t.kaisetsu.note}</div></div></details>` : ''}
     <div class="k-sec"><div class="k-label">喜神</div>${rows(t.kishin)}</div>
     <div class="k-sec"><div class="k-label imi">忌神</div>${rows(t.imijin)}</div>
     ${hosoku}
@@ -4808,7 +4808,7 @@ function renderKuubou(res){
        + '<div class="kb-key">' + res.key + '</div>'
        + '<div style="font-size:13px;opacity:.8;margin-top:2px;">真空 <b>' + res.shinku + '</b>（特に強く出る）　半空 ' + res.hanku + '（弱めに出る）</div>'
        + '<div style="font-size:11.5px;opacity:.6;margin-top:2px;">※日干と陰陽が同じ支が真空（特に強く出る）、もう一方が半空（弱めに出る）です</div>'
-       + '<div style="margin-top:12px;padding:10px 12px;border-left:3px solid var(--kin);background:rgba(95,179,201,.07);font-size:14.5px;line-height:1.8;">' + lead + '</div>'
+       + '<div style="margin-top:12px;padding:10px 12px;border-left:3px solid var(--kin);background:rgba(212,176,90,.07);font-size:14.5px;line-height:1.8;">' + lead + '</div>'
        + bodyHtml
        + '</div>';
 }
@@ -4906,7 +4906,7 @@ function calculate(){
       const why=it.note?('<div style="font-size:11px;opacity:.75;">'+it.note+'</div>'):'';
       return '<tr><td>'+it.label+' '+it.kan+why+'</td><td>'+cell(it.before)+'</td><td>'+cell(it.after)+'</td><td class="'+(d>0?'pos':d<0?'neg':'zer')+'">'+(d===0?'±0':f(d))+'</td></tr>';
     }).join('');
-    const th='style="color:var(--kin);font-size:12px;padding:6px 8px;border-bottom:1px solid rgba(95,179,201,.1);"';
+    const th='style="color:var(--kin);font-size:12px;padding:6px 8px;border-bottom:1px solid rgba(212,176,90,.1);"';
     const changed = nowName!==simName;
     kgSimHTML=
       '<div style="margin-top:16px;padding:14px 16px;border:1px solid rgba(199,143,255,.45);border-radius:8px;background:rgba(199,143,255,.05);">'+
@@ -5224,9 +5224,9 @@ function calculate(){
         const kt = (ki==='○' ? '喜神' : ki==='✕' ? '忌神' : '中立') +
           (_hs ? '<span style="display:block;font-size:10px;font-weight:400;opacity:.85;">（補足・'+(_hs.why==='大過している五行'?'大過':'扶抑')+'）</span>' : '');
         return '<div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px 10px;border-radius:8px;'+
-            (isMain?'background:rgba(95,179,201,.10);border:1px solid rgba(95,179,201,.45);':'background:rgba(230,238,243,.04);border:1px solid rgba(230,238,243,.15);opacity:.85;')+'">'+
+            (isMain?'background:rgba(212,176,90,.10);border:1px solid rgba(212,176,90,.45);':'background:rgba(241,236,224,.04);border:1px solid rgba(241,236,224,.15);opacity:.85;')+'">'+
           '<span style="flex:none;font-size:12px;font-weight:700;letter-spacing:.1em;padding:3px 8px;border-radius:12px;'+
-            (isMain?'background:var(--kin);color:#0e1822;':'border:1px solid rgba(230,238,243,.4);color:var(--washi2);')+'">'+label+'</span>'+
+            (isMain?'background:var(--kin);color:#0e1822;':'border:1px solid rgba(241,236,224,.4);color:var(--washi2);')+'">'+label+'</span>'+
           '<span style="flex:none;font-family:\'Shippori Mincho\',serif;font-size:'+(isMain?'28px':'22px')+';font-weight:700;line-height:1;color:var(--washi);">'+ch+'</span>'+
           '<span style="flex:1;min-width:0;line-height:1.35;">'+
             '<span style="font-size:11px;opacity:.7;display:block;">'+where+(conv?'（'+conv+'として）':'')+'</span>'+
@@ -5239,7 +5239,7 @@ function calculate(){
       const _g=(k)=>KAN_GOGYO[k];
       const _shiLab=R.shi+'（'+shiKan+'・'+_g(shiKan)+'）', _kanLab=R.kan+'（'+_g(R.kan)+'）';
       const relLine = (type==='専旺干支') ? '' :
-        '<div style="font-size:13px;margin:6px 0 2px;padding:6px 10px;border-radius:6px;background:rgba(230,238,243,.05);">'+
+        '<div style="font-size:13px;margin:6px 0 2px;padding:6px 10px;border-radius:6px;background:rgba(241,236,224,.05);">'+
           // 2026-09-30 改訂：「━生→」が「一生」と読めてしまうため、文章で書く
           (type==='扶干干支' ? '地支の'+_shiLab+'が、天干の'+_kanLab+'を<b>生む</b>' :
            type==='漏干干支' ? '天干の'+_kanLab+'が、地支の'+_shiLab+'を<b>生む</b>' :
@@ -5258,9 +5258,9 @@ function calculate(){
       // 2026-09-30 改訂：行数を減らすため1行にまとめる。補足（本に書かれていない五行）は（　）で添える。
       const _hk=Object.keys(HOSOKU).filter(g=>HOSOKU[g].ki==='○'), _hi=Object.keys(HOSOKU).filter(g=>HOSOKU[g].ki==='✕');
       const _ordf=(a)=>_ord.filter(g=>a.includes(g)).join('・');
-      const shinLine='<div style="font-size:13px;margin:-2px 0 8px;padding:5px 10px;border-radius:6px;background:rgba(230,238,243,.06);" title="（　）は本に書かれていない五行の補足">'+
+      const shinLine='<div style="font-size:13px;margin:-2px 0 8px;padding:5px 10px;border-radius:6px;background:rgba(241,236,224,.06);" title="（　）は本に書かれていない五行の補足">'+
         '<b>'+nK+'</b>：<b>'+_lv+'</b>　喜神 <b style="color:#7fb3e8;">'+_fmt(KIIMI.kishin)+'</b>'+(_hk.length?'<span style="color:#7fb3e8;opacity:.75;">（'+_ordf(_hk)+'）</span>':'')+
-        Object.keys(KIIMI.cond||{}).map(g=>'<span style="color:#8fd3e3;">　'+g+'＝'+KIIMI.cond[g]+'と一緒なら喜神・なければ忌神</span>').join('')+
+        Object.keys(KIIMI.cond||{}).map(g=>'<span style="color:#ecd28a;">　'+g+'＝'+KIIMI.cond[g]+'と一緒なら喜神・なければ忌神</span>').join('')+
         '　忌神 <b style="color:#e8837f;">'+_fmt(KIIMI.imijin)+'</b>'+(_hi.length?'<span style="color:#e8837f;opacity:.75;">（'+_ordf(_hi)+'）</span>':'')+
         '</div>';
       // 次の切り替わり（2026-10-01 追加）：今が前半の区間なら後半の区間、そうでなければ次の大運を1行で示す。
@@ -5285,7 +5285,7 @@ function calculate(){
           const mKi=kiOf(mk,sk);
           const b2 = (function(){const a=kiOf(k2,R2.kan), b=kiOf(R2.kan,k2); return a==='○'?(b==='✕'?'吉寄り':'吉'):a==='✕'?(b==='○'?'凶寄り':'凶'):(b==='○'?'吉寄り':b==='✕'?'凶寄り':'中立');})();
           const kc = mKi==='○'?'#7fb3e8':mKi==='✕'?'#e8837f':'#b0a898';
-          return '<div style="margin-top:8px;font-size:13px;padding:6px 10px;border:1px dashed rgba(230,238,243,.3);border-radius:6px;">'+
+          return '<div style="margin-top:8px;font-size:13px;padding:6px 10px;border:1px dashed rgba(241,236,224,.3);border-radius:6px;">'+
             '<b>次</b>：'+st2+'年〜 '+lab+' → 地支 '+R2.shi+'（'+k2+'）＝'+(kiOf(k2,R2.kan)==='○'?'喜神':kiOf(k2,R2.kan)==='✕'?'忌神':'中立')+'・天干 '+R2.kan+'＝'+(kiOf(R2.kan,k2)==='○'?'喜神':kiOf(R2.kan,k2)==='✕'?'忌神':'中立')+'　目安：<b>'+b2+'</b></div>';
         }catch(e){ return ''; }
       })();
@@ -5299,14 +5299,14 @@ function calculate(){
           roleRow('天干', '補助・4割', R.kan, '', nameT(R.kan), kanKi, false)+
           '<div style="margin-top:6px;"><b>地支の関係（注意点）</b>：'+(shake.length?'<ul style="margin:4px 0 0 1.2em;padding:0;">'+shake.map(li).join('')+'</ul>':'特になし')+'</div>'+
           (good.length?'<div><b>良い関係</b>：<ul style="margin:4px 0 0 1.2em;padding:0;">'+good.map(li).join('')+'</ul></div>':'')+
-          '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(95,179,201,.07);"><b>総合</b>：'+sum+'</div>'+
+          '<div style="margin-top:8px;padding:8px 10px;border-left:3px solid var(--kin);background:rgba(212,176,90,.07);"><b>総合</b>：'+sum+'</div>'+
           nextLine+
         '</div>';
       return '<div id="daiin-sum-toggle" style="margin-top:14px;text-align:center;">'+
           '<button onclick="document.getElementById(\'daiin-sum-body\').style.display=\'block\';document.getElementById(\'daiin-sum-toggle\').style.display=\'none\';" '+
           'style="font-family:\'Shippori Mincho\',serif;font-size:15px;background:#2e5e3e;border:1px solid #7fbf8f;color:#fff;border-radius:10px;padding:12px 22px;cursor:pointer;letter-spacing:.1em;">'+
           '答え合わせ（今の大運のまとめを見る）</button></div>'+
-        '<div id="daiin-sum-body" style="display:none;margin-top:14px;padding:14px 16px;border:1px solid rgba(95,179,201,.3);border-radius:10px;background:#0a131c;">'+body+'<div style="text-align:center;margin-top:12px;"><button type="button" onclick="hideAnswer(\'daiin-sum-body\',\'daiin-sum-toggle\')" style="font-size:12.5px;background:transparent;border:1px solid rgba(127,191,143,.6);color:#9fd3ad;border-radius:8px;padding:6px 16px;cursor:pointer;">▲ 閉じる（答えを隠す）</button></div></div>';
+        '<div id="daiin-sum-body" style="display:none;margin-top:14px;padding:14px 16px;border:1px solid rgba(212,176,90,.3);border-radius:10px;background:#0a131c;">'+body+'<div style="text-align:center;margin-top:12px;"><button type="button" onclick="hideAnswer(\'daiin-sum-body\',\'daiin-sum-toggle\')" style="font-size:12.5px;background:transparent;border:1px solid rgba(127,191,143,.6);color:#9fd3ad;border-radius:8px;padding:6px 16px;cursor:pointer;">▲ 閉じる（答えを隠す）</button></div></div>';
     }catch(e){ return ''; }
   })();
 
@@ -5403,7 +5403,7 @@ function calculate(){
     const shokanSisatsuColorD = tagKanYojin==='○' ? '#9ed687' : tagKanYojin==='✕' ? '#f0857a' : '#b0a898';
     const tags=[
       ...rels.map(t=>{
-        const c=(t==='沖'||t==='月冲')?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':t==='歳運併臨'?'#e0453c':t==='月柱併臨'?'#5fb3c9':'#9ed687';
+        const c=(t==='沖'||t==='月冲')?'#f0857a':t==='三刑'?'#e8945a':t==='刑'?'#7ab4d8':t==='歳運併臨'?'#e0453c':t==='月柱併臨'?'#d4b05a':'#9ed687';
         return `<span style="font-size:11px;color:${c};border:1px solid ${c};border-radius:4px;padding:1px 5px;margin-left:3px;">${t}</span>`;
       }),
       isKuubou2?`<span style="font-size:11px;color:var(--kin);border:1px solid var(--kin);border-radius:4px;padding:1px 5px;margin-left:3px;">空亡</span>`:'',
@@ -5414,8 +5414,8 @@ function calculate(){
       isMujoKansat?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情官殺</span>`:'',
       isFukuKansat?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️奉官殺</span>`:'',
       isMujoZai?`<span style="font-size:11px;color:#f0857a;border:1px solid #f0857a;border-radius:4px;padding:1px 5px;margin-left:3px;">⚠️無情財</span>`:'',
-      isYujoZai?`<span style="font-size:11px;color:#8fd3e3;border:1px solid #8fd3e3;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情財</span>`:'',
-      isYujoKansat?`<span style="font-size:11px;color:#8fd3e3;border:1px solid #8fd3e3;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>`:'',
+      isYujoZai?`<span style="font-size:11px;color:#ecd28a;border:1px solid #ecd28a;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情財</span>`:'',
+      isYujoKansat?`<span style="font-size:11px;color:#ecd28a;border:1px solid #ecd28a;border-radius:4px;padding:1px 5px;margin-left:3px;">✨有情官殺</span>`:'',
       isHeirinD?`<span style="font-size:11px;color:#e8945a;border:1px solid #e8945a;border-radius:4px;padding:1px 5px;margin-left:3px;">🔁日柱併臨</span>`:'',
       isHeirinMD?`<span style="font-size:11px;color:#a0d8a0;border:1px solid #a0d8a0;border-radius:4px;padding:1px 5px;margin-left:3px;">🔶月柱併臨</span>`:'',
     ].join('');
@@ -5425,8 +5425,8 @@ function calculate(){
     // 「今」の行は、背景の金色ハイライトと太字だけで強調する。
     // 文字色は固定しない（喜神=青／忌神=赤／どちらでもない=白、の色分けを優先するため）。
     const nowSty=isNow?'font-weight:700;':'';
-    const nowBg=isNow?'background:rgba(95,179,201,.12);':'';
-    const tdSty='padding:10px 10px;line-height:1.6;border-bottom:1px solid rgba(95,179,201,.1);';
+    const nowBg=isNow?'background:rgba(212,176,90,.12);':'';
+    const tdSty='padding:10px 10px;line-height:1.6;border-bottom:1px solid rgba(212,176,90,.1);';
     // 五行の調和：用神判定
     const daiiTotal=total;
     // 大運の赤LINE判定用：中庸は身強寄りなら+3、身弱寄りなら-1として扱う
@@ -5483,16 +5483,16 @@ function calculate(){
     const daiinMark='';
     return '<tr style="'+nowBg+'">'+ 
       '<td class="dai-age" style="'+tdSty+'font-size:18px;'+nowSty+ageSty+(isSub?'padding-left:52px;opacity:.75;':'font-weight:700;')+'">'+(isSub?'└ ':'')+(r.dispAge!=null?r.dispAge:r.age)+'歳〜'+(isNow?'<span style="font-size:12px;color:var(--kin);margin-left:4px;white-space:nowrap;">(今'+(2026-y)+'歳)</span>':'')+'</td>'+
-      '<td class="dai-ym" style="'+tdSty+'font-size:18px;white-space:nowrap;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜'+((!isSub&&R.tsugikiun)?'<span style="font-size:11px;color:#8fd3e3;border:1px solid #8fd3e3;border-radius:4px;padding:1px 5px;margin-left:3px;">接</span>':'')+'</td>'+
+      '<td class="dai-ym" style="'+tdSty+'font-size:18px;white-space:nowrap;'+nowSty+'">'+r.startYear+'年'+(r.startMonth?r.startMonth+'月':'')+'〜'+((!isSub&&R.tsugikiun)?'<span style="font-size:11px;color:#ecd28a;border:1px solid #ecd28a;border-radius:4px;padding:1px 5px;margin-left:3px;">接</span>':'')+'</td>'+
       '<td class="dai-kanshi" onclick="toggleDaiTsuhen(\'dts-'+R.startYear+'-'+SI+'\')" style="cursor:pointer;'+tdSty+'font-size:21px;font-family:Shippori Mincho,serif;'+nowSty+'">'+
         '<span class="dai-ks">'+
           // 細分行は干支が上と同じになるので干は出さない。
           // ただし場所は空けておき、支の位置が上下でそろうようにする。
-          '<span class="ans" style="color:#8fd3e3;font-size:13px;margin-right:2px;'+(isSub?'visibility:hidden;':'')+'">'+kanMark+'</span>'+
+          '<span class="ans" style="color:#ecd28a;font-size:13px;margin-right:2px;'+(isSub?'visibility:hidden;':'')+'">'+kanMark+'</span>'+
           // 天戦地冲の下線は、干と支の2文字だけに絞る
           '<span class="'+(isTensenChichu(dP.kan,dP.shi,r.kan,r.shi)?'tensen':(isTensenChichu(mP.kan,mP.shi,r.kan,r.shi)?'tensen-m':''))+'">'+
             '<span style="'+(isSub?'visibility:hidden;':'')+kiimiColor(KAN_GOGYO[r.kan],KIIMI,KAN_GOGYO[segZk||(ZOKAN[r.shi]||[])[0]])+'">'+r.kan+'</span>'+
-            '<span class="ans" style="color:#8fd3e3;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
+            '<span class="ans" style="color:#ecd28a;font-size:13px;margin-right:2px;">'+shiMark+'</span>'+
             '<span style="'+(isSub?'opacity:.55;':'')+'">'+r.shi+'</span>'+
           '</span>'+
           (segZk?'<span class="dai-zk" style="font-size:19px;'+(kiimiColor(KAN_GOGYO[segZk],KIIMI,KAN_GOGYO[r.kan])||'color:#ffffff;text-shadow:0 1px 3px rgba(0,0,0,.5);')+'opacity:1;margin-left:4px;font-weight:700;">('+segZk+')</span>':'')+
@@ -5619,7 +5619,7 @@ function calculate(){
     <div class="card">
       <div class="form-title">八字命式
         <button type="button" onclick="newPerson()" style="margin-left:auto;font-family:'Shippori Mincho',serif;
-          font-size:12.5px;background:rgba(95,179,201,.10);border:1.5px solid var(--kin);color:var(--kin2);
+          font-size:12.5px;background:rgba(212,176,90,.10);border:1.5px solid var(--kin);color:var(--kin2);
           border-radius:8px;padding:6px 14px;cursor:pointer;letter-spacing:.05em;white-space:nowrap;">
           別の人で占う</button>
       </div>
@@ -5655,9 +5655,9 @@ function calculate(){
         const leftHtml=rels.length===0?'':rels.map(r=>{
           const isMujo=r.startsWith('⚠️');
           const isYujo=r.startsWith('✨');
-          const color=isMujo?'#f0857a':isYujo?'#8fd3e3':'var(--washi2)';
+          const color=isMujo?'#f0857a':isYujo?'#ecd28a':'var(--washi2)';
           const bg=isMujo?'background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.35);border-radius:6px;padding:6px 10px;':
-                   isYujo?'background:rgba(95,179,201,.15);border:1px solid rgba(95,179,201,.4);border-radius:6px;padding:6px 10px;':'';
+                   isYujo?'background:rgba(212,176,90,.15);border:1px solid rgba(212,176,90,.4);border-radius:6px;padding:6px 10px;':'';
           return '<div style="font-size:13px;color:'+color+';letter-spacing:.08em;margin-top:6px;'+bg+'">'+r+'</div>';
         }).join('');
         const hb=honmeiStar(y,m,d)[0];
@@ -5665,8 +5665,8 @@ function calculate(){
         const kp=keishaPalace(y,m,d,SEX==='male');
         const rightHtml='<div style="text-align:right;font-family:\'Shippori Mincho\',serif;font-size:13px;color:var(--kin2);line-height:2;letter-spacing:.1em;">'+
           '☀️ '+solar+'<br>🌙 '+lunar+(lunarAlt?'<span style="font-size:11px;opacity:.6"> または'+lunarAlt+'</span>':'')+
-          '<br><span style="font-size:15px;color:#5fb3c9;letter-spacing:.15em;">'+hb+' '+gm+' '+kp+'</span></div>';
-        return '<div style="margin-top:12px;border-top:1px solid rgba(95,179,201,.15);padding-top:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">'+
+          '<br><span style="font-size:15px;color:#d4b05a;letter-spacing:.15em;">'+hb+' '+gm+' '+kp+'</span></div>';
+        return '<div style="margin-top:12px;border-top:1px solid rgba(212,176,90,.15);padding-top:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">'+
           '<div style="flex:1;">'+leftHtml+'</div>'+
           ''+
           '</div>';
@@ -5697,7 +5697,7 @@ function calculate(){
         ${(()=>{const _order=[cls,...SHINJYO_ORDER.filter(k=>k!==cls)];return _order.map((key,idx)=>{
           const t=SHINJYO_TRAIT[key];
           const active=key===cls;
-          return '<div style="padding:7px 9px;border-radius:6px;'+(active?'background:rgba(95,179,201,.14);':'')+(idx!==_order.length-1?'margin-bottom:5px;':'')+'">'
+          return '<div style="padding:7px 9px;border-radius:6px;'+(active?'background:rgba(212,176,90,.14);':'')+(idx!==_order.length-1?'margin-bottom:5px;':'')+'">'
             +'<span style="font-family:\'Shippori Mincho\',serif;font-weight:700;font-size:13px;color:'+(active?'var(--kin)':'var(--washi2)')+';">'+t.label+'</span>'
             +(active?'<span style="font-size:11px;color:var(--kin);opacity:.85;margin-left:6px;">← この方はこちら</span>':'')
             +'<div style="font-size:12.5px;color:var(--washi2);opacity:'+(active?'.95':'.7')+';line-height:1.6;margin-top:3px;">'+t.kw+'</div>'
@@ -5767,9 +5767,9 @@ function calculate(){
       </div>
       <table id="daiin-table" style="width:100%;border-collapse:collapse;">
         <tr>
-          <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(95,179,201,.2);text-align:left;">年齢</th>
-          <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(95,179,201,.2);text-align:left;">開始年</th>
-          <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(95,179,201,.2);text-align:left;">干支</th>
+          <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(212,176,90,.2);text-align:left;">年齢</th>
+          <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(212,176,90,.2);text-align:left;">開始年</th>
+          <th style="color:var(--kin);font-size:12px;padding:6px 10px;border-bottom:1px solid rgba(212,176,90,.2);text-align:left;">干支</th>
         </tr>
         ${daiinRows}
       </table>
@@ -5780,18 +5780,18 @@ function calculate(){
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
         <label style="font-size:14px;color:var(--washi2);letter-spacing:.1em;">中心年</label>
         <input type="number" id="nengaku-center" value="2026" min="1900" max="2100"
-          style="width:100px;padding:8px;background:#0a131c;border:1px solid rgba(95,179,201,.28);
+          style="width:100px;padding:8px;background:#0a131c;border:1px solid rgba(212,176,90,.28);
           border-radius:8px;color:var(--washi);font-size:16px;font-family:inherit;"
           onfocus="this.select()">
         <button onclick="updateNengun()" style="padding:8px 16px;background:var(--shu);border:1px solid var(--kin);border-radius:8px;color:#fff;font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;letter-spacing:.1em;">更新</button>
-        <button onclick="document.getElementById('nengaku-center').value=new Date().getFullYear();updateNengun();" style="padding:8px 14px;background:#0a131c;border:1px solid rgba(95,179,201,.4);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:14px;cursor:pointer;letter-spacing:.1em;">現在に戻る</button>
+        <button onclick="document.getElementById('nengaku-center').value=new Date().getFullYear();updateNengun();" style="padding:8px 14px;background:#0a131c;border:1px solid rgba(212,176,90,.4);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:14px;cursor:pointer;letter-spacing:.1em;">現在に戻る</button>
       </div>
       <div id="nengun-table"></div>
     </div>
     <div class="card">
       <div class="form-title">八字命式（再表示）
         <button type="button" onclick="newPerson()" style="margin-left:auto;font-family:'Shippori Mincho',serif;
-          font-size:12.5px;background:rgba(95,179,201,.10);border:1.5px solid var(--kin);color:var(--kin2);
+          font-size:12.5px;background:rgba(212,176,90,.10);border:1.5px solid var(--kin);color:var(--kin2);
           border-radius:8px;padding:6px 14px;cursor:pointer;letter-spacing:.05em;white-space:nowrap;">
           別の人で占う</button>
       </div>
@@ -5826,9 +5826,9 @@ function calculate(){
         const leftHtml=rels.length===0?'':rels.map(r=>{
           const isMujo=r.startsWith('⚠️');
           const isYujo=r.startsWith('✨');
-          const color=isMujo?'#f0857a':isYujo?'#8fd3e3':'var(--washi2)';
+          const color=isMujo?'#f0857a':isYujo?'#ecd28a':'var(--washi2)';
           const bg=isMujo?'background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.35);border-radius:6px;padding:6px 10px;':
-                   isYujo?'background:rgba(95,179,201,.15);border:1px solid rgba(95,179,201,.4);border-radius:6px;padding:6px 10px;':'';
+                   isYujo?'background:rgba(212,176,90,.15);border:1px solid rgba(212,176,90,.4);border-radius:6px;padding:6px 10px;':'';
           return '<div style="font-size:13px;color:'+color+';letter-spacing:.08em;margin-top:6px;'+bg+'">'+r+'</div>';
         }).join('');
         const hb=honmeiStar(y,m,d)[0];
@@ -5836,8 +5836,8 @@ function calculate(){
         const kp=keishaPalace(y,m,d,SEX==='male');
         const rightHtml='<div style="text-align:right;font-family:\'Shippori Mincho\',serif;font-size:13px;color:var(--kin2);line-height:2;letter-spacing:.1em;">'+
           '☀️ '+solar+'<br>🌙 '+lunar+(lunarAlt?'<span style="font-size:11px;opacity:.6"> または'+lunarAlt+'</span>':'')+
-          '<br><span style="font-size:15px;color:#5fb3c9;letter-spacing:.15em;">'+hb+' '+gm+' '+kp+'</span></div>';
-        return '<div style="margin-top:12px;border-top:1px solid rgba(95,179,201,.15);padding-top:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">'+
+          '<br><span style="font-size:15px;color:#d4b05a;letter-spacing:.15em;">'+hb+' '+gm+' '+kp+'</span></div>';
+        return '<div style="margin-top:12px;border-top:1px solid rgba(212,176,90,.15);padding-top:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">'+
           '<div style="flex:1;">'+leftHtml+'</div>'+
           ''+
           '</div>';
@@ -5852,11 +5852,11 @@ function calculate(){
     <div class="card" style="text-align:center;">
       <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
         <button onclick="newPerson()" style="font-family:'Shippori Mincho',serif;font-size:15px;
-          background:rgba(95,179,201,.10);border:1.5px solid var(--kin);color:var(--kin2);
+          background:rgba(212,176,90,.10);border:1.5px solid var(--kin);color:var(--kin2);
           border-radius:10px;padding:13px 24px;cursor:pointer;letter-spacing:.08em;">
           別の人で占う</button>
         <button onclick="backToForm()" style="font-family:'Shippori Mincho',serif;font-size:15px;
-          background:transparent;border:1.5px solid rgba(95,179,201,.45);color:var(--kin2);
+          background:transparent;border:1.5px solid rgba(212,176,90,.45);color:var(--kin2);
           border-radius:10px;padding:13px 24px;cursor:pointer;letter-spacing:.08em;">
           最初の画面に戻る</button>
       </div>
@@ -5869,27 +5869,27 @@ function calculate(){
       <div style="margin-top:14px;">
         <div style="display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;">
           <input type="number" id="br-year" value="${yP.year}" min="1930" max="2040" onfocus="this.select()"
-            style="width:90px;padding:9px;background:#0a131c;border:1px solid rgba(230,238,243,.45);border-radius:8px;color:var(--washi);font-size:15px;font-family:inherit;text-align:center;">
+            style="width:90px;padding:9px;background:#0a131c;border:1px solid rgba(241,236,224,.45);border-radius:8px;color:var(--washi);font-size:15px;font-family:inherit;text-align:center;">
           <span style="font-size:13px;color:var(--washi2);">年の</span>
           <button onclick="openYearBannenreki(+document.getElementById('br-year').value||${yP.year})" style="font-family:'Shippori Mincho',serif;font-size:14px;
-            background:transparent;border:1px solid rgba(230,238,243,.45);color:var(--washi);
+            background:transparent;border:1px solid rgba(241,236,224,.45);color:var(--washi);
             border-radius:10px;padding:10px 20px;cursor:pointer;letter-spacing:.06em;">
             万年暦を印刷</button>
         </div>
         <div style="font-size:11.5px;color:var(--washi2);opacity:.75;margin-top:6px;">最初はこの方の立春年（${yP.year}年）が入っています。数字を変えれば、どの年でも印刷できます。</div>
         <div style="margin-top:12px;display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;">
           <input type="number" id="yoshi-year" value="${new Date().getFullYear()}" min="1930" max="2100" onfocus="this.select()"
-            style="width:90px;padding:9px;background:#0a131c;border:1px solid rgba(230,238,243,.45);border-radius:8px;color:var(--washi);font-size:15px;font-family:inherit;text-align:center;">
+            style="width:90px;padding:9px;background:#0a131c;border:1px solid rgba(241,236,224,.45);border-radius:8px;color:var(--washi);font-size:15px;font-family:inherit;text-align:center;">
           <span style="font-size:13px;color:var(--washi2);">年の</span>
           <button onclick="openKanteiYoshi(+document.getElementById('yoshi-year').value)" style="font-family:'Shippori Mincho',serif;font-size:14px;
-            background:transparent;border:1px solid rgba(230,238,243,.45);color:var(--washi);
+            background:transparent;border:1px solid rgba(241,236,224,.45);color:var(--washi);
             border-radius:10px;padding:10px 20px;cursor:pointer;letter-spacing:.06em;">
             鑑定用紙を印刷</button>
         </div>
         <div style="font-size:11.5px;color:var(--washi2);opacity:.75;margin-top:6px;">本の付録と同じA4の鑑定用紙です。年運の欄には、この年を右から6番目にして干支と西暦が入ります（過去5年・未来6年）。</div>
         <div style="margin-top:12px;display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;">
           <button onclick="openFilledYoshi(+document.getElementById('yoshi-year').value)" style="font-family:'Shippori Mincho',serif;font-size:14px;
-            background:rgba(95,179,201,.10);border:1px solid var(--kin);color:var(--kin2);
+            background:rgba(212,176,90,.10);border:1px solid var(--kin);color:var(--kin2);
             border-radius:10px;padding:10px 20px;cursor:pointer;letter-spacing:.06em;">記入見本の鑑定用紙を見る</button>
         </div>
         <div style="font-size:11.5px;color:var(--washi2);opacity:.75;margin-top:6px;">本の手順どおりに、この方の答えを書き込んだ用紙です。自分で書いた用紙と見比べてください。上の年の入力欄の年が、年運の右から6番目に入ります。</div>
@@ -5941,7 +5941,7 @@ function calculate(){
     [KAN_GOGYO[mP.kan],dShiG2,...(hUnknown?[]:[hKanG2])].forEach(g=>{if(g&&g!==nG2)adjG2.add(g);});
     if(!hUnknown&&hShiG2!==nG2){if(hKanG2===nG2||dShiG2===nG2)adjG2.add(hShiG2);}
 
-    const COLORS2={木:'#5b9e4f',火:'#c0392b',土:'#5fb3c9',金:'#b0b8c8',水:'#2a6ea6'};
+    const COLORS2={木:'#5b9e4f',火:'#c0392b',土:'#d4b05a',金:'#b0b8c8',水:'#2a6ea6'};
     const pts=order.map((g,i)=>{
       const angle=-Math.PI/2+i*2*Math.PI/5;
       return {x:cx+R*Math.cos(angle),y:cy+R*Math.sin(angle),g};
@@ -5953,7 +5953,7 @@ function calculate(){
     ctx.beginPath();
     pts.forEach((p,i)=>{i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);});
     ctx.closePath();
-    ctx.strokeStyle='rgba(95,179,201,.3)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.strokeStyle='rgba(212,176,90,.3)';ctx.lineWidth=1.5;ctx.stroke();
 
     // 相剋ライン
     ctx.beginPath();
@@ -5977,7 +5977,7 @@ function calculate(){
       ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.fillText(p.g,p.x,p.y-9);
       ctx.font='11px serif';
-      ctx.fillStyle='rgba(230,238,243,.85)';
+      ctx.fillStyle='rgba(241,236,224,.85)';
       ctx.fillText('●'.repeat(cnt[p.g]),p.x,p.y+10);
     });
   })();
@@ -6104,7 +6104,7 @@ const SJ_HARD =[[0,'合','☌',8],[90,'スクエア','□',6],[180,'オポジシ
 // オポジション(☍)は当初、月柱天戦地冲と同じ紫(#c78fff)にしていたが、
 // 暗い背景では見えづらい(先生の実機で確認)との指摘のため、スクエアと同じ赤に統一（2026-08-26）。
 // 合(☌)だけ金で区別し、90度・180度の「ハードな角度」はどちらも赤とする。
-const SJ_ASPECT_COLOR={'☌':'#5fb3c9','□':'#e0453c','☍':'#e0453c'};
+const SJ_ASPECT_COLOR={'☌':'#d4b05a','□':'#e0453c','☍':'#e0453c'};
 // 2026-08-26：スクエアとオポジションは同じ赤なので、線種（実線／破線）でも区別できる
 // ようにしていた（合=実線、スクエア=実線、オポジション=破線）。
 // 2026-09-05：波線＝プログレスの目印として使う方針にしたため、トランジット側は
@@ -6410,7 +6410,7 @@ function sjBuildRowsHTML(_slow,onChart,dayPrimary){
       +'<td style="padding:3px 6px;color:'+c+';font-size:12.5px;white-space:nowrap;'+fw+'">'+_fmt(a.date)+'</td>'
       +'<td style="padding:3px 6px;color:'+c+';font-size:12.5px;'+fw+'">'
         +(a.slow?'◆':'・')+' T'+SJ_NAME[a.t]+' '+a.mark+' N'+SJ_NAME[a.n]+'</td>'
-      +'<td style="padding:3px 6px;color:rgba(230,238,243,.42);font-size:11.5px;text-align:right;">'
+      +'<td style="padding:3px 6px;color:rgba(241,236,224,.42);font-size:11.5px;text-align:right;">'
         +a.orb.toFixed(1)+'°</td></tr>';
   };
   return _slow.map(_row).join('');
@@ -6462,19 +6462,19 @@ function sjRenderChartSVG(natal,date,main){
   };
   let g='';
   // サイン帯
-  g+=`<circle cx="${CX}" cy="${CY}" r="${RS_OUT}" fill="none" stroke="rgba(95,179,201,.45)" stroke-width="1"/>`;
-  g+=`<circle cx="${CX}" cy="${CY}" r="${RS_IN}" fill="none" stroke="rgba(95,179,201,.45)" stroke-width="1"/>`;
-  g+=`<circle cx="${CX}" cy="${CY}" r="${R_ASP}" fill="none" stroke="rgba(95,179,201,.22)" stroke-width="1"/>`;
+  g+=`<circle cx="${CX}" cy="${CY}" r="${RS_OUT}" fill="none" stroke="rgba(212,176,90,.45)" stroke-width="1"/>`;
+  g+=`<circle cx="${CX}" cy="${CY}" r="${RS_IN}" fill="none" stroke="rgba(212,176,90,.45)" stroke-width="1"/>`;
+  g+=`<circle cx="${CX}" cy="${CY}" r="${R_ASP}" fill="none" stroke="rgba(212,176,90,.22)" stroke-width="1"/>`;
   for(let i=0;i<12;i++){
     const a=i*30;
     const [x1,y1]=pt(a,RS_IN), [x2,y2]=pt(a,RS_OUT);
-    g+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(95,179,201,.45)" stroke-width="1"/>`;
+    g+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(212,176,90,.45)" stroke-width="1"/>`;
     const [sx,sy]=pt(a+15,(RS_IN+RS_OUT)/2);
     const si=(Math.floor(asc/30)+i)%12;
-    g+=`<text x="${sx.toFixed(1)}" y="${(sy+6).toFixed(1)}" text-anchor="middle" font-size="17" fill="#5fb3c9">${SJ_SIGN[si]}</text>`;
+    g+=`<text x="${sx.toFixed(1)}" y="${(sy+6).toFixed(1)}" text-anchor="middle" font-size="17" fill="#d4b05a">${SJ_SIGN[si]}</text>`;
     // ハウス番号（ソーラーサイン）
     const [hx,hy]=pt(a+15,R_ASP-14);
-    g+=`<text x="${hx.toFixed(1)}" y="${(hy+4).toFixed(1)}" text-anchor="middle" font-size="10" fill="rgba(230,238,243,.30)">${i+1}</text>`;
+    g+=`<text x="${hx.toFixed(1)}" y="${(hy+4).toFixed(1)}" text-anchor="middle" font-size="10" fill="rgba(241,236,224,.30)">${i+1}</text>`;
   }
   // 凶角の線（赤）
   // ※盤面は「この日の写真」なので、この日に実際に成立している凶角だけを引く。
@@ -6600,7 +6600,7 @@ function sjRenderChartSVG(natal,date,main){
         +`fill="${hit?'#e0453c':glyphColor}" ${hit?'font-weight="700"':''}>${SJ_GLYPH[b]}</text>`;
     });
   };
-  renderGlyphs(trPlaced,SJ_TRANS,'tr','#8fd3e3');
+  renderGlyphs(trPlaced,SJ_TRANS,'tr','#ecd28a');
   renderGlyphs(naPlaced,SJ_BODIES,'na','#e6eef3');
   // プログレス太陽・月の点（緑）を最後に描き、線の上に載せて隠れないようにする（2026-08-26 追加）。
   PROG_BODIES.forEach(b=>{
@@ -6751,7 +6751,7 @@ function openSanjuChart(year,weak){ return; /* 本版では使わない */
     const _slow=list.filter(a=>a.slow).sort((a,b)=>a.enter-b.enter);
     const _fast=list.filter(a=>!a.slow).sort((a,b)=>a.enter-b.enter);
     const _hdr=t=>'<tr><td colspan="4" style="padding:9px 6px 3px;font-size:11.5px;'
-      +'color:var(--kin);letter-spacing:.08em;border-bottom:1px solid rgba(95,179,201,.16);">'+t+'</td></tr>';
+      +'color:var(--kin);letter-spacing:.08em;border-bottom:1px solid rgba(212,176,90,.16);">'+t+'</td></tr>';
     const rows='<tr>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:left;">入り</th>'
       +'<th style="padding:3px 6px;font-size:11px;color:var(--kin);font-weight:400;text-align:left;">正確</th>'
@@ -6777,18 +6777,18 @@ function openSanjuChart(year,weak){ return; /* 本版では使わない */
         +'<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;color:#f0a0a0;letter-spacing:.1em;margin-bottom:6px;">グランドクロス</div>'
         +gcList.map(x=>'<div style="font-size:13px;color:'+(x.slow?'#f0a0a0':'var(--washi2)')+';margin-bottom:3px;">'
           +(x.slow?'◆':'・')+' '+x.label
-          +'　<span style="color:rgba(230,238,243,.45);">'+x.month+'月ごろ　'+x.orb.toFixed(1)+'°</span></div>').join('')
+          +'　<span style="color:rgba(241,236,224,.45);">'+x.month+'月ごろ　'+x.orb.toFixed(1)+'°</span></div>').join('')
         +'</div>'
       : '';
 
     const tsqHtml = tlist.length
-      ? '<div style="margin-top:14px;border-top:1px solid rgba(95,179,201,.2);padding-top:10px;">'
+      ? '<div style="margin-top:14px;border-top:1px solid rgba(212,176,90,.2);padding-top:10px;">'
         +'<div style="font-family:\'Shippori Mincho\',serif;font-size:15px;color:var(--kin2);letter-spacing:.1em;margin-bottom:6px;">Tスクエア</div>'
         +tlist.map(x=>'<div style="font-size:13px;color:'+(x.slow?'#f0a0a0':'var(--washi2)')+';margin-bottom:3px;">'
           +(x.slow?'◆':'・')+' '+x.base+' → 頂点 <span style="font-weight:700;">'+x.apex+'</span>'
-          +'　<span style="color:rgba(230,238,243,.45);">'+x.month+'月ごろ　'+x.orb.toFixed(1)+'°</span></div>').join('')
+          +'　<span style="color:rgba(241,236,224,.45);">'+x.month+'月ごろ　'+x.orb.toFixed(1)+'°</span></div>').join('')
         +(tsq.natOpp.length
-          ? '<div style="font-size:11.5px;color:rgba(230,238,243,.42);margin-top:6px;">'
+          ? '<div style="font-size:11.5px;color:rgba(241,236,224,.42);margin-top:6px;">'
             +'出生図の軸：'+tsq.natOpp.map(o=>'N'+SJ_NAME[o.a]+'☍N'+SJ_NAME[o.b]+'('+o.orb.toFixed(1)+'°)').join('　')+'</div>'
           : '')
         +'</div>'

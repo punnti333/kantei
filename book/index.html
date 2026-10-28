@@ -546,7 +546,7 @@ table.kgsim th{white-space:nowrap;}
       <div style="font-size:12.5px;color:var(--kin2);letter-spacing:.08em;margin-bottom:8px;">本の例を入れて答え合わせ</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button type="button" onclick="loadBookExample('hanako')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(212,176,90,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">花子さん<span style="display:block;font-size:11.5px;opacity:.75;">1985年6月1日 10時・女性</span></button>
-        <button type="button" onclick="loadBookExample('b')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(212,176,90,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">五郎さん<span style="display:block;font-size:11.5px;opacity:.75;">1987年6月26日 12時・男性</span></button>
+        <button type="button" onclick="loadBookExample('b')" style="flex:1;min-width:140px;padding:10px 8px;background:rgba(212,176,90,.10);border:1px solid var(--kin);border-radius:8px;color:var(--kin2);font-family:'Shippori Mincho',serif;font-size:15px;cursor:pointer;">次郎さん<span style="display:block;font-size:11.5px;opacity:.75;">1985年10月1日 16時・男性</span></button>
       </div>
     </div>
     <div class="fields">
@@ -635,7 +635,7 @@ table.kgsim th{white-space:nowrap;}
 </div>
 <script>
 /* このファイルの版番号。更新するたびに、この行の数字だけを書き換える。 */
-var APP_VERSION = '202610271450';
+var APP_VERSION = '202610281500';
 </script>
 <script>
 /* 開くたびに最新かどうかを確かめる。
@@ -1694,7 +1694,7 @@ function placeNameOf(v){
 /* 本版：本の例の人を入れる（2026-10-24 追加）。時刻は標準時（補正なし）で、本と同じ答えになるようにする */
 const BOOK_EXAMPLES={
   hanako:{y:1985,m:6,d:1,time:'10:00',sex:'female',name:'花子さん'},
-  b:{y:1987,m:6,d:26,time:'12:00',sex:'male',name:'五郎さん'}
+  b:{y:1985,m:10,d:1,time:'16:00',sex:'male',name:'次郎さん'}
 };
 function loadBookExample(k){
   const e=BOOK_EXAMPLES[k]; if(!e) return;
@@ -1704,7 +1704,7 @@ function loadBookExample(k){
   document.getElementById('inp-time').value=e.time;
   document.getElementById('inp-pref').value=NO_PLACE;
   const nm=document.getElementById('inp-name'); if(nm) nm.value=e.name;
-  setHUnknown(false); setTimeMode('jst'); setSex(e.sex);
+  setHUnknown(!!e.hu); setTimeMode('jst'); setSex(e.sex);
   calculate();
 }
 function usePerson(i){

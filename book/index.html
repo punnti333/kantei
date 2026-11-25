@@ -2687,7 +2687,7 @@ function nenGetsuunHTML(d, yr){
         '<td style="'+tdS+'">'+tk+'<span style="opacity:.55;">／</span>'+ts+'</td>'+
       '</tr>';
     });
-    h+='</table><div style="font-size:11px;opacity:.6;margin-top:4px;line-height:1.6;">※月運は、年の中の「いつ動くか・いつ気をつけるか」を見る目安です。吉凶の土台は大運と年運で読みます。<span style="color:#fff;background:#c0392b;border-radius:3px;padding:0 3px;">注意</span>は、併臨・天戦地冲・沖（日支との沖・月冲）・空亡のうち二つ以上が重なる月です（第15章）。干支の色が赤い月（忌神）は、曇りがちな月として軽く読みます。</div>';
+    h+='</table><div style="font-size:11px;opacity:.6;margin-top:4px;line-height:1.6;">※月運は、年の中の「いつ動くか・いつ気をつけるか」を見る目安です。吉凶の土台は大運と年運で読みます。<span style="color:#fff;background:#c0392b;border-radius:3px;padding:0 3px;">注意</span>は、併臨・天戦地冲・沖（日支との沖・月冲）・空亡のうち二つ以上が重なる月です。干支の色が赤い月（忌神）は、曇りがちな月として読みます。</div>';
     return h;
   }catch(e){ return ''; }
 }
@@ -5088,7 +5088,7 @@ function calculate(){
     const grp=(lab,col,list)=>'<div style="margin-bottom:8px;"><b style="color:'+col+';">'+lab+'</b>'+(list.length?list.join(''):'<div style="padding-left:1em;opacity:.6;">なし</div>')+'</div>';
     const rows=grp('喜神','#7fb3e8',ki)+grp('忌神','#e8837f',imi);
     return '<div id="yojin-card" class="card" style="margin-top:18px;">'+
-      '<div class="lamp">喜神・忌神（参考）</div>'+'<div style="margin-top:8px;font-size:12.5px;line-height:1.7;opacity:.85;text-align:center;">本の第6章（扶抑）の「助けになる五行」と違うときは、第12章を見てください</div>'+
+      '<div class="lamp">喜神・忌神（参考）</div>'+'<div style="margin-top:8px;font-size:12.5px;line-height:1.7;opacity:.85;text-align:center;">本の「助けになる五行」（扶抑）と違うときは、本の「喜神・忌神（助けになる五行の例外）」を見てください</div>'+
       '<div id="yojin-toggle" style="margin-top:14px;text-align:center;">'+
         '<button onclick="document.getElementById(\'yojin-body\').style.display=\'block\';document.getElementById(\'yojin-toggle\').style.display=\'none\';" '+
         'style="font-family:\'Shippori Mincho\',serif;font-size:15px;background:#2e5e3e;border:1px solid #7fbf8f;color:#fff;border-radius:10px;padding:12px 26px;cursor:pointer;letter-spacing:.12em;">'+

@@ -2540,17 +2540,18 @@ function nenGetsuunHTML(d, yr){
         (aMark?'<span class="nengun-kaza-mark red" title="'+(hAnken&&kAnken?'本命・傾斜暗剣殺':kAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+aMark+'</span>':'')+
         (kGoou?'<span class="nengun-kaza-mark blue" title="傾斜五黄殺">●</span>':'');
       // 「注意」の印（2026-10-20 改訂、かぴさんの判断）：年運の三命殺（★☆）と同じ考え方で、次の7項目を数える。
-      //   四柱推命：忌神（干支の主役が忌神）／冲（日支の沖・月冲・天戦地冲）／空亡（2026-10-20 追加）
+      //   四柱推命：忌神（月の天干が忌神）／冲（日支の沖・月冲・天戦地冲）／刑（冲と重ならないとき）／空亡（2026-10-20 追加）
       //   九星気学：暗剣殺（本命か傾斜）／五黄殺（傾斜五黄殺）／本命坎宮／本命艮宮／本命中宮
       // 3つ以上＝「注意」（赤）、2つ＝薄い印。120人×10年の試算で、3つ以上は約3.5%（2〜3年に1回）、2つ以上は約21.8%（1年に約2.6か月）。
       const imi = d.KIIMI && d.KIIMI.imijin;
       const _el=[];
-      // 忌神：月の干支の「主役」が忌神なら1つ（2026-10-20 改訂、かぴさんの判断）。
-      // 主役は大運のまとめと同じ5分類で決める（専旺・扶干・蓋頭＝天干、漏干・載脚＝地支の本気）。
+      // 忌神：月の天干が忌神なら1つ（2026-11-25 改訂、かぴさんの判断）。
+      // 本（第10章）の「年運は天干を主に見る」に合わせ、月運も天干で見る。以前は大運のまとめと同じ5分類で、干か地支（本気）のどちらかを主役にしていた。
       { const gk=KAN_GOGYO[o.kan], gs=KAN_GOGYO[honki];
-        const useKan=(gk===gs)||gen(gs,gk)||ove(gk,gs);
-        if(kiimiOf(useKan?gk:gs, d.KIIMI, useKan?gs:gk)==='imi') _el.push('忌神'); }
+        if(kiimiOf(gk, d.KIIMI, gs)==='imi') _el.push('忌神'); }
       if(rels.includes('沖') || CHUU[d.mShi]===o.shi || isTensenChichu(d.dKan,d.dShi,o.kan,o.shi) || isTensenChichu(d.mKan,d.mShi,o.kan,o.shi)) _el.push('冲');
+      // 刑（2026-11-25 追加、かぴさんの判断）：三刑・刑・自刑も数える。ただし冲と重なる月は、同じ出来事の二重数えになるので数えない。
+      if((rels.includes('三刑')||rels.includes('刑')) && !_el.includes('冲')) _el.push('刑');
       if(hAnken || kAnken) _el.push('暗剣殺');
       if(kGoou) _el.push('五黄殺');
       if((d.kuubou||[]).includes(o.shi)) _el.push('空亡');   // 2026-10-20 追加（かぴさんの判断）。年運の三命殺と同じく真空・半空とも数える

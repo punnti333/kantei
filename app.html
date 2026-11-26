@@ -68,6 +68,12 @@ border-radius:8px;color:var(--kin2);font-size:14px;letter-spacing:.1em;cursor:po
 .save-btn:active{background:rgba(201,164,76,.15);}
 .people-wrap{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;}
 .people-empty{font-size:12.5px;color:var(--washi);opacity:.45;letter-spacing:.05em;}
+/* 名前検索の枠を、保存用の入力欄と見分けやすくする（2026-11-26 追加） */
+.psearch{flex:1;position:relative;min-width:0;}
+.psearch .psearch-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;line-height:1;pointer-events:none;opacity:.9;}
+.psearch input{padding:11px 12px 11px 40px;background:rgba(201,164,76,.13);border:2px solid var(--kin);border-radius:999px;font-size:15px;box-shadow:inset 0 0 0 1px rgba(201,164,76,.18);}
+.psearch input::placeholder{color:var(--kin2);opacity:.75;}
+.psearch input:focus{background:rgba(201,164,76,.2);border-color:var(--kin2);box-shadow:0 0 0 4px rgba(224,196,120,.22);}
 .pchip{display:inline-flex;align-items:center;background:rgba(201,164,76,.10);
 border:1px solid rgba(201,164,76,.45);border-radius:999px;padding:8px 12px;
 font-size:13px;color:var(--washi);cursor:pointer;letter-spacing:.03em;}
@@ -586,7 +592,7 @@ table.kgsim th{white-space:nowrap;}
           名前を入力すると、ふりがなは自動で入ります（違っていれば書き換えてください。空欄のままでも保存できます）。
         </div>
         <div style="display:flex;gap:8px;margin-top:10px;align-items:stretch;">
-          <input type="text" id="inp-people-filter" placeholder="名前検索（名前かふりがな）" lang="ja" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="renderPeople()" oncompositionupdate="setTimeout(renderPeople,0)" style="flex:1;box-sizing:border-box;padding:10px 12px;background:#0f0c0a;border:1px solid rgba(201,164,76,.28);border-radius:8px;color:var(--washi);font-size:14px;">
+          <div class="psearch"><span class="psearch-ico" aria-hidden="true">🔍</span><input type="text" id="inp-people-filter" placeholder="名前で探す（名前かふりがな）" lang="ja" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="renderPeople()" oncompositionupdate="setTimeout(renderPeople,0)"></div>
           <button type="button" id="btn-people-edit" onclick="togglePeopleEdit()" style="flex:none;padding:10px 14px;background:#0f0c0a;border:1px solid rgba(201,164,76,.4);border-radius:8px;color:var(--kin2);font-size:13px;letter-spacing:.05em;cursor:pointer;white-space:nowrap;">整理する</button>
         </div>
         <div id="people-bulk-bar" style="display:none;margin-top:8px;">
@@ -2540,18 +2546,17 @@ function nenGetsuunHTML(d, yr){
         (aMark?'<span class="nengun-kaza-mark red" title="'+(hAnken&&kAnken?'本命・傾斜暗剣殺':kAnken?'傾斜暗剣殺':'本命暗剣殺')+'">'+aMark+'</span>':'')+
         (kGoou?'<span class="nengun-kaza-mark blue" title="傾斜五黄殺">●</span>':'');
       // 「注意」の印（2026-10-20 改訂、かぴさんの判断）：年運の三命殺（★☆）と同じ考え方で、次の7項目を数える。
-      //   四柱推命：忌神（月の天干が忌神）／冲（日支の沖・月冲・天戦地冲）／刑（冲と重ならないとき）／空亡（2026-10-20 追加）
+      //   四柱推命：忌神（干支の主役が忌神）／冲（日支の沖・月冲・天戦地冲）／空亡（2026-10-20 追加）
       //   九星気学：暗剣殺（本命か傾斜）／五黄殺（傾斜五黄殺）／本命坎宮／本命艮宮／本命中宮
       // 3つ以上＝「注意」（赤）、2つ＝薄い印。120人×10年の試算で、3つ以上は約3.5%（2〜3年に1回）、2つ以上は約21.8%（1年に約2.6か月）。
       const imi = d.KIIMI && d.KIIMI.imijin;
       const _el=[];
-      // 忌神：月の天干が忌神なら1つ（2026-11-25 改訂、かぴさんの判断）。
-      // 本（第10章）の「年運は天干を主に見る」に合わせ、月運も天干で見る。以前は大運のまとめと同じ5分類で、干か地支（本気）のどちらかを主役にしていた。
+      // 忌神：月の干支の「主役」が忌神なら1つ（2026-10-20 改訂、かぴさんの判断）。
+      // 主役は大運のまとめと同じ5分類で決める（専旺・扶干・蓋頭＝天干、漏干・載脚＝地支の本気）。
       { const gk=KAN_GOGYO[o.kan], gs=KAN_GOGYO[honki];
-        if(kiimiOf(gk, d.KIIMI, gs)==='imi') _el.push('忌神'); }
+        const useKan=(gk===gs)||gen(gs,gk)||ove(gk,gs);
+        if(kiimiOf(useKan?gk:gs, d.KIIMI, useKan?gs:gk)==='imi') _el.push('忌神'); }
       if(rels.includes('沖') || CHUU[d.mShi]===o.shi || isTensenChichu(d.dKan,d.dShi,o.kan,o.shi) || isTensenChichu(d.mKan,d.mShi,o.kan,o.shi)) _el.push('冲');
-      // 刑（2026-11-25 追加、かぴさんの判断）：三刑・刑・自刑も数える。ただし冲と重なる月は、同じ出来事の二重数えになるので数えない。
-      if((rels.includes('三刑')||rels.includes('刑')) && !_el.includes('冲')) _el.push('刑');
       if(hAnken || kAnken) _el.push('暗剣殺');
       if(kGoou) _el.push('五黄殺');
       if((d.kuubou||[]).includes(o.shi)) _el.push('空亡');   // 2026-10-20 追加（かぴさんの判断）。年運の三命殺と同じく真空・半空とも数える
@@ -6082,7 +6087,9 @@ const SJ_GLYPH={Sun:'☉',Moon:'☽',Mercury:'☿',Venus:'♀',Mars:'♂',Jupite
 const SJ_NAME ={Sun:'太陽',Moon:'月',Mercury:'水星',Venus:'金星',Mars:'火星',Jupiter:'木星',Saturn:'土星',Uranus:'天王星',Neptune:'海王星',Pluto:'冥王星'};
 const SJ_SIGN =['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
 const SJ_SIGNJP=['牡羊','牡牛','双子','蟹','獅子','乙女','天秤','蠍','射手','山羊','水瓶','魚'];
-const SJ_HARD =[[0,'合','☌',8],[90,'スクエア','□',6],[180,'オポジション','☍',8]];
+// スクエアのオーブは3度（2026-11-26 改訂、かぴさんの判断：6度→3度）。合・オポジションは8度のまま。
+const SJ_SQ_ORB=3;
+const SJ_HARD =[[0,'合','☌',8],[90,'スクエア','□',SJ_SQ_ORB],[180,'オポジション','☍',8]];
 // 凶角の種類ごとに線の色を分ける（2026-08-25 追加）。
 // 「N土星がTの何と90度なのか」が色だけで分かるように、角度の種類で固定の色を割り当てる。
 // オポジション(☍)は当初、月柱天戦地冲と同じ紫(#c78fff)にしていたが、
@@ -6268,7 +6275,7 @@ function sjNatalOpp(natal){
   return r;
 }
 
-// Tスクエアの検出（オーブ：スクエア6°・オポジション8°）
+// Tスクエアの検出（オーブ：スクエア3°・オポジション8°）
 //   ① ネイタルのオポジションに、トランジットが90°で乗る（頂点＝トランジット）
 //   ② トランジットとネイタルのオポジションに、別のネイタルが90°で乗る（頂点＝ネイタル）
 function sjTsquares(natal,date,natOpp){
@@ -6282,7 +6289,7 @@ function sjTsquares(natal,date,natOpp){
       // 外惑星どうしだけで組むものは頻度が高く個人差が出にくいため対象外にする、という判断。
       if(a!=='Sun'&&a!=='Moon'&&b!=='Sun'&&b!=='Moon') return;
       const s1=Math.abs(sjSep(tr[t],natal[a])-90), s2=Math.abs(sjSep(tr[t],natal[b])-90);
-      if(s1<=6&&s2<=6) res.push({apex:'T'+SJ_NAME[t],base:'N'+SJ_NAME[a]+'☍N'+SJ_NAME[b],
+      if(s1<=SJ_SQ_ORB&&s2<=SJ_SQ_ORB) res.push({apex:'T'+SJ_NAME[t],base:'N'+SJ_NAME[a]+'☍N'+SJ_NAME[b],
         slow:SJ_SLOW.includes(t), orb:Math.max(s1,s2,orb)});
     });
   });
@@ -6296,7 +6303,7 @@ function sjTsquares(natal,date,natOpp){
         // 同上：太陽か月が絡むものだけ（2026-08-26 追加）
         if(c!=='Sun'&&c!=='Moon'&&a!=='Sun'&&a!=='Moon') return;
         const s1=Math.abs(sjSep(natal[c],tr[t])-90), s2=Math.abs(sjSep(natal[c],natal[a])-90);
-        if(s1<=6&&s2<=6) res.push({apex:'N'+SJ_NAME[c],base:'T'+SJ_NAME[t]+'☍N'+SJ_NAME[a],
+        if(s1<=SJ_SQ_ORB&&s2<=SJ_SQ_ORB) res.push({apex:'N'+SJ_NAME[c],base:'T'+SJ_NAME[t]+'☍N'+SJ_NAME[a],
           slow:SJ_SLOW.includes(t), orb:Math.max(s1,s2)});
       });
     });
@@ -6324,7 +6331,7 @@ function sjGrandCross(natal,date,natOpp){
     if(![A.a,A.b,B.a,B.b].some(x=>x==='NSun'||x==='NMoon')) continue;
     const s1=Math.abs(sjSep(pos(A.a),pos(B.a))-90);
     const s2=Math.abs(sjSep(pos(A.a),pos(B.b))-90);
-    if(s1<=6&&s2<=6){
+    if(s1<=SJ_SQ_ORB&&s2<=SJ_SQ_ORB){
       const nm=x=>(x[0]==='T'?'T':'N')+SJ_NAME[x.slice(1)];
       res.push({label:nm(A.a)+'☍'+nm(A.b)+' × '+nm(B.a)+'☍'+nm(B.b),
         orb:Math.max(A.orb,B.orb,s1,s2),

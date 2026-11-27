@@ -1390,6 +1390,28 @@ function simRinsetsuKango(nK, yP, mP, dP, hP, hUnknown, zkDay, zkHour){
 // 根の点：本気1、余気0.4（辰戌未丑の余気4：本気6の割合に合わせる）
 const TOKUCHI_W=[1,0.4];
 const TOKUCHI_ZK={子:['癸'],丑:['己','癸'],寅:['甲'],卯:['乙'],辰:['戊','乙'],巳:['丙'],午:['丁'],未:['己','丁'],申:['庚'],酉:['辛'],戌:['戊','辛'],亥:['壬']};
+
+// ===== 本の身強身弱判定（第6章）=====
+function bookStrength(nK,yP,mP,dP,hP,hUnknown){
+  const RYO={hikyu:3,insho:2,shokusho:-1,zai:-2,kansat:-3};
+  const NAME={hikyu:'比劫',insho:'印',shokusho:'食傷',zai:'財',kansat:'官殺'};
+  const ROOT={木:'寅卯',火:'巳午',土:'丑辰未戌',金:'申酉',水:'子亥'};
+  const nG=KAN_GOGYO[nK];
+  const r=rel(nK,SHI_GOGYO[mP.shi]);
+  const ryo=RYO[r];
+  const useH=!hUnknown&&hP;
+  const rootShis=[['年',yP.shi],['日',dP.shi]].concat(useH?[['時',hP.shi]]:[]);
+  let chi=0,det=[];
+  rootShis.forEach(([l,sh])=>{const ok=ROOT[nG].includes(sh);if(ok)chi++;det.push(l+sh+(ok?'✓':'✗'));});
+  const slots=[yP.kan,mP.kan].concat(useH?[hP.kan]:[]).map(k=>KAN_GOGYO[k])
+    .concat([yP.shi,mP.shi,dP.shi].concat(useH?[hP.shi]:[]).map(sh=>KAN_GOGYO[ZOKAN[sh][0]]));
+  let ally=0,foe=0;
+  slots.forEach(g=>{const q=rel(nK,g);if(q==='hikyu'||q==='insho')ally++;else foe++;});
+  const diff=ally-foe;
+  const total=ryo+chi+diff;
+  const band=total>=2?'strong':total<=-2?'weak':'mid';
+  return{ryo,ryoName:NAME[r],chi,chiDet:det.join('　'),ally,foe,diff,total,band,mid:diff>0?'strong':'weak'};
+}
 function getTokuchi(nK,shis,toucans){
   const nG=KAN_GOGYO[nK];let score=0,det=[];
   const toucanSet=new Set(toucans||[]);
@@ -2621,7 +2643,7 @@ const NEN_TSUHEN_THEME={
    年運の干支を押して開く欄（通変星のテーマ）の下に、その年の12か月（立春の寅月〜翌年1月の丑月）を一覧で出す。
    ・月の干支（節入りで切り替わる）と、天干・地支（本気の蔵干）の通変星。色は年運と同じ喜神・忌神の色。
    ・地支の関係（沖・刑・合・三合は日支と月支、月冲、空亡、干合、天戦地冲）は、年運と同じ決まりで出す。
-   ・注意：年運の注意の年と同じ決まり（2026-11-25 改訂）。日柱併臨・天戦地冲（日柱・月柱）は一つで注意、沖・月冲・空亡・月柱併臨は二つ以上で注意。九星は2026-10-26に外した。
+   ・注意：併臨・天戦地冲・沖・空亡のうち二つ以上（第15章。九星は2026-10-26に外した）。
    月運は年の中の「いつ」を見るための目安。吉凶の土台は大運・年運で決める。 */
 function nenGetsuunHTML(d, yr){
   try{
@@ -2661,11 +2683,10 @@ function nenGetsuunHTML(d, yr){
       if(KANGO[d.nK]===o.kan) tags.push(pill('干合','#c78fff'));
       if(isTensenChichu(d.dKan,d.dShi,o.kan,o.shi)) tags.push(pill('天戦地冲（日）','#e0453c'));
       else if(isTensenChichu(d.mKan,d.mShi,o.kan,o.shi)) tags.push(pill('天戦地冲（月）','#e0453c'));
-      // 「注意」の印（2026-11-25 改訂、かぴさんの判断）：年運の注意の年（本の年運の章）と同じ決まりにそろえる。
-      //   一つで注意：日柱併臨・天戦地冲（日柱・月柱）
-      //   二つ以上で注意：沖（日支との沖・月冲）・空亡・月柱併臨（天戦地冲は沖を含むので、沖とは別に数えない）
-      //   以前は、四つのしるしが二つ以上重なる月だけを注意にしていたが、重なる月がほとんど無かった。
-      //   忌神は曇り具合として読むもので、数えない。九星は本版では扱わない。
+      // 「注意」の印（2026-10-26 改訂、第15章の決まりにそろえる）：次の四つのしるしが二つ以上重なる月。
+      //   併臨（月の干支が日柱・月柱と同じ）／天戦地冲（日柱・月柱）／沖（日支との沖・月冲）／空亡
+      //   天戦地冲は沖を含むので一つと数え、日柱と月柱の両方にかかるときは二つと数える。
+      //   忌神は曇り具合として軽く読むもので、数えない。九星は本版では扱わない。
       const _el=[];
       const tenN=isTensenChichu(d.dKan,d.dShi,o.kan,o.shi), tenM=isTensenChichu(d.mKan,d.mShi,o.kan,o.shi);
       if(o.kan===d.dKan && o.shi===d.dShi) _el.push('日柱併臨');
@@ -2675,8 +2696,7 @@ function nenGetsuunHTML(d, yr){
       if(CHUU[d.dShi]===o.shi && !tenN) _el.push('沖');
       if(CHUU[d.mShi]===o.shi && !tenM && d.mShi!==d.dShi) _el.push('月冲');
       if((d.kuubou||[]).includes(o.shi)) _el.push('空亡');
-      const _G1=['日柱併臨','天戦地冲（日柱）','天戦地冲（月柱）'];
-      const chui = _el.some(x=>_G1.includes(x)) || _el.filter(x=>!_G1.includes(x)).length>=2;
+      const chui = _el.length>=2;
       const bg = isNow ? 'background:rgba(212,176,90,.15);font-weight:700;' : (chui ? 'background:rgba(232,131,127,.08);' : '');
       h+='<tr style="'+bg+'">'+
         '<td style="'+tdS+'white-space:nowrap;">'+o.mm+'月<span style="display:block;font-size:10.5px;opacity:.65;font-weight:400;">'+stTxt+(isNow?' 今':'')+'</span>'+
@@ -2689,7 +2709,7 @@ function nenGetsuunHTML(d, yr){
         '<td style="'+tdS+'">'+tk+'<span style="opacity:.55;">／</span>'+ts+'</td>'+
       '</tr>';
     });
-    h+='</table><div style="font-size:11px;opacity:.6;margin-top:4px;line-height:1.6;">※月運は、年の中の「いつ動くか・いつ気をつけるか」を見る目安です。吉凶の土台は大運と年運で読みます。<span style="color:#fff;background:#c0392b;border-radius:3px;padding:0 3px;">注意</span>は、日柱併臨・天戦地冲がある月、または、沖（日支との沖・月冲）・空亡・月柱併臨のうち二つ以上が重なる月です。干支の色が赤い月（忌神）は、曇りがちな月として読みます。</div>';
+    h+='</table><div style="font-size:11px;opacity:.6;margin-top:4px;line-height:1.6;">※月運は、年の中の「いつ動くか・いつ気をつけるか」を見る目安です。吉凶の土台は大運と年運で読みます。<span style="color:#fff;background:#c0392b;border-radius:3px;padding:0 3px;">注意</span>は、併臨・天戦地冲・沖（日支との沖・月冲）・空亡のうち二つ以上が重なる月です（第15章）。干支の色が赤い月（忌神）は、曇りがちな月として軽く読みます。</div>';
     return h;
   }catch(e){ return ''; }
 }
@@ -4881,7 +4901,14 @@ function calculate(){
     ? getRinsetsu(nK, mP, dP, hP, hUnknown, _zkDayForRin, _zkHourForRin)
     : { score: 0, items: [] };
 
-  const total=Math.round((ryo.score+chi.score+rin.score)*10)/10;
+  // ===== 本の判定方法（第6章）：得令＋得地＋味方−敵 =====
+  // BOOK_RULE=false にすると、従来の細かい計算（得令の司令干・隣接など）に戻る。
+  const BOOK_RULE = true;
+  const totalOld=Math.round((ryo.score+chi.score+rin.score)*10)/10;
+  const bk = bookStrength(nK,yP,mP,dP,hP,hUnknown);
+  // 以降の処理（用神・赤LINE・大運年運・タイプ）は従来の境目で動くので、
+  // 本の3区分を従来の点数帯に写して渡す（強=3／中庸=1／弱=-1）。表示用の本の点数は bk.total。
+  const total = BOOK_RULE ? (bk.band==='strong'?3:bk.band==='weak'?-1:1) : totalOld;
   const _daysAfterSetsuCB=(mP.startUTC!=null)?Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000):null;
   const _zkForCB={
     年柱: zokanYearShi(yP.shi, m, d),
@@ -4889,10 +4916,10 @@ function calculate(){
     日柱: zokanDayShi(dP.shi, effH),
     時柱: hUnknown?null:zokanHourShi(hP.shi, effH, shiIdx)
   };
-  const midType=(total>TH_WEAK&&total<TH_STRONG)?calcChuoBalance(nK,yP,mP,dP,hUnknown?null:hP,hUnknown,_zkForCB):null;
+  const midType=(total>TH_WEAK&&total<TH_STRONG)?(BOOK_RULE?bk.mid:calcChuoBalance(nK,yP,mP,dP,hUnknown?null:hP,hUnknown,_zkForCB)):null;
   const gp=gogyo_points(nK,yP,mP,dP,hUnknown?null:hP,hUnknown);
   // 干合を隣接に入れた場合の試算（表示専用。total・判定には使わない）
-  const kgSim = RINSETSU_ON ? simRinsetsuKango(nK,yP,mP,dP,hUnknown?null:hP,hUnknown,_zkDayForRin,_zkHourForRin) : null;
+  const kgSim = (RINSETSU_ON&&!BOOK_RULE) ? simRinsetsuKango(nK,yP,mP,dP,hUnknown?null:hP,hUnknown,_zkDayForRin,_zkHourForRin) : null;
   let kgSimHTML='';
   if(kgSim && kgSim.touched){
     const simTotal=Math.round((ryo.score+chi.score+(rin.score-kgSim.before+kgSim.after))*10)/10;
@@ -5090,7 +5117,7 @@ function calculate(){
     const grp=(lab,col,list)=>'<div style="margin-bottom:8px;"><b style="color:'+col+';">'+lab+'</b>'+(list.length?list.join(''):'<div style="padding-left:1em;opacity:.6;">なし</div>')+'</div>';
     const rows=grp('喜神','#7fb3e8',ki)+grp('忌神','#e8837f',imi);
     return '<div id="yojin-card" class="card" style="margin-top:18px;">'+
-      '<div class="lamp">喜神・忌神（参考）</div>'+'<div style="margin-top:8px;font-size:12.5px;line-height:1.7;opacity:.85;text-align:center;">本の「助けになる五行」（扶抑）と違うときは、本の「喜神・忌神（助けになる五行の例外）」を見てください</div>'+
+      '<div class="lamp">喜神・忌神（参考）</div>'+'<div style="margin-top:8px;font-size:12.5px;line-height:1.7;opacity:.85;text-align:center;">本の第6章（扶抑）の「助けになる五行」と違うときは、第12章を見てください</div>'+
       '<div id="yojin-toggle" style="margin-top:14px;text-align:center;">'+
         '<button onclick="document.getElementById(\'yojin-body\').style.display=\'block\';document.getElementById(\'yojin-toggle\').style.display=\'none\';" '+
         'style="font-family:\'Shippori Mincho\',serif;font-size:15px;background:#2e5e3e;border:1px solid #7fbf8f;color:#fff;border-radius:10px;padding:12px 26px;cursor:pointer;letter-spacing:.12em;">'+
@@ -5691,7 +5718,7 @@ function calculate(){
         <!-- 2026-09-29 修正：赤（朱）のボタンは忌神・凶の赤表示と紛らわしいため、緑系のボタンに変更 -->
       </div>
       <div id="shinjyo-answer-body" style="display:none;">
-      <div class="score-num">${sc(total)}</div>
+      <div class="score-num">${sc(BOOK_RULE?bk.total:total)}</div>
       <div class="verdict">${verdict}</div>
       <div class="punch">${punch}</div>
       <div style="margin-top:16px;padding:12px 14px;background:rgba(0,0,0,.15);border-radius:10px;">
@@ -5738,22 +5765,22 @@ function calculate(){
       <div class="score-grid score-grid-3" style="margin-bottom:6px;">
       <div class="score-card">
         <div class="sc-lab">得令（月支）</div>
-        <div class="sc-val ${vc(ryo.score)}">${sc(ryo.score)}</div>
-        <div class="sc-note">${mP.shi}月支　${ryo.state}（×${ryo.cmdType==='本気'?'1.0':ryo.cmdType==='中気'?'0.7':'0.4'}）<br>${ryo.desc}</div>
+        <div class="sc-val ${vc(bk.ryo)}">${sc(bk.ryo)}</div>
+        <div class="sc-note">${mP.shi}月支（${SHI_GOGYO[mP.shi]}）＝日干から見て${bk.ryoName}</div>
       </div>
       <div class="score-card">
-        <div class="sc-lab">得地（通根）</div>
-        <div class="sc-val ${vc(chi.score)}">${sc(chi.score)}</div>
-        <div class="sc-note">${chi.det.slice().reverse().join('　')}<br>${hUnknown?'年支・日支':'年支・日支・時支'}</div>
+        <div class="sc-lab">得地（根っこ）</div>
+        <div class="sc-val ${vc(bk.chi)}">${sc(bk.chi)}</div>
+        <div class="sc-note">${bk.chiDet}<br>${hUnknown?'年支・日支':'年支・日支・時支'}</div>
       </div>
       <div class="score-card">
-        <div class="sc-lab">隣接（参考）</div>
-        <div class="sc-val ${vc(rin.score)}">${sc(rin.score)}</div>
-        <div class="sc-note">${rin.items.length?rin.items.map(it=>it.label+' '+it.kan+'('+it.state+')').join('　'):'該当なし'}<br>月干・日支・時干（本気）</div>
+        <div class="sc-lab">味方−敵</div>
+        <div class="sc-val ${vc(bk.diff)}">${sc(bk.diff)}</div>
+        <div class="sc-note">味方${bk.ally}−敵${bk.foe}<br>${hUnknown?'5か所':'7か所'}（地支は本気）</div>
       </div>
       </div>
       <div style="font-size:11px;color:var(--washi2);opacity:.65;margin-top:6px;letter-spacing:.05em;">
-        ※隣接は参考値です。得令・得地に足して合計点にしています。
+        合計 ${sc(bk.total)}（+2以上＝身強／−2以下＝身弱／その間＝中庸）
       </div>
     </div>
     <div class="card" style="margin-top:18px;">

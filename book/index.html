@@ -1409,7 +1409,8 @@ function bookStrength(nK,yP,mP,dP,hP,hUnknown){
   slots.forEach(g=>{const q=rel(nK,g);if(q==='hikyu'||q==='insho')ally++;else foe++;});
   const diff=ally-foe;
   const total=ryo+chi+diff;
-  const band=total>=2?'strong':total<=-2?'weak':'mid';
+  // 本は3区分（±2）。5段階表示のため、さらに±5以上を身旺／超身弱として分ける。
+  const band=total>=5?'master':total>=2?'strong':total<=-5?'zetsu':total<=-2?'weak':'mid';
   return{ryo,ryoName:NAME[r],chi,chiDet:det.join('　'),ally,foe,diff,total,band,mid:diff>0?'strong':'weak'};
 }
 function getTokuchi(nK,shis,toucans){
@@ -4907,8 +4908,8 @@ function calculate(){
   const totalOld=Math.round((ryo.score+chi.score+rin.score)*10)/10;
   const bk = bookStrength(nK,yP,mP,dP,hP,hUnknown);
   // 以降の処理（用神・赤LINE・大運年運・タイプ）は従来の境目で動くので、
-  // 本の3区分を従来の点数帯に写して渡す（強=3／中庸=1／弱=-1）。表示用の本の点数は bk.total。
-  const total = BOOK_RULE ? (bk.band==='strong'?3:bk.band==='weak'?-1:1) : totalOld;
+  // 本の判定を従来の点数帯に写して渡す（旺=6／強=3／中庸=1／弱=-1／超弱=-4）。表示用の本の点数は bk.total。
+  const total = BOOK_RULE ? ({master:6,strong:3,mid:1,weak:-1,zetsu:-4})[bk.band] : totalOld;
   const _daysAfterSetsuCB=(mP.startUTC!=null)?Math.floor((Date.UTC(y,m-1,d)-Date.UTC(...(function(a){return [a[0],a[1]-1,a[2]];})(toJstYMD(mP.startUTC))))/86400000):null;
   const _zkForCB={
     年柱: zokanYearShi(yP.shi, m, d),
@@ -5780,7 +5781,7 @@ function calculate(){
       </div>
       </div>
       <div style="font-size:11px;color:var(--washi2);opacity:.65;margin-top:6px;letter-spacing:.05em;">
-        合計 ${sc(bk.total)}（+2以上＝身強／−2以下＝身弱／その間＝中庸）
+        合計 ${sc(bk.total)}（+5以上＝身旺／+2以上＝身強／−1〜+1＝中庸／−2以下＝身弱／−5以下＝超身弱）
       </div>
     </div>
     <div class="card" style="margin-top:18px;">
